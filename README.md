@@ -1,211 +1,186 @@
-# EduConnect - Educational Platform
+# EduConnect - MERN Stack Application
 
-## 📚 Project Overview
-EduConnect is a modern educational platform built with the MERN stack (MongoDB, Express.js, React, Node.js) designed to connect students, teachers, and educational resources in a seamless digital environment.
+EduConnect is a full-stack educational platform built with the MERN stack (MongoDB, Express.js, React, Node.js).
 
-## 🛠️ Tech Stack
+## Project Structure
 
-### Frontend
-- **React** 18.2.0 - UI library
-- **React Router Dom** 6.14.0 - Navigation
-- **Axios** - HTTP client
-- **CSS3** - Styling
-
-### Backend
-- **Node.js** - Runtime environment
-- **Express.js** 5.2.1 - Web framework
-- **MongoDB** - Database
-- **Mongoose** 9.2.3 - ODM
-- **JWT** - Authentication
-- **bcryptjs** - Password hashing
-
-### Development Tools
-- **Nodemon** - Auto-reload server
-- **Concurrently** - Run multiple scripts
-
-## 👥 Team Members
-- **Dinithi** - Project Lead & Repository Owner
-- **Team Member 2** - [Role TBD]
-- **Team Member 3** - [Role TBD]
-- **Team Member 4** - [Role TBD]
-
-## 🎯 Project Goals
-1. Create a user-friendly educational platform
-2. Implement secure authentication and authorization
-3. Develop comprehensive course management system
-4. Build responsive dashboard for students and teachers
-5. Ensure responsive and accessible UI/UX
-
-## 📁 Project Structure
 ```
 EduConnect/
-├── backend/          # Express.js API
-│   ├── config/      # Configuration files
-│   ├── controllers/ # Route controllers
-│   ├── middleware/  # Custom middleware
-│   ├── models/      # Mongoose models
-│   ├── routes/      # API routes
-│   ├── utils/       # Utilities
-│   └── server.js    # Entry point
-├── frontend/        # React application
-│   ├── public/      # Static files
-│   └── src/         # React source
-│       ├── components/  # Reusable UI components
-│       ├── pages/       # Page components
-│       ├── context/     # React Context API
-│       └── services/    # API services
-└── docs/           # Documentation
+├── Backend/               # Node.js + Express backend
+│   ├── config/           # Database configuration
+│   ├── controllers/      # Request handlers
+│   ├── middleware/       # Custom middleware
+│   ├── models/          # MongoDB schemas
+│   ├── routes/          # API routes
+│   ├── utils/           # Utility functions
+│   ├── .env.example     # Environment variables template
+│   ├── .gitignore       # Git ignore file
+│   ├── package.json     # Backend dependencies
+│   ├── server.js        # Entry point
+│   └── README.md        # Backend documentation
+│
+└── Frontend/             # React frontend
+    ├── public/          # Static files
+    ├── src/
+    │   ├── components/  # Reusable components
+    │   ├── pages/       # Page components
+    │   ├── services/    # API services
+    │   ├── context/     # React Context
+    │   ├── utils/       # Helper functions
+    │   ├── App.js       # Main component
+    │   └── index.js     # Entry point
+    ├── .env.example     # Environment variables template
+    ├── .gitignore       # Git ignore file
+    ├── package.json     # Frontend dependencies
+    └── README.md        # Frontend documentation
 ```
 
-## 🚀 Quick Start
+## Getting Started
 
 ### Prerequisites
-- Node.js (v16 or higher)
-- MongoDB (v5.0 or higher)
-- Git
-- Code editor (VS Code recommended)
+- Node.js (v14 or higher)
+- MongoDB (v4.4 or higher)
+- npm or yarn
 
 ### Installation
 
-1. **Clone the repository**
+#### 1. Clone the repository
 ```bash
-git clone https://github.com/Dinithi-2000/EduConnect.git
+git clone <repository-url>
 cd EduConnect
 ```
 
-2. **Install all dependencies**
+#### 2. Backend Setup
 ```bash
-npm run install-all
+cd Backend
+npm install
 ```
 
-3. **Set up environment variables**
+Create a `.env` file based on `.env.example`:
 ```bash
-# Backend
-cd backend
 cp .env.example .env
-# Edit .env with your MongoDB URI and other settings
-
-# Frontend
-cd ../frontend
-cp .env.example .env
-# Edit .env with your API URL
 ```
 
-4. **Start MongoDB**
-```bash
-# Make sure MongoDB is running locally or use MongoDB Atlas
+Update the `.env` file with your configuration:
+```
+PORT=5000
+MONGODB_URI=mongodb://localhost:27017/educonnect
+JWT_SECRET=your_secret_key_here
+JWT_EXPIRE=7d
+CLIENT_URL=http://localhost:3000
 ```
 
-5. **Run the application**
+Start the backend server:
 ```bash
-# From root directory - runs both frontend and backend
 npm run dev
 ```
 
-The application will be available at:
-- **Frontend**: http://localhost:3000
-- **Backend API**: http://localhost:5000
+#### 3. Frontend Setup
+```bash
+cd ../Frontend
+npm install
+```
 
-For detailed setup instructions, see [SETUP.md](SETUP.md)
+Create a `.env` file based on `.env.example`:
+```bash
+cp .env.example .env
+```
 
-## 📊 Development Scripts
+Update the `.env` file:
+```
+REACT_APP_API_URL=http://localhost:5000/api
+```
 
-### Root Level
-- `npm run dev` - Run both frontend and backend concurrently
-- `npm run server` - Run backend only
-- `npm run client` - Run frontend only
-- `npm run install-all` - Install all dependencies
-- `npm run build` - Build frontend for production
+Start the React development server:
+```bash
+npm start
+```
+
+### Running the Application
+
+1. **Start MongoDB:**
+   ```bash
+   mongod
+   ```
+
+2. **Start Backend Server (Terminal 1):**
+   ```bash
+   cd Backend
+   npm run dev
+   ```
+   Backend will run on http://localhost:5000
+
+3. **Start Frontend Server (Terminal 2):**
+   ```bash
+   cd Frontend
+   npm start
+   ```
+   Frontend will run on http://localhost:3000
+
+## Technology Stack
 
 ### Backend
-- `npm run dev` - Run with nodemon (auto-reload)
-- `npm start` - Run production server
+- **Node.js** - JavaScript runtime
+- **Express.js** - Web application framework
+- **MongoDB** - NoSQL database
+- **Mongoose** - MongoDB object modeling
+- **JWT** - Authentication
+- **bcryptjs** - Password hashing
 
 ### Frontend
-- `npm start` - Start development server
-- `npm run build` - Build for production
-- `npm test` - Run tests
+- **React** - UI library
+- **React Router** - Client-side routing
+- **Axios** - HTTP client
+- **Context API** - State management
 
-## 🔑 Features
+## Features
 
-### Current Features
-✅ User authentication (Register/Login)  
-✅ JWT-based authorization  
-✅ Role-based access control (Student, Teacher, Admin)  
-✅ Course listing and details  
-✅ User dashboard  
-✅ Responsive design  
+- ✅ RESTful API architecture
+- ✅ User authentication with JWT
+- ✅ MongoDB database integration
+- ✅ React Router for navigation
+- ✅ Responsive design
+- ✅ Error handling middleware
+- ✅ Environment variables configuration
+- ✅ Modular folder structure
 
-### Planned Features
-📝 Course enrollment  
-📝 Progress tracking  
-📝 Assignments and quizzes  
-📝 Real-time chat  
-📝 Video lessons  
-📝 Certificate generation  
+## API Endpoints
 
-## 📊 API Endpoints
+### Users
+- `GET /api/users` - Get all users
+- `GET /api/users/:id` - Get user by ID
+- `POST /api/users` - Create new user
+- `PUT /api/users/:id` - Update user
+- `DELETE /api/users/:id` - Delete user
 
-### Authentication
-- `POST /api/auth/register` - Register new user
-- `POST /api/auth/login` - Login user
-- `GET /api/auth/me` - Get current user (Protected)
+## Development
 
-### Courses
-- `GET /api/courses` - Get all courses
-- `GET /api/courses/:id` - Get single course
-- `POST /api/courses` - Create course (Teacher/Admin)
-- `PUT /api/courses/:id` - Update course (Teacher/Admin)
-- `DELETE /api/courses/:id` - Delete course (Teacher/Admin)
+### Backend Development
+```bash
+cd Backend
+npm run dev    # Run with nodemon (auto-restart)
+npm start      # Run in production mode
+```
 
-## 📊 Project Board
-Track our progress on the [GitHub Project Board](https://github.com/Dinithi-2000/EduConnect/projects)
+### Frontend Development
+```bash
+cd Frontend
+npm start      # Development server with hot reload
+npm run build  # Production build
+```
 
-## 🔗 Important Links
-- [Setup Guide](SETUP.md)
-- [Team Todo Lists](docs/team-todos/)
-- [Contributing Guidelines](CONTRIBUTING.md)
-- [Project Board Guide](docs/PROJECT_BOARD_GUIDE.md)
+## Contributing
 
-## 📝 Documentation
-All project documentation can be found in the `/docs` folder.
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
 
-## 🤝 Contributing
-Please read [CONTRIBUTING.md](CONTRIBUTING.md) for details on our code of conduct and the process for submitting pull requests.
+## License
 
-## 📄 License
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License.
 
-## 🐛 Troubleshooting
+## Support
 
-### Common Issues
-
-**Port already in use**
-- Change PORT in `backend/.env`
-- Update `REACT_APP_API_URL` in `frontend/.env`
-
-**MongoDB connection error**
-- Ensure MongoDB is running
-- Check MONGO_URI in `.env`
-
-**Module not found**
-- Run `npm run install-all`
-
-**CORS errors**
-- Ensure backend is running
-- Check CLIENT_URL in backend `.env`
-
-## 📞 Contact
-For questions or concerns, please open an issue on GitHub or contact the project lead.
-
-## 🙏 Acknowledgments
-- React Team for the amazing library
-- Express.js community
-- MongoDB team
-- All contributors to this project
-
----
-
-**Built with ❤️ by the EduConnect Team**
-
-Last Updated: February 27, 2026
+For support and questions, please open an issue in the repository.

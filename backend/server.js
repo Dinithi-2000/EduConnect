@@ -1,17 +1,10 @@
-require('dotenv').config();
 const express = require('express');
+const mongoose = require('mongoose');
 const cors = require('cors');
-const connectDB = require('./config/database');
-const errorHandler = require('./middleware/errorHandler');
-const logger = require('./utils/logger');
-const { PORT } = require('./config/env');
+const dotenv = require('dotenv');
 
-// Route imports
-const authRoutes = require('./routes/authRoutes');
-const courseRoutes = require('./routes/courseRoutes');
-
-// Connect to database
-connectDB();
+// Load environment variables
+dotenv.config();
 
 const app = express();
 
@@ -20,36 +13,31 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Request logging
-app.use((req, res, next) => {
-  logger.info(`${req.method} ${req.path}`);
-  next();
-});
+// Database connection
+mongoose.connect(process.env.MONGODB_URI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+})
+.then(() => console.log('MongoDB connected successfully'))
+.catch((err) => console.error('MongoDB connection error:', err));
 
 // Routes
-app.use('/api/auth', authRoutes);
-app.use('/api/courses', courseRoutes);
+// app.use('/api/users', require('./routes/userRoutes'));
+// Add your routes here
 
-// Health check
-app.get('/api/health', (req, res) => {
-  res.status(200).json({
-    success: true,
-    message: 'EduConnect API is running',
-    timestamp: new Date().toISOString(),
-  });
+// Health check endpoint
+app.get('/', (req, res) => {
+    res.json({ message: 'EduConnect API is running' });
 });
 
-// Error handler middleware (must be last)
-app.use(errorHandler);
-
-const server = app.listen(PORT, () => {
-  logger.info(`Server running in ${process.env.NODE_ENV} mode on port ${PORT}`);
+// Error handling middleware
+app.use((err, req, res, next) => {
+    console.error(err.stack);
+    res.status(500).json({ message: 'Something went wrong!', error: err.message });
 });
 
-// Handle unhandled promise rejections
-process.on('unhandledRejection', (err, promise) => {
-  logger.error(`Unhandled Rejection: ${err.message}`);
-  server.close(() => process.exit(1));
-});
+const PORT = process.env.PORT || 5000;
 
-module.exports = app;
+app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
+});
