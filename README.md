@@ -64,7 +64,7 @@ cp .env.example .env
 Update the `.env` file with your configuration:
 ```
 PORT=5000
-MONGODB_URI=mongodb://localhost:27017/educonnect
+MONGODB_URI=mongodb+srv://educonnect-admin:educonnectAdmin123@educonnect-cluster.9pseo0d.mongodb.net/?appName=educonnect-cluster
 JWT_SECRET=your_secret_key_here
 JWT_EXPIRE=7d
 CLIENT_URL=http://localhost:3000
