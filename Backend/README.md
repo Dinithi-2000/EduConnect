@@ -18,7 +18,16 @@ MONGODB_URI=mongodb://localhost:27017/educonnect
 JWT_SECRET=your_jwt_secret_key_here
 JWT_EXPIRE=7d
 CLIENT_URL=http://localhost:3000
+OPENAI_API_KEY=your_openai_api_key_here
+OPENAI_MODEL=gpt-4o-mini
+GEMINI_API_KEY=your_gemini_api_key_here
+GEMINI_MODEL=gemini-1.5-flash
+AI_PROVIDER=gemini
 ```
+
+`AI_PROVIDER` can be `gemini`, `openai`, or `auto`.
+In `auto` mode, Gemini is preferred when `GEMINI_API_KEY` is available.
+If no provider key is present, the chatbot still works with a local fallback response mode.
 
 ### 3. Run the Application
 
@@ -56,6 +65,9 @@ Backend/
 - `POST /api/users` - Create new user
 - `PUT /api/users/:id` - Update user
 - `DELETE /api/users/:id` - Delete user
+
+### AI Chat
+- `POST /api/ai/chat` - Send chat message to EduConnect AI assistant
 
 ## Technologies Used
 
