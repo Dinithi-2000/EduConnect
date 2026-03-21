@@ -23,6 +23,9 @@ OPENAI_MODEL=gpt-4o-mini
 GEMINI_API_KEY=your_gemini_api_key_here
 GEMINI_MODEL=gemini-1.5-flash
 AI_PROVIDER=gemini
+STRIPE_SECRET_KEY=your_stripe_secret_key_here
+PAYPAL_CLIENT_ID=your_paypal_client_id_here
+PAYPAL_CLIENT_SECRET=your_paypal_client_secret_here
 ```
 
 `AI_PROVIDER` can be `gemini`, `openai`, or `auto`.
@@ -68,6 +71,26 @@ Backend/
 
 ### AI Chat
 - `POST /api/ai/chat` - Send chat message to EduConnect AI assistant
+- `POST /api/ai/train` - Add/update internal Q&A knowledge entries for RAG
+- `GET /api/ai/history/:studentId` - Load saved chat history for continuity
+
+### Commerce
+- `GET /api/commerce/premium-catalog` - List premium quizzes/courses available for purchase
+- `POST /api/commerce/complete-purchase` - Complete tokenized payment and unlock premium content
+
+## RAG Architecture (Chatbot)
+
+- Retrieval: Finds top internal knowledge entries from `Backend/data/knowledgeBase.json` based on question + student context.
+- Augmentation: Injects current course, recent activity, and retrieved docs into the model prompt.
+- Generation: Uses Gemini (`AI_PROVIDER=gemini`) or OpenAI fallback depending on environment.
+- Continuity: Saves and reloads chat history from `Backend/data/chatHistory.json`.
+- Recommendations: Returns related resources/quizzes/Kuppi suggestions in each response when possible.
+
+## Payment Security Notes
+
+- The purchase API accepts only gateway-generated tokens (`paymentToken`) from Stripe/PayPal.
+- Raw `cardNumber` and `cvv` are explicitly rejected.
+- Transaction, unlock, and receipt queue records are persisted for admin tracking and follow-up processing.
 
 ## Technologies Used
 

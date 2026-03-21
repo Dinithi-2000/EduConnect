@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { sendChatMessage } from '../services/aiService';
+import { getChatHistory, sendChatMessage } from '../services/aiService';
 import { API_URL } from '../services/api';
 import './Home.css';
 
@@ -9,6 +9,7 @@ const Home = () => {
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [chatInput, setChatInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
+  const [chatSuggestions, setChatSuggestions] = useState([]);
   const [chatMessages, setChatMessages] = useState([
     {
       id: 'welcome-msg',
@@ -19,6 +20,7 @@ const Home = () => {
     }
   ]);
   const chatBottomRef = useRef(null);
+  const studentId = 'student-dinithi';
 
   const statsData = [
     {
@@ -100,6 +102,12 @@ const Home = () => {
     'Give me 5 quiz questions on OOP'
   ];
 
+  const studentContext = {
+    currentCourse: 'Data Structures',
+    recentActivities: ['Completed quiz: OOP Basics', 'Viewed Kuppi schedule', 'Reviewed lecture notes'],
+    performanceSummary: 'Overall progress 85%, strongest area: OOP, needs practice: recursion'
+  };
+
   const getOfflineFallback = (text) => {
     const input = text.toLowerCase();
 
@@ -120,6 +128,29 @@ const Home = () => {
     }
   }, [chatMessages, isChatOpen]);
 
+  useEffect(() => {
+    const hydrateHistory = async () => {
+      try {
+        const response = await getChatHistory(studentId);
+        const items = response?.data || [];
+        if (items.length) {
+          setChatMessages(
+            items.map((item) => ({
+              id: item.id,
+              role: item.role,
+              content: item.content,
+              createdAt: item.createdAt
+            }))
+          );
+        }
+      } catch {
+        // Keep local welcome message when history fetch is unavailable.
+      }
+    };
+
+    hydrateHistory();
+  }, []);
+
   const getHistoryPayload = (messages) => {
     return messages.map((item) => ({ role: item.role, content: item.content }));
   };
@@ -135,6 +166,7 @@ const Home = () => {
       }
     ]);
     setChatInput('');
+    setChatSuggestions([]);
   };
 
   const handleSendMessage = async (messageOverride) => {
@@ -156,7 +188,12 @@ const Home = () => {
     setIsTyping(true);
 
     try {
-      const response = await sendChatMessage(outgoingText, getHistoryPayload(updatedMessages));
+      const response = await sendChatMessage(
+        outgoingText,
+        getHistoryPayload(updatedMessages),
+        studentContext,
+        studentId
+      );
       const botMessage = {
         id: `assistant-${Date.now()}`,
         role: 'assistant',
@@ -164,6 +201,7 @@ const Home = () => {
         createdAt: new Date().toISOString()
       };
       setChatMessages((prev) => [...prev, botMessage]);
+      setChatSuggestions(Array.isArray(response?.suggestions) ? response.suggestions : []);
     } catch (error) {
       const status = error?.response?.status;
       const cannotReachApi = !error?.response;
@@ -180,6 +218,7 @@ const Home = () => {
           createdAt: new Date().toISOString()
         }
       ]);
+      setChatSuggestions([]);
     } finally {
       setIsTyping(false);
     }
@@ -452,7 +491,7 @@ const Home = () => {
           </div>
 
           <div className="chat-quick-prompts">
-            {quickPrompts.map((prompt) => (
+            {(chatSuggestions.length ? chatSuggestions : quickPrompts).map((prompt) => (
               <button
                 key={prompt}
                 type="button"

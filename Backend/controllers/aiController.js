@@ -1,4 +1,17 @@
-const SYSTEM_PROMPT = `You are EduConnect Assistant, a helpful AI tutor for students. Keep answers concise, practical, and friendly. Use bullet points when useful. If asked outside education/student productivity, still answer briefly and steer back to learning support.`;
+const {
+  retrieveKnowledge,
+  addKnowledgeEntry,
+  appendChatHistory,
+  getChatHistory
+} = require('../utils/platformStore');
+
+const SYSTEM_PROMPT = `You are EduConnect Assistant, a helpful AI tutor for students.
+Rules:
+- Keep answers concise, practical, and friendly.
+- Use bullet points when useful.
+- Prioritize the supplied knowledge context when available.
+- Suggest relevant resources/quizzes/Kuppi sessions when appropriate.
+- If asked outside education/platform help, answer briefly and steer back to learning support.`;
 
 const buildFallbackReply = (message) => {
   const input = String(message || "").toLowerCase();
@@ -41,6 +54,25 @@ const toGeminiContents = (history = [], message = "") => {
       parts: [{ text: message }]
     }
   ];
+};
+
+const isUsableApiKey = (value) => {
+  const raw = String(value || '').trim();
+  if (!raw) return false;
+
+  const lowered = raw.toLowerCase();
+  const placeholderPatterns = ['your_', '_here', 'change_me', 'replace_me', 'example'];
+  return !placeholderPatterns.some((token) => lowered.includes(token));
+};
+
+const getGeminiModelCandidates = (primaryModel) => {
+  const fromEnv = String(process.env.GEMINI_MODEL_FALLBACKS || '')
+    .split(',')
+    .map((item) => item.trim())
+    .filter(Boolean);
+
+  const defaults = ['gemini-2.0-flash', 'gemini-1.5-flash-latest', 'gemini-1.5-flash'];
+  return [primaryModel, ...fromEnv, ...defaults].filter((model, idx, arr) => model && arr.indexOf(model) === idx);
 };
 
 const askOpenAI = async ({ message, history, apiKey, model }) => {
@@ -118,9 +150,62 @@ const askGemini = async ({ message, history, apiKey, model }) => {
   return reply;
 };
 
+const askGeminiWithFallbackModels = async ({ message, history, apiKey, primaryModel }) => {
+  const models = getGeminiModelCandidates(primaryModel);
+  let lastError = '';
+
+  for (const model of models) {
+    try {
+      const reply = await askGemini({ message, history, apiKey, model });
+      return { reply, model };
+    } catch (error) {
+      lastError = error.message;
+    }
+  }
+
+  throw new Error(lastError || 'Gemini request failed for all candidate models');
+};
+
+const formatContextBlock = ({ context, knowledge }) => {
+  const activityLine = Array.isArray(context?.recentActivities)
+    ? context.recentActivities.join(', ')
+    : '';
+  const performance = context?.performanceSummary || '';
+
+  const knowledgeLines = (knowledge || []).map((item, index) => {
+    const resourceList = Array.isArray(item.resources) && item.resources.length
+      ? `Resources: ${item.resources.join(', ')}`
+      : 'Resources: none';
+    return `Doc ${index + 1}: ${item.question}\nAnswer: ${item.answer}\n${resourceList}`;
+  });
+
+  return `Student Context:
+Current course: ${context?.currentCourse || 'Not provided'}
+Recent activities: ${activityLine || 'Not provided'}
+Performance: ${performance || 'Not provided'}
+
+Retrieved Knowledge:
+${knowledgeLines.length ? knowledgeLines.join('\n\n') : 'No relevant internal knowledge found.'}`;
+};
+
+const buildSuggestions = ({ context, knowledge }) => {
+  const suggested = new Set();
+
+  (knowledge || []).forEach((item) => {
+    (item.resources || []).forEach((resource) => suggested.add(resource));
+  });
+
+  if (context?.currentCourse) {
+    suggested.add(`${context.currentCourse} focused quiz set`);
+    suggested.add(`${context.currentCourse} Kuppi session`);
+  }
+
+  return Array.from(suggested).slice(0, 4);
+};
+
 const askAI = async (req, res) => {
   try {
-    const { message, history } = req.body || {};
+    const { message, history, context, studentId = 'guest-student' } = req.body || {};
 
     if (!message || typeof message !== "string") {
       return res.status(400).json({
@@ -137,66 +222,137 @@ const askAI = async (req, res) => {
       });
     }
 
+    await appendChatHistory({
+      studentId,
+      role: 'user',
+      content: trimmedMessage,
+      metadata: { context: context || {} }
+    });
+
+    const persistedHistory = await getChatHistory({ studentId, limit: 12 });
+    const mergedHistory = Array.isArray(history) && history.length
+      ? history
+      : persistedHistory.map((item) => ({ role: item.role, content: item.content }));
+
+    const knowledge = await retrieveKnowledge({
+      query: trimmedMessage,
+      context: context || {},
+      limit: 3
+    });
+    const suggestions = buildSuggestions({ context: context || {}, knowledge });
+
+    if (knowledge[0]?.score >= 8) {
+      const knowledgeReply = `${knowledge[0].answer}${suggestions.length ? `\n\nRecommended next:\n- ${suggestions.join('\n- ')}` : ''}`;
+      await appendChatHistory({
+        studentId,
+        role: 'assistant',
+        content: knowledgeReply,
+        metadata: { source: 'knowledge-base', suggestions }
+      });
+
+      return res.json({
+        success: true,
+        reply: knowledgeReply,
+        source: 'knowledge-base',
+        suggestions,
+        contextUsed: Boolean(context)
+      });
+    }
+
     const provider = String(process.env.AI_PROVIDER || "auto").toLowerCase();
     const openAIKey = process.env.OPENAI_API_KEY;
     const openAIModel = process.env.OPENAI_MODEL || "gpt-4o-mini";
     const geminiKey = process.env.GEMINI_API_KEY;
     const geminiModel = process.env.GEMINI_MODEL || "gemini-1.5-flash";
 
-    if (!openAIKey && !geminiKey) {
+    const validOpenAIKey = isUsableApiKey(openAIKey) ? openAIKey : '';
+    const validGeminiKey = isUsableApiKey(geminiKey) ? geminiKey : '';
+
+    if (!validOpenAIKey && !validGeminiKey) {
       return res.json({
         success: true,
         reply: buildFallbackReply(trimmedMessage),
-        source: "fallback"
+        source: "fallback",
+        suggestions,
+        contextUsed: Boolean(context)
       });
     }
 
-    const canUseGemini = Boolean(geminiKey);
-    const canUseOpenAI = Boolean(openAIKey);
+    const canUseGemini = Boolean(validGeminiKey);
+    const canUseOpenAI = Boolean(validOpenAIKey);
     const preferGemini = provider === "gemini" || (provider === "auto" && canUseGemini);
     const preferOpenAI = provider === "openai" || (provider === "auto" && !canUseGemini && canUseOpenAI);
 
     let reply = "";
     let source = "";
+    const groundedPrompt = `${formatContextBlock({ context: context || {}, knowledge })}
 
-    if (preferGemini && canUseGemini) {
-      reply = await askGemini({
-        message: trimmedMessage,
-        history,
-        apiKey: geminiKey,
-        model: geminiModel
-      });
-      source = "gemini";
-    } else if (preferOpenAI && canUseOpenAI) {
-      reply = await askOpenAI({
-        message: trimmedMessage,
-        history,
-        apiKey: openAIKey,
-        model: openAIModel
-      });
-      source = "openai";
-    } else if (canUseGemini) {
-      reply = await askGemini({
-        message: trimmedMessage,
-        history,
-        apiKey: geminiKey,
-        model: geminiModel
-      });
-      source = "gemini";
-    } else {
-      reply = await askOpenAI({
-        message: trimmedMessage,
-        history,
-        apiKey: openAIKey,
-        model: openAIModel
-      });
-      source = "openai";
+Student question: ${trimmedMessage}
+
+Answer using only relevant details from student context and retrieved knowledge when possible. If missing data, state assumptions briefly.`;
+
+    const attempts = [];
+    if (preferGemini && canUseGemini) attempts.push('gemini');
+    if (preferOpenAI && canUseOpenAI) attempts.push('openai');
+    if (canUseGemini && !attempts.includes('gemini')) attempts.push('gemini');
+    if (canUseOpenAI && !attempts.includes('openai')) attempts.push('openai');
+
+    let lastProviderError = '';
+
+    for (const attempt of attempts) {
+      try {
+        if (attempt === 'gemini') {
+          const geminiResult = await askGeminiWithFallbackModels({
+            message: groundedPrompt,
+            history: mergedHistory,
+            apiKey: validGeminiKey,
+            primaryModel: geminiModel
+          });
+          reply = geminiResult.reply;
+          source = 'gemini';
+          break;
+        }
+
+        if (attempt === 'openai') {
+          reply = await askOpenAI({
+            message: groundedPrompt,
+            history: mergedHistory,
+            apiKey: validOpenAIKey,
+            model: openAIModel
+          });
+          source = 'openai';
+          break;
+        }
+      } catch (providerError) {
+        lastProviderError = providerError.message;
+      }
     }
+
+    if (!reply) {
+      const hasAuthError = /invalid|key|auth|unauthorized|forbidden/i.test(lastProviderError || '');
+      const hasRateLimitError = /429|too many requests|quota|rate limit|resource_exhausted/i.test(lastProviderError || '');
+      const reason = hasAuthError
+        ? 'provider credentials are not configured correctly'
+        : hasRateLimitError
+          ? 'provider quota/rate limit has been reached'
+          : 'provider is temporarily unavailable';
+      reply = `${buildFallbackReply(trimmedMessage)}\n\nNote: Live AI response is unavailable right now because ${reason}.`;
+      source = 'fallback';
+    }
+
+    await appendChatHistory({
+      studentId,
+      role: 'assistant',
+      content: reply,
+      metadata: { source, suggestions }
+    });
 
     return res.json({
       success: true,
       reply,
-      source
+      source,
+      suggestions,
+      contextUsed: Boolean(context)
     });
   } catch (error) {
     return res.status(500).json({
@@ -207,6 +363,61 @@ const askAI = async (req, res) => {
   }
 };
 
+const trainKnowledge = async (req, res) => {
+  try {
+    const { question, answer, aliases, tags, resources } = req.body || {};
+
+    if (!question || !answer) {
+      return res.status(400).json({
+        success: false,
+        message: 'question and answer are required'
+      });
+    }
+
+    const result = await addKnowledgeEntry({
+      question,
+      answer,
+      aliases,
+      tags,
+      resources
+    });
+
+    return res.status(201).json({
+      success: true,
+      message: 'Knowledge entry added',
+      data: result.entry,
+      count: result.count
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to train knowledge base',
+      error: error.message
+    });
+  }
+};
+
+const getStudentHistory = async (req, res) => {
+  try {
+    const studentId = req.params.studentId || 'guest-student';
+    const items = await getChatHistory({ studentId, limit: 40 });
+    return res.json({
+      success: true,
+      studentId,
+      count: items.length,
+      data: items
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to fetch chat history',
+      error: error.message
+    });
+  }
+};
+
 module.exports = {
-  askAI
+  askAI,
+  trainKnowledge,
+  getStudentHistory
 };

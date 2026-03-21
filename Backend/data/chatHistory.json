@@ -1,0 +1,590 @@
+[
+  {
+    "id": "msg-1774118052863-838",
+    "studentId": "student-dinithi",
+    "role": "user",
+    "content": "HI",
+    "metadata": {
+      "context": {
+        "currentCourse": "Data Structures",
+        "recentActivities": [
+          "Completed quiz: OOP Basics",
+          "Viewed Kuppi schedule",
+          "Reviewed lecture notes"
+        ],
+        "performanceSummary": "Overall progress 85%, strongest area: OOP, needs practice: recursion"
+      }
+    },
+    "createdAt": "2026-03-21T18:34:12.864Z"
+  },
+  {
+    "id": "msg-1774118957723-707",
+    "studentId": "student-dinithi",
+    "role": "user",
+    "content": "hi",
+    "metadata": {
+      "context": {
+        "currentCourse": "Data Structures",
+        "recentActivities": [
+          "Completed quiz: OOP Basics",
+          "Viewed Kuppi schedule",
+          "Reviewed lecture notes"
+        ],
+        "performanceSummary": "Overall progress 85%, strongest area: OOP, needs practice: recursion"
+      }
+    },
+    "createdAt": "2026-03-21T18:49:17.723Z"
+  },
+  {
+    "id": "msg-1774118958864-692",
+    "studentId": "student-dinithi",
+    "role": "user",
+    "content": "hi",
+    "metadata": {
+      "context": {
+        "currentCourse": "Data Structures",
+        "recentActivities": [
+          "Completed quiz: OOP Basics",
+          "Viewed Kuppi schedule",
+          "Reviewed lecture notes"
+        ],
+        "performanceSummary": "Overall progress 85%, strongest area: OOP, needs practice: recursion"
+      }
+    },
+    "createdAt": "2026-03-21T18:49:18.864Z"
+  },
+  {
+    "id": "msg-1774118969175-902",
+    "studentId": "student-dinithi",
+    "role": "user",
+    "content": "Create a 7-day exam study plan",
+    "metadata": {
+      "context": {
+        "currentCourse": "Data Structures",
+        "recentActivities": [
+          "Completed quiz: OOP Basics",
+          "Viewed Kuppi schedule",
+          "Reviewed lecture notes"
+        ],
+        "performanceSummary": "Overall progress 85%, strongest area: OOP, needs practice: recursion"
+      }
+    },
+    "createdAt": "2026-03-21T18:49:29.175Z"
+  },
+  {
+    "id": "msg-1774118970596-667",
+    "studentId": "student-dinithi",
+    "role": "user",
+    "content": "Create a 7-day exam study plan",
+    "metadata": {
+      "context": {
+        "currentCourse": "Data Structures",
+        "recentActivities": [
+          "Completed quiz: OOP Basics",
+          "Viewed Kuppi schedule",
+          "Reviewed lecture notes"
+        ],
+        "performanceSummary": "Overall progress 85%, strongest area: OOP, needs practice: recursion"
+      }
+    },
+    "createdAt": "2026-03-21T18:49:30.596Z"
+  },
+  {
+    "id": "msg-1774119052223-314",
+    "studentId": "guest-student",
+    "role": "user",
+    "content": "ping",
+    "metadata": {
+      "context": {}
+    },
+    "createdAt": "2026-03-21T18:50:52.223Z"
+  },
+  {
+    "id": "msg-1774119165264-891",
+    "studentId": "guest-student",
+    "role": "user",
+    "content": "hello from browser",
+    "metadata": {
+      "context": {}
+    },
+    "createdAt": "2026-03-21T18:52:45.264Z"
+  },
+  {
+    "id": "msg-1774119236965-869",
+    "studentId": "guest-student",
+    "role": "user",
+    "content": "test",
+    "metadata": {
+      "context": {}
+    },
+    "createdAt": "2026-03-21T18:53:56.965Z"
+  },
+  {
+    "id": "msg-1774119331365-93",
+    "studentId": "guest-student",
+    "role": "user",
+    "content": "Are you online?",
+    "metadata": {
+      "context": {}
+    },
+    "createdAt": "2026-03-21T18:55:31.365Z"
+  },
+  {
+    "id": "msg-1774119355457-733",
+    "studentId": "guest-student",
+    "role": "user",
+    "content": "hello",
+    "metadata": {
+      "context": {}
+    },
+    "createdAt": "2026-03-21T18:55:55.457Z"
+  },
+  {
+    "id": "msg-1774119419431-153",
+    "studentId": "guest-student",
+    "role": "user",
+    "content": "hello",
+    "metadata": {
+      "context": {}
+    },
+    "createdAt": "2026-03-21T18:56:59.431Z"
+  },
+  {
+    "id": "msg-1774119448689-293",
+    "studentId": "guest-student",
+    "role": "user",
+    "content": "hello",
+    "metadata": {
+      "context": {}
+    },
+    "createdAt": "2026-03-21T18:57:28.689Z"
+  },
+  {
+    "id": "msg-1774119449787-9",
+    "studentId": "guest-student",
+    "role": "assistant",
+    "content": "I can help with study plans, topic explanations, quizzes, and productivity tips. Ask me something like: 'Create a 7-day data structures revision plan'.\n\nNote: AI provider is temporarily unavailable (OpenAI request failed: {\n    \"error\": {\n        \"message\": \"Incorrect API key provided: your_ope************here. You can find your API key at https://platform.openai.com/account/api-keys.\",\n        \"type\": \"invalid_request_error\",\n        \"param\": null,\n        \"code\": \"invalid_api_key\"\n    }\n}\n).",
+    "metadata": {
+      "source": "fallback",
+      "suggestions": []
+    },
+    "createdAt": "2026-03-21T18:57:29.787Z"
+  },
+  {
+    "id": "msg-1774119467388-424",
+    "studentId": "guest-student",
+    "role": "user",
+    "content": "hello",
+    "metadata": {
+      "context": {}
+    },
+    "createdAt": "2026-03-21T18:57:47.388Z"
+  },
+  {
+    "id": "msg-1774119468194-586",
+    "studentId": "guest-student",
+    "role": "assistant",
+    "content": "I can help with study plans, topic explanations, quizzes, and productivity tips. Ask me something like: 'Create a 7-day data structures revision plan'.\n\nNote: Live AI response is unavailable right now because provider credentials are not configured correctly.",
+    "metadata": {
+      "source": "fallback",
+      "suggestions": []
+    },
+    "createdAt": "2026-03-21T18:57:48.194Z"
+  },
+  {
+    "id": "msg-1774119636943-373",
+    "studentId": "student-dinithi",
+    "role": "user",
+    "content": "hi",
+    "metadata": {
+      "context": {
+        "currentCourse": "Data Structures",
+        "recentActivities": [
+          "Completed quiz: OOP Basics",
+          "Viewed Kuppi schedule",
+          "Reviewed lecture notes"
+        ],
+        "performanceSummary": "Overall progress 85%, strongest area: OOP, needs practice: recursion"
+      }
+    },
+    "createdAt": "2026-03-21T19:00:36.943Z"
+  },
+  {
+    "id": "msg-1774119638216-643",
+    "studentId": "student-dinithi",
+    "role": "assistant",
+    "content": "I can help with study plans, topic explanations, quizzes, and productivity tips. Ask me something like: 'Create a 7-day data structures revision plan'.\n\nNote: Live AI response is unavailable right now because provider credentials are not configured correctly.",
+    "metadata": {
+      "source": "fallback",
+      "suggestions": [
+        "OOP quiz set",
+        "Kuppi: Object-Oriented Design",
+        "Upcoming Kuppi panel",
+        "Notification bell"
+      ]
+    },
+    "createdAt": "2026-03-21T19:00:38.216Z"
+  },
+  {
+    "id": "msg-1774119652696-567",
+    "studentId": "student-dinithi",
+    "role": "user",
+    "content": "Kuppi: Object-Oriented Design",
+    "metadata": {
+      "context": {
+        "currentCourse": "Data Structures",
+        "recentActivities": [
+          "Completed quiz: OOP Basics",
+          "Viewed Kuppi schedule",
+          "Reviewed lecture notes"
+        ],
+        "performanceSummary": "Overall progress 85%, strongest area: OOP, needs practice: recursion"
+      }
+    },
+    "createdAt": "2026-03-21T19:00:52.696Z"
+  },
+  {
+    "id": "msg-1774119653568-444",
+    "studentId": "student-dinithi",
+    "role": "assistant",
+    "content": "I can help with study plans, topic explanations, quizzes, and productivity tips. Ask me something like: 'Create a 7-day data structures revision plan'.\n\nNote: Live AI response is unavailable right now because provider credentials are not configured correctly.",
+    "metadata": {
+      "source": "fallback",
+      "suggestions": [
+        "OOP quiz set",
+        "Kuppi: Object-Oriented Design",
+        "Upcoming Kuppi panel",
+        "Notification bell"
+      ]
+    },
+    "createdAt": "2026-03-21T19:00:53.568Z"
+  },
+  {
+    "id": "msg-1774119701916-425",
+    "studentId": "student-dinithi",
+    "role": "user",
+    "content": "Create a 7-day exam study plan",
+    "metadata": {
+      "context": {
+        "currentCourse": "Data Structures",
+        "recentActivities": [
+          "Completed quiz: OOP Basics",
+          "Viewed Kuppi schedule",
+          "Reviewed lecture notes"
+        ],
+        "performanceSummary": "Overall progress 85%, strongest area: OOP, needs practice: recursion"
+      }
+    },
+    "createdAt": "2026-03-21T19:01:41.916Z"
+  },
+  {
+    "id": "msg-1774119702852-382",
+    "studentId": "student-dinithi",
+    "role": "assistant",
+    "content": "Great question. Try this quick exam plan:\n1. Split topics into daily blocks.\n2. Use 25-minute focused sessions with 5-minute breaks.\n3. End each day with 10 mixed recall questions.\n4. Track weak topics and revisit after 48 hours.\n\nNote: Live AI response is unavailable right now because provider credentials are not configured correctly.",
+    "metadata": {
+      "source": "fallback",
+      "suggestions": [
+        "OOP quiz set",
+        "Kuppi: Object-Oriented Design",
+        "Weekly Performance dashboard",
+        "Upcoming Kuppi sessions"
+      ]
+    },
+    "createdAt": "2026-03-21T19:01:42.852Z"
+  },
+  {
+    "id": "msg-1774119848615-296",
+    "studentId": "student-dinithi",
+    "role": "user",
+    "content": "Explain polymorphism in simple words",
+    "metadata": {
+      "context": {}
+    },
+    "createdAt": "2026-03-21T19:04:08.616Z"
+  },
+  {
+    "id": "msg-1774119849520-566",
+    "studentId": "student-dinithi",
+    "role": "assistant",
+    "content": "I can help with study plans, topic explanations, quizzes, and productivity tips. Ask me something like: 'Create a 7-day data structures revision plan'.\n\nNote: Live AI response is unavailable right now because provider is temporarily unavailable.",
+    "metadata": {
+      "source": "fallback",
+      "suggestions": [
+        "OOP quiz set",
+        "Kuppi: Object-Oriented Design"
+      ]
+    },
+    "createdAt": "2026-03-21T19:04:09.520Z"
+  },
+  {
+    "id": "msg-1774119888270-899",
+    "studentId": "student-dinithi",
+    "role": "user",
+    "content": "Explain polymorphism in simple words",
+    "metadata": {
+      "context": {}
+    },
+    "createdAt": "2026-03-21T19:04:48.270Z"
+  },
+  {
+    "id": "msg-1774119889146-894",
+    "studentId": "student-dinithi",
+    "role": "assistant",
+    "content": "I can help with study plans, topic explanations, quizzes, and productivity tips. Ask me something like: 'Create a 7-day data structures revision plan'.\n\nNote: Live AI response is unavailable right now because provider is temporarily unavailable.",
+    "metadata": {
+      "source": "fallback",
+      "suggestions": [
+        "OOP quiz set",
+        "Kuppi: Object-Oriented Design"
+      ]
+    },
+    "createdAt": "2026-03-21T19:04:49.146Z"
+  },
+  {
+    "id": "msg-1774119938687-460",
+    "studentId": "student-dinithi",
+    "role": "user",
+    "content": "hello",
+    "metadata": {
+      "context": {}
+    },
+    "createdAt": "2026-03-21T19:05:38.687Z"
+  },
+  {
+    "id": "msg-1774119939951-816",
+    "studentId": "student-dinithi",
+    "role": "assistant",
+    "content": "I can help with study plans, topic explanations, quizzes, and productivity tips. Ask me something like: 'Create a 7-day data structures revision plan'.\n\nNote: Live AI response is unavailable right now because provider is temporarily unavailable.",
+    "metadata": {
+      "source": "fallback",
+      "suggestions": []
+    },
+    "createdAt": "2026-03-21T19:05:39.951Z"
+  },
+  {
+    "id": "msg-1774119973349-824",
+    "studentId": "student-dinithi",
+    "role": "user",
+    "content": "hello",
+    "metadata": {
+      "context": {}
+    },
+    "createdAt": "2026-03-21T19:06:13.350Z"
+  },
+  {
+    "id": "msg-1774119974416-80",
+    "studentId": "student-dinithi",
+    "role": "assistant",
+    "content": "I can help with study plans, topic explanations, quizzes, and productivity tips. Ask me something like: 'Create a 7-day data structures revision plan'.\n\nNote: Live AI response is unavailable right now because provider is temporarily unavailable.",
+    "metadata": {
+      "source": "fallback",
+      "suggestions": []
+    },
+    "createdAt": "2026-03-21T19:06:14.416Z"
+  },
+  {
+    "id": "msg-1774120077772-630",
+    "studentId": "student-dinithi",
+    "role": "user",
+    "content": "hi[",
+    "metadata": {
+      "context": {
+        "currentCourse": "Data Structures",
+        "recentActivities": [
+          "Completed quiz: OOP Basics",
+          "Viewed Kuppi schedule",
+          "Reviewed lecture notes"
+        ],
+        "performanceSummary": "Overall progress 85%, strongest area: OOP, needs practice: recursion"
+      }
+    },
+    "createdAt": "2026-03-21T19:07:57.772Z"
+  },
+  {
+    "id": "msg-1774120079070-303",
+    "studentId": "student-dinithi",
+    "role": "assistant",
+    "content": "I can help with study plans, topic explanations, quizzes, and productivity tips. Ask me something like: 'Create a 7-day data structures revision plan'.\n\nNote: Live AI response is unavailable right now because provider is temporarily unavailable.",
+    "metadata": {
+      "source": "fallback",
+      "suggestions": [
+        "OOP quiz set",
+        "Kuppi: Object-Oriented Design",
+        "Upcoming Kuppi panel",
+        "Notification bell"
+      ]
+    },
+    "createdAt": "2026-03-21T19:07:59.070Z"
+  },
+  {
+    "id": "msg-1774120119571-822",
+    "studentId": "student-dinithi",
+    "role": "user",
+    "content": "hi",
+    "metadata": {
+      "context": {
+        "currentCourse": "Data Structures",
+        "recentActivities": [
+          "Completed quiz: OOP Basics",
+          "Viewed Kuppi schedule",
+          "Reviewed lecture notes"
+        ],
+        "performanceSummary": "Overall progress 85%, strongest area: OOP, needs practice: recursion"
+      }
+    },
+    "createdAt": "2026-03-21T19:08:39.571Z"
+  },
+  {
+    "id": "msg-1774120123017-924",
+    "studentId": "student-dinithi",
+    "role": "assistant",
+    "content": "Hi there! How can I help you today?\n\nI can assist with things like:\n*   Study plans for your Data Structures course\n*   Explaining topics (like polymorphism, since you just finished an OOP quiz!)\n*   Quizzes or practice questions\n*   Productivity tips\n\nWhat's on your mind?",
+    "metadata": {
+      "source": "gemini",
+      "suggestions": [
+        "OOP quiz set",
+        "Kuppi: Object-Oriented Design",
+        "Upcoming Kuppi panel",
+        "Notification bell"
+      ]
+    },
+    "createdAt": "2026-03-21T19:08:43.017Z"
+  },
+  {
+    "id": "msg-1774120154693-41",
+    "studentId": "student-dinithi",
+    "role": "user",
+    "content": "Study plans for your Data Structures course",
+    "metadata": {
+      "context": {
+        "currentCourse": "Data Structures",
+        "recentActivities": [
+          "Completed quiz: OOP Basics",
+          "Viewed Kuppi schedule",
+          "Reviewed lecture notes"
+        ],
+        "performanceSummary": "Overall progress 85%, strongest area: OOP, needs practice: recursion"
+      }
+    },
+    "createdAt": "2026-03-21T19:09:14.693Z"
+  },
+  {
+    "id": "msg-1774120157827-446",
+    "studentId": "student-dinithi",
+    "role": "assistant",
+    "content": "Great idea to get a study plan for Data Structures! Based on your progress and areas for",
+    "metadata": {
+      "source": "gemini",
+      "suggestions": [
+        "OOP quiz set",
+        "Kuppi: Object-Oriented Design",
+        "Weekly Performance dashboard",
+        "Upcoming Kuppi sessions"
+      ]
+    },
+    "createdAt": "2026-03-21T19:09:17.827Z"
+  },
+  {
+    "id": "msg-1774120165878-183",
+    "studentId": "student-dinithi",
+    "role": "user",
+    "content": "Kuppi: Object-Oriented Design",
+    "metadata": {
+      "context": {
+        "currentCourse": "Data Structures",
+        "recentActivities": [
+          "Completed quiz: OOP Basics",
+          "Viewed Kuppi schedule",
+          "Reviewed lecture notes"
+        ],
+        "performanceSummary": "Overall progress 85%, strongest area: OOP, needs practice: recursion"
+      }
+    },
+    "createdAt": "2026-03-21T19:09:25.878Z"
+  },
+  {
+    "id": "msg-1774120168610-62",
+    "studentId": "student-dinithi",
+    "role": "assistant",
+    "content": "That's a great choice! The \"Kuppi: Object-Oriented Design\" session would be perfect for you, especially since you just completed the OOP Basics quiz and OOP is your strongest area.\n\nHere's how you can join:\n*   **Find it:** Look for \"Upcoming Kuppi\" on your dashboard.\n*   **Select:** Choose the \"Object-Oriented Design\" session.\n*   **Reminder:** Set a reminder so you don't miss it!\n*   **Join:** At the start time, you can join directly from its session card.\n\nThis Kuppi session will likely delve deeper into concepts like polymorphism, which means \"one interface, many forms\" – where the same method name can behave differently based on the object type. It's a fantastic way to strengthen your understanding even further!",
+    "metadata": {
+      "source": "gemini",
+      "suggestions": [
+        "OOP quiz set",
+        "Kuppi: Object-Oriented Design",
+        "Upcoming Kuppi panel",
+        "Notification bell"
+      ]
+    },
+    "createdAt": "2026-03-21T19:09:28.610Z"
+  },
+  {
+    "id": "msg-1774120175567-637",
+    "studentId": "student-dinithi",
+    "role": "user",
+    "content": "Upcoming Kuppi panel",
+    "metadata": {
+      "context": {
+        "currentCourse": "Data Structures",
+        "recentActivities": [
+          "Completed quiz: OOP Basics",
+          "Viewed Kuppi schedule",
+          "Reviewed lecture notes"
+        ],
+        "performanceSummary": "Overall progress 85%, strongest area: OOP, needs practice: recursion"
+      }
+    },
+    "createdAt": "2026-03-21T19:09:35.567Z"
+  },
+  {
+    "id": "msg-1774120178430-734",
+    "studentId": "student-dinithi",
+    "role": "assistant",
+    "content": "You can find the \"Upcoming Kuppi panel\" right on your dashboard!\n\nHere's how to use it:\n*   **Locate:** Find and open the \"Upcoming Kuppi\" section on your dashboard.\n*   **Browse:** You'll see a list of upcoming live sessions.\n*   **Select:** Choose a session that interests you. Since OOP is your strongest area and you just finished the OOP Basics quiz, the **Kuppi: Object-Oriented Design** session would be a fantastic choice to deepen your understanding of concepts like polymorphism.\n*   **Reminder:** You can set a reminder so you don't miss it.\n*   **Join:** At the scheduled start time, you can join the session directly from its card on the panel.",
+    "metadata": {
+      "source": "gemini",
+      "suggestions": [
+        "OOP quiz set",
+        "Kuppi: Object-Oriented Design",
+        "Upcoming Kuppi panel",
+        "Notification bell"
+      ]
+    },
+    "createdAt": "2026-03-21T19:09:38.430Z"
+  },
+  {
+    "id": "msg-1774120179641-122",
+    "studentId": "student-dinithi",
+    "role": "user",
+    "content": "OOP quiz set",
+    "metadata": {
+      "context": {
+        "currentCourse": "Data Structures",
+        "recentActivities": [
+          "Completed quiz: OOP Basics",
+          "Viewed Kuppi schedule",
+          "Reviewed lecture notes"
+        ],
+        "performanceSummary": "Overall progress 85%, strongest area: OOP, needs practice: recursion"
+      }
+    },
+    "createdAt": "2026-03-21T19:09:39.641Z"
+  },
+  {
+    "id": "msg-1774120183047-206",
+    "studentId": "student-dinithi",
+    "role": "assistant",
+    "content": "You're looking for the \"OOP quiz set\"! That's a great way to",
+    "metadata": {
+      "source": "gemini",
+      "suggestions": [
+        "OOP quiz set",
+        "Kuppi: Object-Oriented Design",
+        "Upcoming Kuppi panel",
+        "Notification bell"
+      ]
+    },
+    "createdAt": "2026-03-21T19:09:43.047Z"
+  }
+]
