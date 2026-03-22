@@ -1,23 +1,73 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useLocation, Navigate } from 'react-router-dom';
 import './App.css';
 
 // Import components
 import Navbar from './components/Navbar';
+import { useAuth } from './context/AuthContext';
+
+// Auth Pages
+import Login from './pages/Login';
+import Register from './pages/Register';
+
+// Pages
 import Home from './pages/Home';
 import About from './pages/About';
 import NotFound from './pages/NotFound';
 
+// Quiz & Mock Exam System
+import QuizList from './pages/quiz/QuizList';
+import QuizBuilder from './pages/quiz/QuizBuilder';
+import QuizAttempt from './pages/quiz/QuizAttempt';
+import QuizResults from './pages/quiz/QuizResults';
+import ProgressDashboard from './pages/quiz/ProgressDashboard';
+
+const DASHBOARD_PATHS = ['/', '/quizzes', '/progress'];
+
+// Protected Route Wrapper
+const ProtectedRoute = ({ element }) => {
+  const { isAuthenticated, loading } = useAuth();
+
+  if (loading) {
+    return <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+      <div className="spinner"></div>
+    </div>;
+  }
+
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />;
+  }
+
+  return element;
+};
+
 function AppContent() {
   const location = useLocation();
-  const isDashboard = location.pathname === '/';
+  const isDashboard = DASHBOARD_PATHS.some(p =>
+    p === '/' ? location.pathname === '/' : location.pathname.startsWith(p)
+  );
+  const isAuth = ['/login', '/register'].includes(location.pathname);
 
   return (
     <div className="App">
-      {!isDashboard && <Navbar />}
+      {!isDashboard && !isAuth && <Navbar />}
       <Routes>
-        <Route path="/" element={<Home />} />
+        {/* Auth routes */}
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+
+        {/* Main dashboard */}
+        <Route path="/" element={<ProtectedRoute element={<Home />} />} />
         <Route path="/about" element={<About />} />
+
+        {/* Quiz & Mock Exam System */}
+        <Route path="/quizzes" element={<ProtectedRoute element={<QuizList />} />} />
+        <Route path="/quizzes/create" element={<ProtectedRoute element={<QuizBuilder />} />} />
+        <Route path="/quizzes/:id/edit" element={<ProtectedRoute element={<QuizBuilder />} />} />
+        <Route path="/quizzes/:id/attempt" element={<ProtectedRoute element={<QuizAttempt />} />} />
+        <Route path="/quizzes/results/:attemptId" element={<ProtectedRoute element={<QuizResults />} />} />
+        <Route path="/progress" element={<ProtectedRoute element={<ProgressDashboard />} />} />
+
         <Route path="*" element={<NotFound />} />
       </Routes>
     </div>
