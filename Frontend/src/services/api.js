@@ -17,8 +17,8 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      // Token expired — force logout
       localStorage.removeItem('token');
+      localStorage.removeItem('user');
       delete api.defaults.headers.common['Authorization'];
       window.location.href = '/login';
     }

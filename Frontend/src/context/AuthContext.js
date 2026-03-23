@@ -1,58 +1,58 @@
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 import api from '../services/api';
 
-const AuthContext = createContext(null);
+const AuthContext = createContext();
+
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+  return context;
+};
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true); // True during initial token check
+  const [loading, setLoading] = useState(true);
 
-  // On mount: verify token and load user
   useEffect(() => {
-    const initAuth = async () => {
-      const token = localStorage.getItem('token');
-      if (!token) { setLoading(false); return; }
-
-      try {
-        api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-        const { data } = await api.get('/auth/me');
-        setUser(data.user);
-      } catch {
-        // Token is invalid or expired — clean up
-        localStorage.removeItem('token');
-        delete api.defaults.headers.common['Authorization'];
-      } finally {
-        setLoading(false);
-      }
-    };
-    initAuth();
+    // Check if user is logged in on app start
+    const token = localStorage.getItem('token');
+    const userData = localStorage.getItem('user');
+    if (token && userData) {
+      setUser(JSON.parse(userData));
+      api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+    }
+    setLoading(false);
   }, []);
 
-  const login = useCallback((token, userData) => {
+  const login = (userData, token) => {
     localStorage.setItem('token', token);
+    localStorage.setItem('user', JSON.stringify(userData));
     api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
     setUser(userData);
-  }, []);
+  };
 
-  const logout = useCallback(() => {
+  const logout = () => {
     localStorage.removeItem('token');
+    localStorage.removeItem('user');
     delete api.defaults.headers.common['Authorization'];
     setUser(null);
-  }, []);
+  };
 
-  const updateUser = useCallback((updatedUser) => {
+  const updateUser = (updatedUser) => {
+    localStorage.setItem('user', JSON.stringify(updatedUser));
     setUser(updatedUser);
-  }, []);
+  };
 
-  return (
-    <AuthContext.Provider value={{ user, loading, login, logout, updateUser }}>
-      {children}
-    </AuthContext.Provider>
-  );
-};
+  const value = {
+    user,
+    loading,
+    login,
+    logout,
+    updateUser,
+    isAuthenticated: !!user,
+  };
 
-export const useAuth = () => {
-  const ctx = useContext(AuthContext);
-  if (!ctx) throw new Error('useAuth must be used within AuthProvider');
-  return ctx;
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };

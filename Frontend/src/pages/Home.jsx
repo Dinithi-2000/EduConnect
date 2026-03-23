@@ -1,11 +1,19 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 import './Home.css';
 
 const Home = () => {
+  const navigate = useNavigate();
+  const { logout } = useAuth();
   const [darkMode, setDarkMode] = useState(false);
   const [activeNav, setActiveNav] = useState('Dashboard');
-  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  };
+
   const statsData = [
     {
       icon: '🎓',
@@ -72,12 +80,12 @@ const Home = () => {
   ];
 
   const navItems = [
-    { icon: '📊', label: 'Dashboard' },
-    { icon: '📚', label: 'My Courses' },
-    { icon: '📝', label: 'Quizzes' },
-    { icon: '🎥', label: 'Kuppi Sessions' },
-    { icon: '👥', label: 'Community' },
-    { icon: '📈', label: 'Analytics' }
+    { icon: '📊', label: 'Dashboard', path: '/' },
+    { icon: '📚', label: 'My Courses', path: null },
+    { icon: '📝', label: 'Quizzes', path: '/quizzes' },
+    { icon: '🎥', label: 'Kuppi Sessions', path: null },
+    { icon: '👥', label: 'Community', path: null },
+    { icon: '📈', label: 'Analytics', path: '/progress' }
   ];
 
   return (
@@ -97,11 +105,9 @@ const Home = () => {
               key={item.label}
               className={`nav-item ${activeNav === item.label ? 'active' : ''}`}
               onClick={() => {
-  setActiveNav(item.label);
-  if (item.label === 'Kuppi Sessions') navigate('/sessions');
-  if (item.label === 'Community') navigate('/about');
-  if (item.label === 'Dashboard') navigate('/');
-}}
+                setActiveNav(item.label);
+                if (item.path) navigate(item.path);
+              }}
             >
               <span className="nav-icon">{item.icon}</span>
               <span className="nav-label">{item.label}</span>
@@ -121,6 +127,10 @@ const Home = () => {
           <div className="nav-item">
             <span className="nav-icon">⚙️</span>
             <span className="nav-label">Settings</span>
+          </div>
+          <div className="nav-item" onClick={handleLogout}>
+            <span className="nav-icon">🚪</span>
+            <span className="nav-label">Logout</span>
           </div>
         </div>
       </aside>

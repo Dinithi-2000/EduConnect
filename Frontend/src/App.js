@@ -9,10 +9,10 @@ import Navbar from './components/Navbar';
 import Home from './pages/Home';
 import About from './pages/About';
 import NotFound from './pages/NotFound';
-
-// Kuppi module pages
 import Login from './pages/Login';
 import Register from './pages/Register';
+
+// Kuppi module pages
 import SessionList from './pages/SessionList';
 import SessionDetail from './pages/SessionDetail';
 import MySessions from './pages/MySessions';
@@ -20,13 +20,13 @@ import Profile from './pages/Profile';
 import CreateSession from './pages/CreateSession';
 import VisionBoard from './pages/VisionBoard';
 
-// Kuppi module context
+// Auth context
 import { AuthProvider, useAuth } from './context/AuthContext';
 
 // Route guards
 const PrivateRoute = ({ children }) => {
   const { user, loading } = useAuth();
-  if (loading) return <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh' }}><div>Loading...</div></div>;
+  if (loading) return <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh' }}>Loading...</div>;
   return user ? children : <Login />;
 };
 
@@ -46,10 +46,10 @@ function AppContent() {
         {/* Team's routes */}
         <Route path="/" element={<Home />} />
         <Route path="/about" element={<About />} />
-
-        {/* Kuppi module routes */}
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+
+        {/* Kuppi module routes */}
         <Route path="/sessions" element={<PrivateRoute><SessionList /></PrivateRoute>} />
         <Route path="/sessions/:id" element={<PrivateRoute><SessionDetail /></PrivateRoute>} />
         <Route path="/my-sessions" element={<PrivateRoute><MySessions /></PrivateRoute>} />
