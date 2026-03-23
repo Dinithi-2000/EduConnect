@@ -25,6 +25,7 @@ mongoose.connect(process.env.MONGODB_URI, {
 app.use('/api/users', require('./routes/userRoutes'));
 app.use('/api/ai', require('./routes/aiRoutes'));
 app.use('/api/commerce', require('./routes/commerceRoutes'));
+app.use('/api/quizzes', require('./routes/quizRoutes'));
 
 // Health check endpoint
 app.get('/', (req, res) => {
