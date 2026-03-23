@@ -1,0 +1,58 @@
+[
+  {
+    "id": "kb-001",
+    "question": "How can I prepare for exams effectively?",
+    "answer": "Use active recall and spaced repetition. Study in short focused blocks, test yourself daily, and track weak topics for revision.",
+    "aliases": [
+      "exam prep",
+      "study for exams",
+      "revision strategy"
+    ],
+    "tags": [
+      "study",
+      "exam",
+      "revision"
+    ],
+    "resources": [
+      "Weekly Performance dashboard",
+      "Upcoming Kuppi sessions"
+    ]
+  },
+  {
+    "id": "kb-002",
+    "question": "What is polymorphism in OOP?",
+    "answer": "Polymorphism means one interface, many forms. The same method name can show different behavior depending on the object type.",
+    "aliases": [
+      "explain polymorphism",
+      "oop polymorphism"
+    ],
+    "tags": [
+      "oop",
+      "programming",
+      "quiz"
+    ],
+    "resources": [
+      "OOP quiz set",
+      "Kuppi: Object-Oriented Design"
+    ]
+  },
+  {
+    "id": "kb-003",
+    "question": "How do I join a Kuppi session?",
+    "answer": "Open Upcoming Kuppi on the dashboard, choose a session, and set a reminder. Join from your session card at start time.",
+    "aliases": [
+      "join kuppi",
+      "kuppi help",
+      "session help"
+    ],
+    "tags": [
+      "platform",
+      "kuppi",
+      "help"
+    ],
+    "resources": [
+      "Upcoming Kuppi panel",
+      "Notification bell"
+    ]
+  }
+]
