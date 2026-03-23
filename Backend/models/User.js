@@ -22,8 +22,22 @@ const userSchema = new mongoose.Schema({
     },
     role: {
         type: String,
-        enum: ['student', 'teacher', 'admin'],
+        enum: ['student', 'teacher', 'tutor', 'admin'],
         default: 'student'
+    },
+    // Kuppi module fields
+    bio: {
+        type: String,
+        maxlength: [500, 'Bio cannot exceed 500 characters'],
+        default: ''
+    },
+    subjects: {
+        type: [String],
+        default: []
+    },
+    profilePicture: {
+        type: String,
+        default: ''
     },
     createdAt: {
         type: Date,

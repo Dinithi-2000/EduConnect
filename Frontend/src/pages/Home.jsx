@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import './Home.css';
 
 const Home = () => {
   const [darkMode, setDarkMode] = useState(false);
   const [activeNav, setActiveNav] = useState('Dashboard');
-
+  const navigate = useNavigate();
   const statsData = [
     {
       icon: '🎓',
@@ -95,7 +96,12 @@ const Home = () => {
             <div
               key={item.label}
               className={`nav-item ${activeNav === item.label ? 'active' : ''}`}
-              onClick={() => setActiveNav(item.label)}
+              onClick={() => {
+  setActiveNav(item.label);
+  if (item.label === 'Kuppi Sessions') navigate('/sessions');
+  if (item.label === 'Community') navigate('/about');
+  if (item.label === 'Dashboard') navigate('/');
+}}
             >
               <span className="nav-icon">{item.icon}</span>
               <span className="nav-label">{item.label}</span>
