@@ -1,0 +1,97 @@
+.student-dashboard {
+  min-height: 100vh;
+  padding: 24px;
+  background: radial-gradient(circle at top right, #e0f2fe, #f8fafc 45%, #f1f5f9);
+}
+
+.student-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.student-header h1 {
+  margin: 0;
+  color: #0f172a;
+}
+
+.student-header p {
+  margin-top: 6px;
+  color: #334155;
+}
+
+.student-logout {
+  border: none;
+  border-radius: 10px;
+  padding: 10px 16px;
+  color: #fff;
+  background: #ef4444;
+  cursor: pointer;
+}
+
+.student-kpis {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.student-kpi-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 18px;
+  box-shadow: 0 12px 30px rgba(2, 6, 23, 0.06);
+}
+
+.student-kpi-card span {
+  color: #475569;
+  font-size: 0.92rem;
+}
+
+.student-kpi-card strong {
+  display: block;
+  margin-top: 6px;
+  color: #0f172a;
+  font-size: 1.8rem;
+}
+
+.student-actions {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.student-action-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 18px;
+}
+
+.student-action-card h3 {
+  margin: 0 0 8px;
+  color: #0f172a;
+}
+
+.student-action-card p {
+  margin: 0 0 14px;
+  color: #475569;
+}
+
+.student-action-card button {
+  border: none;
+  border-radius: 10px;
+  padding: 10px 14px;
+  color: #fff;
+  background: #2563eb;
+  cursor: pointer;
+}
+
+@media (max-width: 900px) {
+  .student-kpis,
+  .student-actions {
+    grid-template-columns: 1fr;
+  }
+}

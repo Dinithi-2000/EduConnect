@@ -1,6 +1,3 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { getChatHistory, sendChatMessage } from '../services/aiService';
-import { API_URL } from '../services/api';
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
@@ -11,21 +8,6 @@ const Home = () => {
   const { logout } = useAuth();
   const [darkMode, setDarkMode] = useState(false);
   const [activeNav, setActiveNav] = useState('Dashboard');
-  const [isChatOpen, setIsChatOpen] = useState(false);
-  const [chatInput, setChatInput] = useState('');
-  const [isTyping, setIsTyping] = useState(false);
-  const [chatSuggestions, setChatSuggestions] = useState([]);
-  const [chatMessages, setChatMessages] = useState([
-    {
-      id: 'welcome-msg',
-      role: 'assistant',
-      content:
-        'Hi Dinithi! I am your EduConnect AI tutor. Ask for study plans, quiz prep, or topic explanations.',
-      createdAt: new Date().toISOString()
-    }
-  ]);
-  const chatBottomRef = useRef(null);
-  const studentId = 'student-dinithi';
 
   const handleLogout = () => {
     logout();
@@ -106,139 +88,6 @@ const Home = () => {
     { icon: '📈', label: 'Analytics', path: '/progress' }
   ];
 
-  const quickPrompts = [
-    'Create a 7-day exam study plan',
-    'Explain binary search in simple words',
-    'Give me 5 quiz questions on OOP'
-  ];
-
-  const studentContext = {
-    currentCourse: 'Data Structures',
-    recentActivities: ['Completed quiz: OOP Basics', 'Viewed Kuppi schedule', 'Reviewed lecture notes'],
-    performanceSummary: 'Overall progress 85%, strongest area: OOP, needs practice: recursion'
-  };
-
-  const getOfflineFallback = (text) => {
-    const input = text.toLowerCase();
-
-    if (input.includes('binary search')) {
-      return 'Binary search is a fast way to find a value in a sorted list:\n1. Check the middle item.\n2. If your target is smaller, search the left half.\n3. If larger, search the right half.\n4. Repeat until found.\nIt works in O(log n), so it is much faster than checking one by one.';
-    }
-
-    if (input.includes('oop') || input.includes('quiz')) {
-      return 'Quick OOP quiz:\n1. What is encapsulation?\n2. Difference between abstraction and encapsulation?\n3. What is method overriding?\n4. Difference between interface and abstract class?\n5. Give a real-world inheritance example.\nSend your answers and I can mark them.';
-    }
-
-    return 'I am in offline tutor mode right now, but I can still help. Ask for a study plan, a concept explanation, or quick quiz questions.';
-  };
-
-  useEffect(() => {
-    if (isChatOpen) {
-      chatBottomRef.current?.scrollIntoView({ behavior: 'smooth' });
-    }
-  }, [chatMessages, isChatOpen]);
-
-  useEffect(() => {
-    const hydrateHistory = async () => {
-      try {
-        const response = await getChatHistory(studentId);
-        const items = response?.data || [];
-        if (items.length) {
-          setChatMessages(
-            items.map((item) => ({
-              id: item.id,
-              role: item.role,
-              content: item.content,
-              createdAt: item.createdAt
-            }))
-          );
-        }
-      } catch {
-        // Keep local welcome message when history fetch is unavailable.
-      }
-    };
-
-    hydrateHistory();
-  }, []);
-
-  const getHistoryPayload = (messages) => {
-    return messages.map((item) => ({ role: item.role, content: item.content }));
-  };
-
-  const clearConversation = () => {
-    setChatMessages([
-      {
-        id: `welcome-${Date.now()}`,
-        role: 'assistant',
-        content:
-          'New session started. Tell me what you want to learn and I will help you with a focused plan.',
-        createdAt: new Date().toISOString()
-      }
-    ]);
-    setChatInput('');
-    setChatSuggestions([]);
-  };
-
-  const handleSendMessage = async (messageOverride) => {
-    const outgoingText = (messageOverride ?? chatInput).trim();
-    if (!outgoingText || isTyping) {
-      return;
-    }
-
-    const userMessage = {
-      id: `user-${Date.now()}`,
-      role: 'user',
-      content: outgoingText,
-      createdAt: new Date().toISOString()
-    };
-
-    const updatedMessages = [...chatMessages, userMessage];
-    setChatMessages(updatedMessages);
-    setChatInput('');
-    setIsTyping(true);
-
-    try {
-      const response = await sendChatMessage(
-        outgoingText,
-        getHistoryPayload(updatedMessages),
-        studentContext,
-        studentId
-      );
-      const botMessage = {
-        id: `assistant-${Date.now()}`,
-        role: 'assistant',
-        content: response?.reply || 'I could not generate a response right now.',
-        createdAt: new Date().toISOString()
-      };
-      setChatMessages((prev) => [...prev, botMessage]);
-      setChatSuggestions(Array.isArray(response?.suggestions) ? response.suggestions : []);
-    } catch (error) {
-      const status = error?.response?.status;
-      const cannotReachApi = !error?.response;
-      const errorNote = cannotReachApi
-        ? `I could not reach the API at ${API_URL}. Start backend server (npm run dev in Backend) or set REACT_APP_API_URL correctly.`
-        : `The API returned status ${status}.`;
-
-      setChatMessages((prev) => [
-        ...prev,
-        {
-          id: `assistant-error-${Date.now()}`,
-          role: 'assistant',
-          content: `${getOfflineFallback(outgoingText)}\n\n${errorNote}`,
-          createdAt: new Date().toISOString()
-        }
-      ]);
-      setChatSuggestions([]);
-    } finally {
-      setIsTyping(false);
-    }
-  };
-
-  const onChatSubmit = (event) => {
-    event.preventDefault();
-    handleSendMessage();
-  };
-
   return (
     <div className={`dashboard-container ${darkMode ? 'dark' : ''}`}>
       {/* Sidebar */}
@@ -271,14 +120,10 @@ const Home = () => {
             <span className="upgrade-icon">👑</span>
             <span className="upgrade-text">Premium</span>
           </div>
-          <button
-            type="button"
-            className={`nav-item nav-chat-trigger ${isChatOpen ? 'active' : ''}`}
-            onClick={() => setIsChatOpen((prev) => !prev)}
-          >
+          <div className="nav-item">
             <span className="nav-icon">🤖</span>
             <span className="nav-label">AI Chatbot</span>
-          </button>
+          </div>
           <div className="nav-item">
             <span className="nav-icon">⚙️</span>
             <span className="nav-label">Settings</span>
@@ -387,7 +232,7 @@ const Home = () => {
             <div className="upcoming-card">
               <div className="card-header">
                 <h2 className="card-title">Upcoming Kuppi</h2>
-                <button type="button" className="view-all-link">View All</button>
+                <a href="#" className="view-all-link">View All</a>
               </div>
               <div className="upcoming-list">
                 {upcomingKuppi.map((item, index) => (
@@ -460,85 +305,7 @@ const Home = () => {
       </main>
 
       {/* Chat Button */}
-      {isChatOpen && (
-        <section className="chat-panel">
-          <div className="chat-panel-header">
-            <div className="chat-title-group">
-              <h3>EduConnect AI</h3>
-              <span className="chat-status">Online tutor</span>
-            </div>
-            <div className="chat-header-actions">
-              <button type="button" className="chat-control-btn" onClick={clearConversation}>
-                Clear
-              </button>
-              <button
-                type="button"
-                className="chat-control-btn close"
-                onClick={() => setIsChatOpen(false)}
-              >
-                ✕
-              </button>
-            </div>
-          </div>
-
-          <div className="chat-messages">
-            {chatMessages.map((msg) => (
-              <article key={msg.id} className={`chat-message ${msg.role}`}>
-                <div className="chat-bubble">{msg.content}</div>
-                <span className="chat-time">
-                  {new Date(msg.createdAt).toLocaleTimeString([], {
-                    hour: '2-digit',
-                    minute: '2-digit'
-                  })}
-                </span>
-              </article>
-            ))}
-
-            {isTyping && (
-              <article className="chat-message assistant typing">
-                <div className="chat-bubble typing-bubble">
-                  <span></span>
-                  <span></span>
-                  <span></span>
-                </div>
-              </article>
-            )}
-
-            <div ref={chatBottomRef} />
-          </div>
-
-          <div className="chat-quick-prompts">
-            {(chatSuggestions.length ? chatSuggestions : quickPrompts).map((prompt) => (
-              <button
-                key={prompt}
-                type="button"
-                className="prompt-chip"
-                onClick={() => handleSendMessage(prompt)}
-              >
-                {prompt}
-              </button>
-            ))}
-          </div>
-
-          <form className="chat-input-row" onSubmit={onChatSubmit}>
-            <input
-              type="text"
-              value={chatInput}
-              onChange={(event) => setChatInput(event.target.value)}
-              placeholder="Ask anything about your studies..."
-              className="chat-input"
-              disabled={isTyping}
-            />
-            <button type="submit" className="chat-send-btn" disabled={isTyping || !chatInput.trim()}>
-              Send
-            </button>
-          </form>
-        </section>
-      )}
-
-      <button className="chat-fab" onClick={() => setIsChatOpen((prev) => !prev)}>
-        {isChatOpen ? '✕' : '💬'}
-      </button>
+      <button className="chat-fab">💬</button>
     </div>
   );
 };

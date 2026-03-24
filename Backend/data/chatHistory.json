@@ -586,5 +586,257 @@
       ]
     },
     "createdAt": "2026-03-21T19:09:43.047Z"
+  },
+  {
+    "id": "msg-1774291826313-859",
+    "studentId": "student-dinithi",
+    "role": "user",
+    "content": "hi",
+    "metadata": {
+      "context": {
+        "currentCourse": "Data Structures",
+        "recentActivities": [
+          "Completed quiz: OOP Basics",
+          "Viewed Kuppi schedule",
+          "Reviewed lecture notes"
+        ],
+        "performanceSummary": "Overall progress 85%, strongest area: OOP, needs practice: recursion"
+      }
+    },
+    "createdAt": "2026-03-23T18:50:26.313Z"
+  },
+  {
+    "id": "msg-1774291827780-229",
+    "studentId": "student-dinithi",
+    "role": "user",
+    "content": "hi",
+    "metadata": {
+      "context": {
+        "currentCourse": "Data Structures",
+        "recentActivities": [
+          "Completed quiz: OOP Basics",
+          "Viewed Kuppi schedule",
+          "Reviewed lecture notes"
+        ],
+        "performanceSummary": "Overall progress 85%, strongest area: OOP, needs practice: recursion"
+      }
+    },
+    "createdAt": "2026-03-23T18:50:27.780Z"
+  },
+  {
+    "id": "msg-1774364728552-444",
+    "studentId": "student-dinithi",
+    "role": "user",
+    "content": "hi",
+    "metadata": {
+      "context": {
+        "currentCourse": "Data Structures",
+        "recentActivities": [
+          "Completed quiz: OOP Basics",
+          "Viewed Kuppi schedule",
+          "Reviewed lecture notes"
+        ],
+        "performanceSummary": "Overall progress 85%, strongest area: OOP, needs practice: recursion"
+      }
+    },
+    "createdAt": "2026-03-24T15:05:28.552Z"
+  },
+  {
+    "id": "msg-1774364730907-955",
+    "studentId": "student-dinithi",
+    "role": "user",
+    "content": "hi",
+    "metadata": {
+      "context": {
+        "currentCourse": "Data Structures",
+        "recentActivities": [
+          "Completed quiz: OOP Basics",
+          "Viewed Kuppi schedule",
+          "Reviewed lecture notes"
+        ],
+        "performanceSummary": "Overall progress 85%, strongest area: OOP, needs practice: recursion"
+      }
+    },
+    "createdAt": "2026-03-24T15:05:30.907Z"
+  },
+  {
+    "id": "msg-1774364735640-15",
+    "studentId": "student-dinithi",
+    "role": "user",
+    "content": "Create a 7-day exam study plan",
+    "metadata": {
+      "context": {
+        "currentCourse": "Data Structures",
+        "recentActivities": [
+          "Completed quiz: OOP Basics",
+          "Viewed Kuppi schedule",
+          "Reviewed lecture notes"
+        ],
+        "performanceSummary": "Overall progress 85%, strongest area: OOP, needs practice: recursion"
+      }
+    },
+    "createdAt": "2026-03-24T15:05:35.640Z"
+  },
+  {
+    "id": "msg-1774364739270-722",
+    "studentId": "student-dinithi",
+    "role": "user",
+    "content": "Create a 7-day exam study plan",
+    "metadata": {
+      "context": {
+        "currentCourse": "Data Structures",
+        "recentActivities": [
+          "Completed quiz: OOP Basics",
+          "Viewed Kuppi schedule",
+          "Reviewed lecture notes"
+        ],
+        "performanceSummary": "Overall progress 85%, strongest area: OOP, needs practice: recursion"
+      }
+    },
+    "createdAt": "2026-03-24T15:05:39.270Z"
+  },
+  {
+    "id": "msg-1774364855936-363",
+    "studentId": "student-dinithi",
+    "role": "user",
+    "content": "hi",
+    "metadata": {
+      "context": {
+        "currentCourse": "Data Structures",
+        "recentActivities": [
+          "Completed quiz: OOP Basics",
+          "Viewed Kuppi schedule",
+          "Reviewed lecture notes"
+        ],
+        "performanceSummary": "Overall progress 85%, strongest area: OOP, needs practice: recursion"
+      }
+    },
+    "createdAt": "2026-03-24T15:07:35.936Z"
+  },
+  {
+    "id": "msg-1774364857455-810",
+    "studentId": "student-dinithi",
+    "role": "user",
+    "content": "hi",
+    "metadata": {
+      "context": {
+        "currentCourse": "Data Structures",
+        "recentActivities": [
+          "Completed quiz: OOP Basics",
+          "Viewed Kuppi schedule",
+          "Reviewed lecture notes"
+        ],
+        "performanceSummary": "Overall progress 85%, strongest area: OOP, needs practice: recursion"
+      }
+    },
+    "createdAt": "2026-03-24T15:07:37.455Z"
+  },
+  {
+    "id": "msg-1774364977969-132",
+    "studentId": "student-dinithi",
+    "role": "user",
+    "content": "Explain binary search",
+    "metadata": {
+      "context": {
+        "performanceSummary": "85%",
+        "currentCourse": "Data Structures",
+        "recentActivities": [
+          "Completed quiz"
+        ]
+      }
+    },
+    "createdAt": "2026-03-24T15:09:37.969Z"
+  },
+  {
+    "id": "msg-1774365013557-767",
+    "studentId": "student-dinithi",
+    "role": "user",
+    "content": "Explain binary search",
+    "metadata": {
+      "context": {}
+    },
+    "createdAt": "2026-03-24T15:10:13.557Z"
+  },
+  {
+    "id": "msg-1774365026230-777",
+    "studentId": "student-dinithi",
+    "role": "user",
+    "content": "hi",
+    "metadata": {
+      "context": {
+        "currentCourse": "Data Structures",
+        "recentActivities": [
+          "Completed quiz: OOP Basics",
+          "Viewed Kuppi schedule",
+          "Reviewed lecture notes"
+        ],
+        "performanceSummary": "Overall progress 85%, strongest area: OOP, needs practice: recursion"
+      }
+    },
+    "createdAt": "2026-03-24T15:10:26.230Z"
+  },
+  {
+    "id": "msg-1774365027766-430",
+    "studentId": "student-dinithi",
+    "role": "user",
+    "content": "hi",
+    "metadata": {
+      "context": {
+        "currentCourse": "Data Structures",
+        "recentActivities": [
+          "Completed quiz: OOP Basics",
+          "Viewed Kuppi schedule",
+          "Reviewed lecture notes"
+        ],
+        "performanceSummary": "Overall progress 85%, strongest area: OOP, needs practice: recursion"
+      }
+    },
+    "createdAt": "2026-03-24T15:10:27.766Z"
+  },
+  {
+    "id": "msg-1774365164360-853",
+    "studentId": "student-dinithi",
+    "role": "user",
+    "content": "Explain binary search",
+    "metadata": {
+      "context": {}
+    },
+    "createdAt": "2026-03-24T15:12:44.360Z"
+  },
+  {
+    "id": "msg-1774365241303-30",
+    "studentId": "student-dinithi",
+    "role": "user",
+    "content": "HI",
+    "metadata": {
+      "context": {
+        "currentCourse": "Data Structures",
+        "recentActivities": [
+          "Completed quiz: OOP Basics",
+          "Viewed Kuppi schedule",
+          "Reviewed lecture notes"
+        ],
+        "performanceSummary": "Overall progress 85%, strongest area: OOP, needs practice: recursion"
+      }
+    },
+    "createdAt": "2026-03-24T15:14:01.303Z"
+  },
+  {
+    "id": "msg-1774365242787-5",
+    "studentId": "student-dinithi",
+    "role": "user",
+    "content": "HI",
+    "metadata": {
+      "context": {
+        "currentCourse": "Data Structures",
+        "recentActivities": [
+          "Completed quiz: OOP Basics",
+          "Viewed Kuppi schedule",
+          "Reviewed lecture notes"
+        ],
+        "performanceSummary": "Overall progress 85%, strongest area: OOP, needs practice: recursion"
+      }
+    },
+    "createdAt": "2026-03-24T15:14:02.787Z"
   }
 ]
