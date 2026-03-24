@@ -1,13 +1,15 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import AIChatWidget from '../components/AIChatWidget';
 import './Home.css';
 
 const Home = () => {
   const navigate = useNavigate();
-  const { logout } = useAuth();
+  const { logout, user } = useAuth();
   const [darkMode, setDarkMode] = useState(false);
   const [activeNav, setActiveNav] = useState('Dashboard');
+  const [chatOpenSignal, setChatOpenSignal] = useState(0);
 
   const handleLogout = () => {
     logout();
@@ -120,7 +122,7 @@ const Home = () => {
             <span className="upgrade-icon">👑</span>
             <span className="upgrade-text">Premium</span>
           </div>
-          <div className="nav-item">
+          <div className="nav-item" onClick={() => setChatOpenSignal((prev) => prev + 1)}>
             <span className="nav-icon">🤖</span>
             <span className="nav-label">AI Chatbot</span>
           </div>
@@ -304,8 +306,12 @@ const Home = () => {
         </div>
       </main>
 
-      {/* Chat Button */}
-      <button className="chat-fab">💬</button>
+      <AIChatWidget
+        darkMode={darkMode}
+        studentId={user?._id || user?.id || 'guest-student'}
+        context={{ currentCourse: 'Dashboard' }}
+        openSignal={chatOpenSignal}
+      />
     </div>
   );
 };

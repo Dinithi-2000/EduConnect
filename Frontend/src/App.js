@@ -21,8 +21,9 @@ import QuizBuilder from './pages/quiz/QuizBuilder';
 import QuizAttempt from './pages/quiz/QuizAttempt';
 import QuizResults from './pages/quiz/QuizResults';
 import ProgressDashboard from './pages/quiz/ProgressDashboard';
+import CommunityBoard from './pages/Community';
 
-const DASHBOARD_PATHS = ['/', '/quizzes', '/progress'];
+const DASHBOARD_PATHS = ['/', '/quizzes', '/progress', '/community'];
 
 // Protected Route Wrapper
 const ProtectedRoute = ({ element }) => {
@@ -67,6 +68,9 @@ function AppContent() {
         <Route path="/quizzes/:id/attempt" element={<ProtectedRoute element={<QuizAttempt />} />} />
         <Route path="/quizzes/results/:attemptId" element={<ProtectedRoute element={<QuizResults />} />} />
         <Route path="/progress" element={<ProtectedRoute element={<ProgressDashboard />} />} />
+
+        {/* Community Board */}
+        <Route path="/community" element={<ProtectedRoute element={<CommunityBoard />} />} />
 
         <Route path="*" element={<NotFound />} />
       </Routes>
