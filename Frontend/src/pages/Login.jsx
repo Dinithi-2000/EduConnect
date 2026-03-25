@@ -32,7 +32,12 @@ const Login = () => {
       if (result.success) {
         // Use the login function from Auth context
         login(result.user, result.token);
-        navigate('/');
+        // Route student to student dashboard
+        if (result.user?.role === 'student') {
+          navigate('/student-dashboard');
+        } else {
+          navigate('/');
+        }
       } else {
         setError(result.message || 'Login failed');
       }

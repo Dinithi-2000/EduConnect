@@ -2045,5 +2045,33 @@
       ]
     },
     "createdAt": "2026-03-25T19:09:27.045Z"
+  },
+  {
+    "id": "msg-1774465893985-905",
+    "studentId": "69bf553df81c0d7587c6ba41",
+    "role": "user",
+    "content": "Upcoming Kuppi panel",
+    "metadata": {
+      "context": {
+        "currentCourse": "Dashboard"
+      }
+    },
+    "createdAt": "2026-03-25T19:11:33.985Z"
+  },
+  {
+    "id": "msg-1774465896676-674",
+    "studentId": "69bf553df81c0d7587c6ba41",
+    "role": "assistant",
+    "content": "You're interested in the **Upcoming Kuppi panel**!\n\nHere's how to use it:\n\n*   Access it directly from your **Dashboard**.\n*   Browse the available sessions.\n*   When you find a session you'd like to attend, you can **choose it** and **set a reminder**.\n*   You'll be able to **join the session** from its card on your dashboard when it begins.\n\n**Assumption:** You can see the \"Upcoming Kuppi\" panel on your dashboard.\n\nWould you like to know how to find out what topics are covered in the Kuppi sessions?",
+    "metadata": {
+      "source": "gemini",
+      "suggestions": [
+        "Upcoming Kuppi panel",
+        "Notification bell",
+        "Dashboard focused quiz set",
+        "Dashboard Kuppi session"
+      ]
+    },
+    "createdAt": "2026-03-25T19:11:36.676Z"
   }
 ]

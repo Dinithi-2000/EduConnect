@@ -14,6 +14,7 @@ import Register from './pages/Register';
 import Home from './pages/Home';
 import About from './pages/About';
 import NotFound from './pages/NotFound';
+import StudentDashboard from './pages/StudentDashboard';
 
 // Quiz & Mock Exam System
 import QuizList from './pages/quiz/QuizList';
@@ -60,6 +61,7 @@ function AppContent() {
 
         {/* Main dashboard */}
         <Route path="/" element={<ProtectedRoute element={<Home />} />} />
+        <Route path="/student-dashboard" element={<ProtectedRoute element={<StudentDashboard />} />} />
         <Route path="/about" element={<About />} />
 
         {/* Quiz & Mock Exam System */}

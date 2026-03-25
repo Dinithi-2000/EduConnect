@@ -1,13 +1,20 @@
 import React, { useState } from 'react';
 import { flagPost, removePost, approveFlaggedPost, deletePost, upvotePost, addReply } from '../../../services/communityService';
+import { useAuth } from '../../../context/AuthContext';
 import '../../CommunityBoard.css';
 
 const CommunityPostCard = ({ post, isAdmin, onPostUpdated, emoji }) => {
+  const { user } = useAuth();
   const [showReplies, setShowReplies] = useState(false);
   const [replyText, setReplyText] = useState('');
   const [isReplying, setIsReplying] = useState(false);
   const [showFlagModal, setShowFlagModal] = useState(false);
   const [flagReason, setFlagReason] = useState('');
+
+  const currentUserId = user?._id || user?.id;
+  const hasUserVoted = Array.isArray(post.upvotedBy)
+    ? post.upvotedBy.some((voterId) => String(voterId) === String(currentUserId))
+    : false;
 
   const handleFlag = async () => {
     if (!flagReason.trim()) {
@@ -72,10 +79,23 @@ const CommunityPostCard = ({ post, isAdmin, onPostUpdated, emoji }) => {
   };
 
   const handleUpvote = async () => {
+    if (!currentUserId) {
+      alert('Please login to vote.');
+      return;
+    }
+
+    if (hasUserVoted) {
+      return;
+    }
+
     try {
-      await upvotePost(post._id);
+      await upvotePost(post._id, currentUserId);
       onPostUpdated();
     } catch (error) {
+      const message = error?.message || 'Error upvoting post';
+      if (message.toLowerCase().includes('already upvoted')) {
+        alert('You can only vote once for this post.');
+      }
       console.error('Error upvoting post:', error);
     }
   };
@@ -114,8 +134,13 @@ const CommunityPostCard = ({ post, isAdmin, onPostUpdated, emoji }) => {
 
       <div className="post-footer">
         <div className="post-actions">
-          <button className="action-btn" onClick={handleUpvote}>
-            👍 Upvote ({post.upvotes || 0})
+          <button
+            className={`action-btn ${hasUserVoted ? 'action-btn-voted' : ''}`}
+            onClick={handleUpvote}
+            disabled={hasUserVoted}
+            title={hasUserVoted ? 'You have already voted' : 'Upvote this post'}
+          >
+            {hasUserVoted ? '✅ Upvoted' : '👍 Upvote'} ({post.upvotes || 0})
           </button>
           <button className="action-btn" onClick={() => setShowReplies(!showReplies)}>
             💬 Reply ({post.replies?.length || 0})

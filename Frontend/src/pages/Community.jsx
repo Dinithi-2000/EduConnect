@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import DashboardLayout from '../components/DashboardLayout';
 import './CommunityBoard.css';
 import CommunityPostCard from './community/components/CommunityPostCard';
@@ -36,6 +36,25 @@ const CommunityBoard = () => {
   const [showAdminPanel, setShowAdminPanel] = useState(false);
   const [adminStats, setAdminStats] = useState(null);
   const [darkMode, setDarkMode] = useState(false);
+
+  const communityInsights = useMemo(() => {
+    const lostFoundCount = posts.filter(
+      (post) => post.type === 'lost-item' || post.type === 'found-item'
+    ).length;
+    const announcementsCount = posts.filter(
+      (post) => post.type === 'announcement' || post.type === 'event'
+    ).length;
+    const engagementCount = posts.reduce((total, post) => {
+      return total + (post.upvotes || 0) + (post.replies?.length || 0);
+    }, 0);
+
+    return {
+      total: posts.length,
+      lostFound: lostFoundCount,
+      announcements: announcementsCount,
+      engagement: engagementCount,
+    };
+  }, [posts]);
 
   useEffect(() => {
     fetchPosts();
@@ -94,12 +113,40 @@ const CommunityBoard = () => {
             <h1>🏠 Student Community Board</h1>
             <p>A university-wide notice board — post lost items, found items, events & campus notices</p>
           </div>
-          <button 
-            className="btn-create-post" 
-            onClick={() => setShowCreateModal(true)}
-          >
-            ＋ Create Post
-          </button>
+          <div className="header-actions">
+            <button
+              className="btn-theme-toggle"
+              onClick={() => setDarkMode((prev) => !prev)}
+            >
+              {darkMode ? '☀️ Light' : '🌙 Dark'}
+            </button>
+            <button
+              className="btn-create-post"
+              onClick={() => setShowCreateModal(true)}
+            >
+              ＋ Create Post
+            </button>
+          </div>
+        </div>
+
+        {/* Insight Cards */}
+        <div className="community-insights">
+          <div className="insight-card">
+            <span className="insight-label">Visible Posts</span>
+            <span className="insight-value">{communityInsights.total}</span>
+          </div>
+          <div className="insight-card">
+            <span className="insight-label">Lost / Found</span>
+            <span className="insight-value">{communityInsights.lostFound}</span>
+          </div>
+          <div className="insight-card">
+            <span className="insight-label">Events / Notices</span>
+            <span className="insight-value">{communityInsights.announcements}</span>
+          </div>
+          <div className="insight-card highlight">
+            <span className="insight-label">Total Engagement</span>
+            <span className="insight-value">{communityInsights.engagement}</span>
+          </div>
         </div>
 
         {/* Quick Stats */}

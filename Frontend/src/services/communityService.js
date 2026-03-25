@@ -105,9 +105,9 @@ export const getAdminStats = async () => {
 };
 
 // Upvote post
-export const upvotePost = async (id) => {
+export const upvotePost = async (id, userId) => {
   try {
-    const response = await api.post(`/community/posts/${id}/upvote`);
+    const response = await api.post(`/community/posts/${id}/upvote`, { userId });
     return response.data;
   } catch (error) {
     throw error.response?.data || error;

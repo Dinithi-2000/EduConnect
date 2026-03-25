@@ -419,12 +419,16 @@ exports.getStats = async (req, res) => {
 exports.upvotePost = async (req, res) => {
   try {
     const { id } = req.params;
+    const userId = req.user?._id || req.body?.userId;
 
-    const post = await CommunityPost.findByIdAndUpdate(
-      id,
-      { $inc: { upvotes: 1 } },
-      { new: true }
-    );
+    if (!userId) {
+      return res.status(400).json({
+        success: false,
+        message: 'User ID is required to vote'
+      });
+    }
+
+    const post = await CommunityPost.findById(id);
 
     if (!post) {
       return res.status(404).json({
@@ -433,10 +437,30 @@ exports.upvotePost = async (req, res) => {
       });
     }
 
+    const alreadyUpvoted = post.upvotedBy.some(
+      (voterId) => voterId.toString() === userId.toString()
+    );
+
+    if (alreadyUpvoted) {
+      return res.status(409).json({
+        success: false,
+        message: 'You have already upvoted this post'
+      });
+    }
+
+    const updatedPost = await CommunityPost.findByIdAndUpdate(
+      id,
+      {
+        $inc: { upvotes: 1 },
+        $addToSet: { upvotedBy: userId }
+      },
+      { new: true }
+    );
+
     return res.json({
       success: true,
       message: 'Post upvoted successfully',
-      data: post
+      data: updatedPost
     });
   } catch (error) {
     return res.status(500).json({
