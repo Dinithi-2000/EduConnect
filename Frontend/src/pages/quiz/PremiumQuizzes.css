@@ -1,0 +1,143 @@
+.premium-page {
+  display: grid;
+  gap: 20px;
+}
+
+.premium-hero {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 22px;
+  border-radius: 18px;
+  background: linear-gradient(135deg, #0f766e 0%, #155e75 55%, #1d4ed8 100%);
+  color: #fff;
+  box-shadow: 0 14px 36px rgba(15, 118, 110, 0.26);
+}
+
+.premium-hero h1 {
+  margin: 0;
+  font-size: 1.8rem;
+}
+
+.premium-hero p {
+  margin: 8px 0 0;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.refresh-btn {
+  border: none;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.14);
+  color: #fff;
+  padding: 10px 14px;
+  cursor: pointer;
+}
+
+.premium-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 18px;
+}
+
+.premium-card {
+  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+  padding: 18px;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.premium-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.premium-badge {
+  background: #111827;
+  color: #fbbf24;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.premium-subject {
+  font-size: 12px;
+  color: #475569;
+}
+
+.premium-card h3 {
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+.premium-card p {
+  margin: 0;
+  color: #475569;
+  min-height: 42px;
+}
+
+.premium-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  font-size: 12px;
+  color: #334155;
+}
+
+.premium-footer {
+  margin-top: auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.premium-price {
+  font-weight: 700;
+  color: #0f766e;
+}
+
+.premium-action {
+  border: none;
+  border-radius: 10px;
+  padding: 9px 12px;
+  background: #0f766e;
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.premium-action.unlocked {
+  background: #2563eb;
+}
+
+.premium-loading,
+.premium-verifying,
+.premium-error,
+.premium-empty {
+  border-radius: 14px;
+  padding: 20px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+}
+
+.premium-error button {
+  border: none;
+  border-radius: 8px;
+  padding: 8px 12px;
+  background: #2563eb;
+  color: #fff;
+  cursor: pointer;
+}
+
+@media (max-width: 720px) {
+  .premium-hero {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+}

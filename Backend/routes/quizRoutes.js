@@ -9,7 +9,8 @@ const {
     submitAttempt,
     getAttemptById,
     getMyProgress,
-    getQuizAnalytics
+    getQuizAnalytics,
+    getPremiumQuizzes
 } = require('../controllers/quizController');
 
 const { protect, authorize } = require('../middleware/auth');
@@ -17,6 +18,9 @@ const { protect, authorize } = require('../middleware/auth');
 // ─── Progress routes ──────────────────────────────────────────────────────────
 // GET /api/quizzes/progress/me  → student's own progress
 router.get('/progress/me', protect, getMyProgress);
+
+// GET /api/quizzes/premium  → premium quizzes with access state
+router.get('/premium', protect, getPremiumQuizzes);
 
 // ─── Attempt routes ───────────────────────────────────────────────────────────
 // GET /api/quizzes/attempts/:attemptId  → get a single attempt result
@@ -33,7 +37,7 @@ router.route('/')
 // PUT    /api/quizzes/:id       → update a quiz
 // DELETE /api/quizzes/:id       → delete a quiz
 router.route('/:id')
-    .get(getQuizById)
+    .get(protect, getQuizById)
     .put(protect, authorize('admin', 'teacher'), updateQuiz)
     .delete(protect, authorize('admin', 'teacher'), deleteQuiz);
 

@@ -10,6 +10,7 @@ const DashboardLayout = ({ children, activeSection = 'Quizzes' }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const { logout, user } = useAuth();
+  const isAdminView = ['admin', 'teacher'].includes(user?.role);
   const displayName = user?.name || 'User';
   const avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName)}&background=3b82f6&color=fff`;
 
@@ -22,9 +23,10 @@ const DashboardLayout = ({ children, activeSection = 'Quizzes' }) => {
     { icon: '📊', label: 'Dashboard', path: '/' },
     { icon: '📚', label: 'My Courses', path: '/courses' },
     { icon: '📝', label: 'Quizzes', path: '/quizzes' },
+    { icon: '👑', label: 'Premium', path: '/premium' },
     { icon: '🎥', label: 'Kuppi Sessions', path: '/kuppi' },
     { icon: '👥', label: 'Community', path: '/community' },
-    { icon: '📈', label: 'Analytics', path: '/progress' }
+    { icon: '📈', label: isAdminView ? 'Reports' : 'Analytics', path: '/progress' }
   ];
 
   const getActiveLabel = () => {
@@ -59,7 +61,7 @@ const DashboardLayout = ({ children, activeSection = 'Quizzes' }) => {
         </nav>
 
         <div className="sidebar-footer">
-          <div className="upgrade-section">
+          <div className="upgrade-section" onClick={() => navigate('/premium')} style={{ cursor: 'pointer' }}>
             <span className="upgrade-icon">👑</span>
             <span className="upgrade-text">Premium</span>
           </div>

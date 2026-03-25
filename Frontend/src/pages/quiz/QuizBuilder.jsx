@@ -23,7 +23,10 @@ const QuizBuilder = () => {
     subject: '',
     description: '',
     difficulty: 'Medium',
-    timeLimit: 30
+    timeLimit: 30,
+    isPremium: false,
+    premiumPrice: 0,
+    premiumCurrency: 'USD'
   });
   const [questions, setQuestions] = useState([{ ...EMPTY_QUESTION, options: ['', '', '', ''] }]);
   const [saving, setSaving] = useState(false);
@@ -42,7 +45,10 @@ const QuizBuilder = () => {
           subject: quiz.subject,
           description: quiz.description || '',
           difficulty: quiz.difficulty,
-          timeLimit: quiz.timeLimit
+          timeLimit: quiz.timeLimit,
+          isPremium: Boolean(quiz.isPremium),
+          premiumPrice: Number(quiz.premiumPrice || 0),
+          premiumCurrency: quiz.premiumCurrency || 'USD'
         });
         setQuestions(quiz.questions.map(q => ({
           ...q,
@@ -56,8 +62,25 @@ const QuizBuilder = () => {
 
   // ── Form handlers ──────────────────────────────────────────────────────────
   const handleFormChange = e => {
-    const { name, value } = e.target;
-    setForm(prev => ({ ...prev, [name]: name === 'timeLimit' ? Number(value) : value }));
+    const { name, value, type, checked } = e.target;
+    setForm(prev => {
+      if (name === 'isPremium') {
+        return {
+          ...prev,
+          isPremium: checked,
+          premiumPrice: checked ? prev.premiumPrice || 1 : 0
+        };
+      }
+
+      if (name === 'timeLimit' || name === 'premiumPrice') {
+        return { ...prev, [name]: Number(value) };
+      }
+
+      return {
+        ...prev,
+        [name]: type === 'checkbox' ? checked : value
+      };
+    });
   };
 
   const handleQuestionChange = (idx, field, value) => {
@@ -106,6 +129,7 @@ const QuizBuilder = () => {
     if (!form.title.trim()) return 'Quiz title is required.';
     if (!form.subject.trim()) return 'Subject is required.';
     if (form.timeLimit < 1) return 'Time limit must be at least 1 minute.';
+    if (form.isPremium && Number(form.premiumPrice) <= 0) return 'Premium price must be greater than 0.';
     for (let i = 0; i < questions.length; i++) {
       const q = questions[i];
       if (!q.questionText.trim()) return `Question ${i + 1}: text is required.`;
@@ -194,6 +218,48 @@ const QuizBuilder = () => {
                 <label>Description</label>
                 <textarea name="description" value={form.description} onChange={handleFormChange} placeholder="Brief description of this quiz..." className="form-input form-textarea" rows={3} />
               </div>
+
+              <div className="form-group full-width">
+                <label style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
+                  <input
+                    type="checkbox"
+                    name="isPremium"
+                    checked={form.isPremium}
+                    onChange={handleFormChange}
+                  />
+                  Mark this quiz as premium
+                </label>
+              </div>
+
+              {form.isPremium && (
+                <>
+                  <div className="form-group">
+                    <label>Premium Price <span className="required">*</span></label>
+                    <input
+                      type="number"
+                      name="premiumPrice"
+                      value={form.premiumPrice}
+                      onChange={handleFormChange}
+                      min="1"
+                      step="0.01"
+                      className="form-input"
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label>Currency</label>
+                    <select
+                      name="premiumCurrency"
+                      value={form.premiumCurrency}
+                      onChange={handleFormChange}
+                      className="form-input"
+                    >
+                      <option value="USD">USD</option>
+                      <option value="LKR">LKR</option>
+                      <option value="EUR">EUR</option>
+                    </select>
+                  </div>
+                </>
+              )}
             </div>
           </div>
 

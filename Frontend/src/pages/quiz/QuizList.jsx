@@ -30,6 +30,8 @@ const QuizList = () => {
   const [difficulty, setDifficulty] = useState('All');
   const [subject, setSubject] = useState('');
   const [recommendedQuizzes, setRecommendedQuizzes] = useState([]);
+  const premiumQuizzes = quizzes.filter(q => q.isPremium || Number(q.premiumPrice) > 0);
+  const regularQuizzes = quizzes.filter(q => !(q.isPremium || Number(q.premiumPrice) > 0));
 
   const fetchQuizzes = useCallback(async (searchTerm = '') => {
     try {
@@ -139,6 +141,7 @@ const QuizList = () => {
                       {quiz.difficulty}
                     </span>
                     <span className="subject-tag">{quiz.subject}</span>
+                    {quiz.isPremium && <span className="premium-tag">👑 Premium</span>}
                   </div>
 
                   <div className="quiz-card-body">
@@ -255,42 +258,100 @@ const QuizList = () => {
             )}
           </div>
         ) : (
-          <div className="quiz-grid">
-            {quizzes.map(quiz => (
-              <div key={quiz._id} className="quiz-card">
-                <div className="quiz-card-header">
-                  <span
-                    className="difficulty-badge"
-                    style={{ backgroundColor: difficultyColor[quiz.difficulty] || '#64748b' }}
-                  >
-                    {quiz.difficulty}
-                  </span>
-                  <span className="subject-tag">{quiz.subject}</span>
+          <>
+            {premiumQuizzes.length > 0 && (
+              <div className="premium-list-section">
+                <div className="section-headers">
+                  <h2 className="section-title">👑 Premium Quizzes</h2>
+                  <p className="section-subtitle">Exclusive quizzes curated for advanced learning</p>
                 </div>
+                <div className="quiz-grid">
+                  {premiumQuizzes.map(quiz => (
+                    <div key={quiz._id} className="quiz-card">
+                      <div className="quiz-card-header">
+                        <span
+                          className="difficulty-badge"
+                          style={{ backgroundColor: difficultyColor[quiz.difficulty] || '#64748b' }}
+                        >
+                          {quiz.difficulty}
+                        </span>
+                        <span className="subject-tag">{quiz.subject}</span>
+                        <span className="premium-tag">👑 Premium</span>
+                      </div>
 
-                <div className="quiz-card-body">
-                  <h3 className="quiz-title">{quiz.title}</h3>
-                  {quiz.description && (
-                    <p className="quiz-description">{quiz.description}</p>
-                  )}
-                  <div className="quiz-meta">
-                    <span className="meta-item">❓ {quiz.questions?.length || 0} Questions</span>
-                    <span className="meta-item">⏱ {quiz.timeLimit} min</span>
-                    <span className="meta-item">⭐ {quiz.totalMarks} marks</span>
-                  </div>
-                </div>
+                      <div className="quiz-card-body">
+                        <h3 className="quiz-title">{quiz.title}</h3>
+                        {quiz.description && (
+                          <p className="quiz-description">{quiz.description}</p>
+                        )}
+                        <div className="quiz-meta">
+                          <span className="meta-item">❓ {quiz.questions?.length || 0} Questions</span>
+                          <span className="meta-item">⏱ {quiz.timeLimit} min</span>
+                          <span className="meta-item">⭐ {quiz.totalMarks} marks</span>
+                        </div>
+                      </div>
 
-                <div className="quiz-card-footer">
-                  <button
-                    className="btn-attempt"
-                    onClick={() => navigate(`/quizzes/${quiz._id}/attempt`)}
-                  >
-                    ▶ Attempt Quiz
-                  </button>
+                      <div className="quiz-card-footer">
+                        <button
+                          className="btn-attempt"
+                          onClick={() => navigate(`/quizzes/${quiz._id}/attempt`)}
+                        >
+                          ▶ Attempt Quiz
+                        </button>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
-            ))}
-          </div>
+            )}
+
+            {regularQuizzes.length > 0 && (
+              <div className="regular-list-section">
+                {premiumQuizzes.length > 0 && (
+                  <div className="section-headers">
+                    <h2 className="section-title">Available Quizzes</h2>
+                    <p className="section-subtitle">Free quizzes for daily practice</p>
+                  </div>
+                )}
+                <div className="quiz-grid">
+                  {regularQuizzes.map(quiz => (
+                    <div key={quiz._id} className="quiz-card">
+                      <div className="quiz-card-header">
+                        <span
+                          className="difficulty-badge"
+                          style={{ backgroundColor: difficultyColor[quiz.difficulty] || '#64748b' }}
+                        >
+                          {quiz.difficulty}
+                        </span>
+                        <span className="subject-tag">{quiz.subject}</span>
+                      </div>
+
+                      <div className="quiz-card-body">
+                        <h3 className="quiz-title">{quiz.title}</h3>
+                        {quiz.description && (
+                          <p className="quiz-description">{quiz.description}</p>
+                        )}
+                        <div className="quiz-meta">
+                          <span className="meta-item">❓ {quiz.questions?.length || 0} Questions</span>
+                          <span className="meta-item">⏱ {quiz.timeLimit} min</span>
+                          <span className="meta-item">⭐ {quiz.totalMarks} marks</span>
+                        </div>
+                      </div>
+
+                      <div className="quiz-card-footer">
+                        <button
+                          className="btn-attempt"
+                          onClick={() => navigate(`/quizzes/${quiz._id}/attempt`)}
+                        >
+                          ▶ Attempt Quiz
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </>
         )}
       </div>
     </DashboardLayout>

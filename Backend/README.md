@@ -77,6 +77,8 @@ Backend/
 ### Commerce
 - `GET /api/commerce/premium-catalog` - List premium quizzes/courses available for purchase
 - `POST /api/commerce/complete-purchase` - Complete tokenized payment and unlock premium content
+- `POST /api/commerce/stripe/create-checkout-session` - Create Stripe Checkout session for premium item
+- `POST /api/commerce/stripe/complete-checkout` - Verify Stripe session and unlock purchased premium item
 
 ## RAG Architecture (Chatbot)
 

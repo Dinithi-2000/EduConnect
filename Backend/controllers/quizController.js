@@ -1,5 +1,9 @@
 const Quiz = require('../models/Quiz');
 const QuizAttempt = require('../models/QuizAttempt');
+const { hasUnlockedContent } = require('../utils/platformStore');
+
+const isPrivilegedUser = (user) => !!user && ['admin', 'teacher'].includes(user.role);
+const getPremiumItemId = (quizId) => `quiz-premium-${quizId}`;
 
 // ─── Quiz CRUD ────────────────────────────────────────────────────────────────
 
@@ -36,8 +40,31 @@ const getQuizById = async (req, res) => {
             return res.status(404).json({ success: false, message: 'Quiz not found' });
         }
 
+        if (quiz.isPremium && !isPrivilegedUser(req.user)) {
+            if (!req.user) {
+                return res.status(401).json({
+                    success: false,
+                    code: 'PREMIUM_LOGIN_REQUIRED',
+                    message: 'Please log in to access premium quizzes.'
+                });
+            }
+
+            const unlocked = await hasUnlockedContent({
+                studentId: req.user._id.toString(),
+                itemId: getPremiumItemId(quiz._id.toString())
+            });
+
+            if (!unlocked) {
+                return res.status(403).json({
+                    success: false,
+                    code: 'PREMIUM_LOCKED',
+                    message: 'This premium quiz requires purchase before access.'
+                });
+            }
+        }
+
         // Hide correct answers for students during attempt
-        const isAdmin = req.user && ['admin', 'teacher'].includes(req.user.role);
+        const isAdmin = isPrivilegedUser(req.user);
         if (!isAdmin) {
             const sanitized = quiz.toObject();
             sanitized.questions = sanitized.questions.map(q => {
@@ -59,6 +86,10 @@ const getQuizById = async (req, res) => {
 const createQuiz = async (req, res) => {
     try {
         const quizData = { ...req.body };
+        quizData.isPremium = Boolean(quizData.isPremium);
+        quizData.premiumPrice = quizData.isPremium ? Number(quizData.premiumPrice || 0) : 0;
+        quizData.premiumCurrency = (quizData.premiumCurrency || 'USD').toUpperCase();
+
         if (req.user) quizData.createdBy = req.user._id;
 
         const quiz = await Quiz.create(quizData);
@@ -73,7 +104,21 @@ const createQuiz = async (req, res) => {
 // @access  Admin / Teacher
 const updateQuiz = async (req, res) => {
     try {
-        const quiz = await Quiz.findByIdAndUpdate(req.params.id, req.body, {
+        const updatePayload = { ...req.body };
+        if (Object.prototype.hasOwnProperty.call(updatePayload, 'isPremium')) {
+            updatePayload.isPremium = Boolean(updatePayload.isPremium);
+        }
+        if (Object.prototype.hasOwnProperty.call(updatePayload, 'premiumPrice')) {
+            updatePayload.premiumPrice = Number(updatePayload.premiumPrice || 0);
+        }
+        if (Object.prototype.hasOwnProperty.call(updatePayload, 'isPremium') && !updatePayload.isPremium) {
+            updatePayload.premiumPrice = 0;
+        }
+        if (Object.prototype.hasOwnProperty.call(updatePayload, 'premiumCurrency')) {
+            updatePayload.premiumCurrency = String(updatePayload.premiumCurrency || 'USD').toUpperCase();
+        }
+
+        const quiz = await Quiz.findByIdAndUpdate(req.params.id, updatePayload, {
             new: true,
             runValidators: true
         });
@@ -109,6 +154,21 @@ const submitAttempt = async (req, res) => {
     try {
         const quiz = await Quiz.findById(req.params.id);
         if (!quiz) return res.status(404).json({ success: false, message: 'Quiz not found' });
+
+        if (quiz.isPremium && !isPrivilegedUser(req.user)) {
+            const unlocked = await hasUnlockedContent({
+                studentId: req.user._id.toString(),
+                itemId: getPremiumItemId(quiz._id.toString())
+            });
+
+            if (!unlocked) {
+                return res.status(403).json({
+                    success: false,
+                    code: 'PREMIUM_LOCKED',
+                    message: 'Purchase this premium quiz before attempting it.'
+                });
+            }
+        }
 
         const { answers, timeTaken, status } = req.body;
         // answers: [{ questionId, selectedAnswer }]
@@ -159,6 +219,41 @@ const submitAttempt = async (req, res) => {
         res.status(201).json({ success: true, data: attempt });
     } catch (error) {
         res.status(400).json({ success: false, message: 'Failed to submit attempt', error: error.message });
+    }
+};
+
+// @desc    Get all premium quizzes with student access status
+// @route   GET /api/quizzes/premium
+// @access  Authenticated users
+const getPremiumQuizzes = async (req, res) => {
+    try {
+        const premiumQuizzes = await Quiz.find({ isActive: true, isPremium: true })
+            .select('-questions.correctAnswer -questions.explanation')
+            .populate('createdBy', 'name email')
+            .sort({ createdAt: -1 });
+
+        const isAdmin = isPrivilegedUser(req.user);
+        const studentId = req.user?._id ? req.user._id.toString() : null;
+
+        const data = await Promise.all(
+            premiumQuizzes.map(async (quiz) => {
+                const quizObj = quiz.toObject();
+                const premiumItemId = getPremiumItemId(quizObj._id.toString());
+                const hasAccess = isAdmin || (studentId
+                    ? await hasUnlockedContent({ studentId, itemId: premiumItemId })
+                    : false);
+
+                return {
+                    ...quizObj,
+                    premiumItemId,
+                    hasAccess
+                };
+            })
+        );
+
+        return res.json({ success: true, count: data.length, data });
+    } catch (error) {
+        return res.status(500).json({ success: false, message: 'Server Error', error: error.message });
     }
 };
 
@@ -274,5 +369,6 @@ module.exports = {
     submitAttempt,
     getAttemptById,
     getMyProgress,
-    getQuizAnalytics
+    getQuizAnalytics,
+    getPremiumQuizzes
 };

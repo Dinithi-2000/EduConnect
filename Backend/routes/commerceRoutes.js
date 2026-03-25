@@ -1,9 +1,17 @@
 const express = require('express');
-const { completePurchase, getPremiumCatalog } = require('../controllers/commerceController');
+const {
+	completePurchase,
+	getPremiumCatalog,
+	createStripeCheckoutSession,
+	completeStripeCheckout
+} = require('../controllers/commerceController');
+const { protect } = require('../middleware/auth');
 
 const router = express.Router();
 
 router.get('/premium-catalog', getPremiumCatalog);
-router.post('/complete-purchase', completePurchase);
+router.post('/complete-purchase', protect, completePurchase);
+router.post('/stripe/create-checkout-session', protect, createStripeCheckoutSession);
+router.post('/stripe/complete-checkout', protect, completeStripeCheckout);
 
 module.exports = router;

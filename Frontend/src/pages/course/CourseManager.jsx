@@ -32,7 +32,11 @@ const CourseManager = () => {
   const [error, setError] = useState('');
   const [selectedCourseId, setSelectedCourseId] = useState('');
   const [search, setSearch] = useState('');
+  const [levelFilter, setLevelFilter] = useState('All');
+  const [publishFilter, setPublishFilter] = useState('all');
+  const [sortBy, setSortBy] = useState('newest');
   const [uploadingModuleId, setUploadingModuleId] = useState('');
+  const [completedContent, setCompletedContent] = useState({});
   const [courseForm, setCourseForm] = useState({
     title: '',
     subject: '',
@@ -46,6 +50,84 @@ const CourseManager = () => {
     () => courses.find((course) => course._id === selectedCourseId) || null,
     [courses, selectedCourseId]
   );
+
+  const filteredCourses = useMemo(() => {
+    const byLevel = (course) => levelFilter === 'All' || course.level === levelFilter;
+    const byPublish = (course) => {
+      if (publishFilter === 'all') return true;
+      if (publishFilter === 'published') return !!course.isPublished;
+      if (publishFilter === 'draft') return !course.isPublished;
+      return true;
+    };
+
+    const list = courses.filter((course) => byLevel(course) && byPublish(course));
+
+    const sorted = [...list];
+    if (sortBy === 'title-asc') {
+      sorted.sort((a, b) => a.title.localeCompare(b.title));
+    } else if (sortBy === 'title-desc') {
+      sorted.sort((a, b) => b.title.localeCompare(a.title));
+    } else if (sortBy === 'modules-desc') {
+      sorted.sort((a, b) => (b.modules?.length || 0) - (a.modules?.length || 0));
+    } else {
+      sorted.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+    }
+
+    return sorted;
+  }, [courses, levelFilter, publishFilter, sortBy]);
+
+  const courseProgress = useMemo(() => {
+    if (!selectedCourse) return { total: 0, done: 0, percent: 0 };
+
+    const contents = (selectedCourse.modules || []).flatMap((module) => module.contents || []);
+    const total = contents.length;
+    const done = contents.filter((content) => completedContent[content._id]).length;
+    const percent = total > 0 ? Math.round((done / total) * 100) : 0;
+    return { total, done, percent };
+  }, [selectedCourse, completedContent]);
+
+  const getProgressStorageKey = () => {
+    const userKey = user?._id || user?.id || 'guest';
+    return `course-progress-${userKey}-${selectedCourseId || 'none'}`;
+  };
+
+  useEffect(() => {
+    if (!selectedCourseId) {
+      setCompletedContent({});
+      return;
+    }
+
+    try {
+      const saved = localStorage.getItem(getProgressStorageKey());
+      setCompletedContent(saved ? JSON.parse(saved) : {});
+    } catch {
+      setCompletedContent({});
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedCourseId, user?._id, user?.id]);
+
+  useEffect(() => {
+    if (!selectedCourseId) return;
+    try {
+      localStorage.setItem(getProgressStorageKey(), JSON.stringify(completedContent));
+    } catch {
+      // Ignore storage failures
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [completedContent, selectedCourseId, user?._id, user?.id]);
+  const courseInsights = useMemo(() => {
+    const published = courses.filter((course) => course.isPublished).length;
+    const totalModules = courses.reduce(
+      (sum, course) => sum + (course.modules?.length || 0),
+      0
+    );
+    return {
+      total: courses.length,
+      published,
+      drafts: Math.max(courses.length - published, 0),
+      totalModules
+    };
+  }, [courses]);
   const moduleFileInputRefs = useRef({});
 
   const getContentUrl = (url) => {
@@ -318,12 +400,51 @@ const CourseManager = () => {
     }
   };
 
+  const toggleContentComplete = (contentId) => {
+    setCompletedContent((prev) => ({
+      ...prev,
+      [contentId]: !prev[contentId]
+    }));
+  };
+
+  const handleContinueLearning = () => {
+    if (!selectedCourse) return;
+
+    const orderedContents = (selectedCourse.modules || [])
+      .slice()
+      .sort((a, b) => (a.order || 0) - (b.order || 0))
+      .flatMap((module) =>
+        (module.contents || [])
+          .slice()
+          .sort((a, b) => (a.order || 0) - (b.order || 0))
+      );
+
+    if (orderedContents.length === 0) {
+      alert('No learning content is available yet for this course.');
+      return;
+    }
+
+    const firstIncomplete = orderedContents.find((content) => !completedContent[content._id]);
+
+    if (!firstIncomplete) {
+      alert('Great work! You have completed all available content in this course.');
+      return;
+    }
+
+    if (firstIncomplete.url) {
+      window.open(getContentUrl(firstIncomplete.url), '_blank', 'noopener,noreferrer');
+      return;
+    }
+
+    alert(`Next item: ${firstIncomplete.title}`);
+  };
+
   return (
     <DashboardLayout activeSection="My Courses">
       <div className="course-page">
         <div className="course-head">
           <div>
-            <h1>Course & Content Management</h1>
+            <h1>My Courses</h1>
             <p>{isManager ? 'Create courses, modules, and learning content.' : 'Browse available published courses.'}</p>
             <p className="role-note">
               Logged in role: <strong>{currentRole || 'unknown'}</strong>
@@ -331,6 +452,25 @@ const CourseManager = () => {
             </p>
           </div>
           <button className="btn-refresh" onClick={loadCourses}>Refresh</button>
+        </div>
+
+        <div className="course-insights">
+          <div className="insight-card">
+            <span className="insight-label">Total Courses</span>
+            <span className="insight-value">{courseInsights.total}</span>
+          </div>
+          <div className="insight-card">
+            <span className="insight-label">Published</span>
+            <span className="insight-value">{courseInsights.published}</span>
+          </div>
+          <div className="insight-card">
+            <span className="insight-label">Drafts</span>
+            <span className="insight-value">{courseInsights.drafts}</span>
+          </div>
+          <div className="insight-card highlight">
+            <span className="insight-label">Total Modules</span>
+            <span className="insight-value">{courseInsights.totalModules}</span>
+          </div>
         </div>
 
         <div className="course-grid">
@@ -344,11 +484,59 @@ const CourseManager = () => {
               <button className="btn-search" onClick={loadCourses}>Search</button>
             </div>
 
+            <div className="sidebar-controls">
+              <div className="level-filter-row">
+                <span className="control-label">Level</span>
+                <div className="level-pills">
+                  {['All', ...LEVELS].map((level) => (
+                    <button
+                      key={level}
+                      className={`small-pill ${levelFilter === level ? 'active' : ''}`}
+                      onClick={() => setLevelFilter(level)}
+                    >
+                      {level}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="publish-filter-row">
+                <button
+                  className={`small-pill ${publishFilter === 'all' ? 'active' : ''}`}
+                  onClick={() => setPublishFilter('all')}
+                >
+                  All
+                </button>
+                <button
+                  className={`small-pill ${publishFilter === 'published' ? 'active' : ''}`}
+                  onClick={() => setPublishFilter('published')}
+                >
+                  Published
+                </button>
+                <button
+                  className={`small-pill ${publishFilter === 'draft' ? 'active' : ''}`}
+                  onClick={() => setPublishFilter('draft')}
+                >
+                  Drafts
+                </button>
+              </div>
+
+              <div className="sort-row">
+                <span className="control-label">Sort</span>
+                <select value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
+                  <option value="newest">Newest</option>
+                  <option value="title-asc">Title A-Z</option>
+                  <option value="title-desc">Title Z-A</option>
+                  <option value="modules-desc">Most Modules</option>
+                </select>
+              </div>
+            </div>
+
             {loading ? <p>Loading courses...</p> : null}
             {error ? <p className="err-text">{error}</p> : null}
 
             <div className="course-list">
-              {courses.map((course) => (
+              {filteredCourses.map((course) => (
                 <button
                   key={course._id}
                   className={`course-item ${selectedCourseId === course._id ? 'active' : ''}`}
@@ -361,6 +549,9 @@ const CourseManager = () => {
                   </span>
                 </button>
               ))}
+              {!loading && filteredCourses.length === 0 ? (
+                <div className="empty-inline">No courses found. Try another search.</div>
+              ) : null}
             </div>
           </section>
 
@@ -421,6 +612,12 @@ const CourseManager = () => {
                   <div>
                     <h2>{selectedCourse.title}</h2>
                     <p>{selectedCourse.subject} • {selectedCourse.level}</p>
+                    <div className="selected-meta">
+                      <span className={`pill ${selectedCourse.isPublished ? 'ok' : 'draft'}`}>
+                        {selectedCourse.isPublished ? 'Published' : 'Draft'}
+                      </span>
+                      <span className="meta-chip">{(selectedCourse.modules || []).length} modules</span>
+                    </div>
                   </div>
                   {isManager && (
                     <div className="detail-actions">
@@ -434,6 +631,22 @@ const CourseManager = () => {
                 </div>
 
                 <p className="desc">{selectedCourse.description || 'No description added yet.'}</p>
+
+                <div className="progress-card">
+                  <div className="progress-head">
+                    <h3>Learning Progress</h3>
+                    <span>{courseProgress.done}/{courseProgress.total} items completed</span>
+                  </div>
+                  <div className="progress-track">
+                    <div className="progress-fill" style={{ width: `${courseProgress.percent}%` }}></div>
+                  </div>
+                  <div className="progress-actions">
+                    <p className="progress-note">{courseProgress.percent}% complete</p>
+                    <button className="btn-continue" onClick={handleContinueLearning}>
+                      Continue Learning
+                    </button>
+                  </div>
+                </div>
 
                 <div className="module-head">
                   <h3>Modules</h3>
@@ -475,7 +688,16 @@ const CourseManager = () => {
                       <div className="content-list">
                         {(module.contents || []).map((content) => (
                           <div key={content._id} className="content-item">
-                            <div>
+                            <div className="content-main">
+                              <label className="complete-toggle" title="Mark as completed">
+                                <input
+                                  type="checkbox"
+                                  checked={!!completedContent[content._id]}
+                                  onChange={() => toggleContentComplete(content._id)}
+                                />
+                                <span className="check-indicator"></span>
+                              </label>
+                              <div>
                               {content.url ? (
                                 <a
                                   href={getContentUrl(content.url)}
@@ -490,6 +712,7 @@ const CourseManager = () => {
                                 <strong>{content.order}. {content.title}</strong>
                               )}
                               <p>{content.contentType}{content.url ? ` • ${content.url}` : ''}</p>
+                              </div>
                             </div>
                             {isManager ? (
                               <div className="content-actions">

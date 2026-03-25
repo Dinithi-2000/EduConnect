@@ -9,6 +9,12 @@ export const getQuizzes = async (filters = {}) => {
   return response.data;
 };
 
+// Get premium quizzes along with access state for current user
+export const getPremiumQuizzes = async () => {
+  const response = await api.get('/quizzes/premium');
+  return response.data;
+};
+
 // Get single quiz by ID
 export const getQuizById = async (id) => {
   const response = await api.get(`/quizzes/${id}`);
@@ -56,5 +62,23 @@ export const getMyProgress = async () => {
 // Get admin analytics for a specific quiz
 export const getQuizAnalytics = async (quizId) => {
   const response = await api.get(`/quizzes/${quizId}/analytics`);
+  return response.data;
+};
+
+// Complete premium purchase through tokenized gateway payload
+export const completePremiumPurchase = async (payload) => {
+  const response = await api.post('/commerce/complete-purchase', payload);
+  return response.data;
+};
+
+// Create Stripe Checkout session for a premium item
+export const createStripeCheckoutSession = async (payload) => {
+  const response = await api.post('/commerce/stripe/create-checkout-session', payload);
+  return response.data;
+};
+
+// Complete unlock after returning from Stripe checkout
+export const completeStripeCheckout = async (payload) => {
+  const response = await api.post('/commerce/stripe/complete-checkout', payload);
   return response.data;
 };

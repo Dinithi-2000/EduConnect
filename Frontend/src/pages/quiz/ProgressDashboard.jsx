@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import DashboardLayout from '../../components/DashboardLayout';
+import { useAuth } from '../../context/AuthContext';
 import { getMyProgress } from '../../services/quizService';
 import './ProgressDashboard.css';
 
@@ -10,9 +11,15 @@ const gradeColors = {
 
 const ProgressDashboard = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const isAdminView = ['admin', 'teacher'].includes(user?.role);
+  const headerTitle = isAdminView ? '📈 Reports' : '📈 My Progress';
+  const headerSubtitle = isAdminView
+    ? 'Review quiz performance and score trends'
+    : 'Track your quiz performance and improvement over time';
 
   useEffect(() => {
     const load = async () => {
@@ -77,8 +84,8 @@ const ProgressDashboard = () => {
         {/* Header */}
         <div className="progress-header">
           <div>
-            <h1 className="page-title">📈 My Progress</h1>
-            <p className="page-subtitle">Track your quiz performance and improvement over time</p>
+            <h1 className="page-title">{headerTitle}</h1>
+            <p className="page-subtitle">{headerSubtitle}</p>
           </div>
           <button className="btn-take-quiz" onClick={() => navigate('/quizzes')}>
             📝 Take a Quiz

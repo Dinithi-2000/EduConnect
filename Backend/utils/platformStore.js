@@ -183,6 +183,12 @@ const unlockPremiumContent = async ({ studentId, itemId, title }) => {
   }
 };
 
+const hasUnlockedContent = async ({ studentId, itemId }) => {
+  await initDataFiles();
+  const unlocked = await readJson(filePaths.unlockedContent, []);
+  return unlocked.some((item) => item.studentId === studentId && item.itemId === itemId);
+};
+
 const queueReceiptEmail = async ({ studentId, email, transactionId, itemTitle, amount }) => {
   await initDataFiles();
   const outbox = await readJson(filePaths.receiptOutbox, []);
@@ -207,5 +213,6 @@ module.exports = {
   getChatHistory,
   saveTransaction,
   unlockPremiumContent,
+  hasUnlockedContent,
   queueReceiptEmail
 };
