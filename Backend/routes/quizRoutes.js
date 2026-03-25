@@ -27,20 +27,20 @@ router.get('/attempts/:attemptId', getAttemptById);
 // POST   /api/quizzes          → create a quiz (admin/teacher)
 router.route('/')
     .get(getQuizzes)
-    .post(createQuiz); // Allow unauthenticated creation for demo; add protect, authorize('admin', 'teacher') in production
+    .post(protect, authorize('admin', 'teacher'), createQuiz);
 
 // GET    /api/quizzes/:id       → get single quiz (answers hidden for students)
 // PUT    /api/quizzes/:id       → update a quiz
 // DELETE /api/quizzes/:id       → delete a quiz
 router.route('/:id')
     .get(getQuizById)
-    .put(updateQuiz)
-    .delete(deleteQuiz);
+    .put(protect, authorize('admin', 'teacher'), updateQuiz)
+    .delete(protect, authorize('admin', 'teacher'), deleteQuiz);
 
 // POST   /api/quizzes/:id/attempt  → submit a quiz attempt
-router.post('/:id/attempt', submitAttempt);
+router.post('/:id/attempt', protect, submitAttempt);
 
 // GET    /api/quizzes/:id/analytics → admin analytics for a quiz
-router.get('/:id/analytics', getQuizAnalytics);
+router.get('/:id/analytics', protect, authorize('admin', 'teacher'), getQuizAnalytics);
 
 module.exports = router;

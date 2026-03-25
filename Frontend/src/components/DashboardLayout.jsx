@@ -10,6 +10,8 @@ const DashboardLayout = ({ children, activeSection = 'Quizzes' }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const { logout, user } = useAuth();
+  const displayName = user?.name || 'User';
+  const avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName)}&background=3b82f6&color=fff`;
 
   const handleLogout = () => {
     logout();
@@ -93,11 +95,11 @@ const DashboardLayout = ({ children, activeSection = 'Quizzes' }) => {
             </button>
             <div className="user-profile">
               <img
-                src="https://ui-avatars.com/api/?name=Dinithi+P&background=3b82f6&color=fff"
-                alt="User"
+                src={avatarUrl}
+                alt={displayName}
                 className="user-avatar"
               />
-              <span className="user-name">Dinithi P.</span>
+              <span className="user-name">{displayName}</span>
             </div>
           </div>
         </header>
