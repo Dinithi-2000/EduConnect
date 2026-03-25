@@ -850,5 +850,1200 @@
       }
     },
     "createdAt": "2026-03-24T16:38:15.610Z"
+  },
+  {
+    "id": "msg-1774460440495-545",
+    "studentId": "69bf553df81c0d7587c6ba41",
+    "role": "user",
+    "content": "Create a 7-day study plan",
+    "metadata": {
+      "context": {
+        "currentCourse": "Dashboard"
+      }
+    },
+    "createdAt": "2026-03-25T17:40:40.495Z"
+  },
+  {
+    "id": "msg-1774460441787-19",
+    "studentId": "69bf553df81c0d7587c6ba41",
+    "role": "user",
+    "content": "Create a 7-day study plan",
+    "metadata": {
+      "context": {
+        "currentCourse": "Dashboard"
+      }
+    },
+    "createdAt": "2026-03-25T17:40:41.787Z"
+  },
+  {
+    "id": "msg-1774460770032-943",
+    "studentId": "69bf553df81c0d7587c6ba41",
+    "role": "user",
+    "content": "Create a 7-day study plan",
+    "metadata": {
+      "context": {
+        "currentCourse": "Dashboard"
+      }
+    },
+    "createdAt": "2026-03-25T17:46:10.032Z"
+  },
+  {
+    "id": "msg-1774460771331-115",
+    "studentId": "69bf553df81c0d7587c6ba41",
+    "role": "assistant",
+    "content": "Great question. Try this quick exam plan:\n1. Split topics into daily blocks.\n2. Use 25-minute focused sessions with 5-minute breaks.\n3. End each day with 10 mixed recall questions.\n4. Track weak topics and revisit after 48 hours.\n\nNote: Live AI response is unavailable right now because provider credentials are not configured correctly.",
+    "metadata": {
+      "source": "fallback",
+      "suggestions": [
+        "Weekly Performance dashboard",
+        "Upcoming Kuppi sessions",
+        "Upcoming Kuppi panel",
+        "Notification bell"
+      ]
+    },
+    "createdAt": "2026-03-25T17:46:11.331Z"
+  },
+  {
+    "id": "msg-1774461082656-731",
+    "studentId": "69bf553df81c0d7587c6ba41",
+    "role": "user",
+    "content": "Weekly Performance dashboard",
+    "metadata": {
+      "context": {
+        "currentCourse": "Dashboard"
+      }
+    },
+    "createdAt": "2026-03-25T17:51:22.656Z"
+  },
+  {
+    "id": "msg-1774461086472-274",
+    "studentId": "69bf553df81c0d7587c6ba41",
+    "role": "assistant",
+    "content": "I can help with study plans, topic explanations, quizzes, and productivity tips. Ask me something like: 'Create a 7-day data structures revision plan'.\n\nNote: Live AI response is unavailable right now because provider quota/rate limit has been reached.",
+    "metadata": {
+      "source": "fallback",
+      "suggestions": [
+        "Upcoming Kuppi panel",
+        "Notification bell",
+        "Dashboard focused quiz set",
+        "Dashboard Kuppi session"
+      ]
+    },
+    "createdAt": "2026-03-25T17:51:26.472Z"
+  },
+  {
+    "id": "msg-1774461097415-198",
+    "studentId": "69bf553df81c0d7587c6ba41",
+    "role": "user",
+    "content": "Create a 7-day study plan",
+    "metadata": {
+      "context": {
+        "currentCourse": "Dashboard"
+      }
+    },
+    "createdAt": "2026-03-25T17:51:37.416Z"
+  },
+  {
+    "id": "msg-1774461103115-54",
+    "studentId": "69bf553df81c0d7587c6ba41",
+    "role": "assistant",
+    "content": "Great question. Try this quick exam plan:\n1. Split topics into daily blocks.\n2. Use 25-minute focused sessions with 5-minute breaks.\n3. End each day with 10 mixed recall questions.\n4. Track weak topics and revisit after 48 hours.\n\nNote: Live AI response is unavailable right now because provider quota/rate limit has been reached.",
+    "metadata": {
+      "source": "fallback",
+      "suggestions": [
+        "Weekly Performance dashboard",
+        "Upcoming Kuppi sessions",
+        "Upcoming Kuppi panel",
+        "Notification bell"
+      ]
+    },
+    "createdAt": "2026-03-25T17:51:43.115Z"
+  },
+  {
+    "id": "msg-1774461155464-981",
+    "studentId": "69bf553df81c0d7587c6ba41",
+    "role": "user",
+    "content": "Explain polymorphism simply",
+    "metadata": {
+      "context": {
+        "currentCourse": "Dashboard"
+      }
+    },
+    "createdAt": "2026-03-25T17:52:35.464Z"
+  },
+  {
+    "id": "msg-1774461158998-125",
+    "studentId": "69bf553df81c0d7587c6ba41",
+    "role": "assistant",
+    "content": "Hey there!\n\nPolymorphism simply means \"one interface, many forms.\"\n\n*   It's when the same method name can behave differently depending on the type of object it's called on.\n\nWant to test your knowledge?\n*   Try the **OOP quiz set**!\n*   Or join a **Kuppi: Object-Oriented Design** session to learn more.",
+    "metadata": {
+      "source": "gemini",
+      "suggestions": [
+        "OOP quiz set",
+        "Kuppi: Object-Oriented Design",
+        "Upcoming Kuppi panel",
+        "Notification bell"
+      ]
+    },
+    "createdAt": "2026-03-25T17:52:38.998Z"
+  },
+  {
+    "id": "msg-1774461167997-521",
+    "studentId": "69bf553df81c0d7587c6ba41",
+    "role": "user",
+    "content": "OOP quiz set",
+    "metadata": {
+      "context": {
+        "currentCourse": "Dashboard"
+      }
+    },
+    "createdAt": "2026-03-25T17:52:47.997Z"
+  },
+  {
+    "id": "msg-1774461171689-216",
+    "studentId": "69bf553df81c0d7587c6ba41",
+    "role": "assistant",
+    "content": "Great question!\n\nThe **OOP quiz set** is a fantastic resource to test your understanding",
+    "metadata": {
+      "source": "gemini",
+      "suggestions": [
+        "OOP quiz set",
+        "Kuppi: Object-Oriented Design",
+        "Upcoming Kuppi panel",
+        "Notification bell"
+      ]
+    },
+    "createdAt": "2026-03-25T17:52:51.689Z"
+  },
+  {
+    "id": "msg-1774461176419-984",
+    "studentId": "69bf553df81c0d7587c6ba41",
+    "role": "user",
+    "content": "Kuppi: Object-Oriented Design",
+    "metadata": {
+      "context": {
+        "currentCourse": "Dashboard"
+      }
+    },
+    "createdAt": "2026-03-25T17:52:56.419Z"
+  },
+  {
+    "id": "msg-1774461178979-959",
+    "studentId": "69bf553df81c0d7587c6ba41",
+    "role": "assistant",
+    "content": "That's a great session to join! The **Kuppi: Object-Oriented Design** session will help you dive deeper into concepts like polymorphism.\n\nHere's how you can join it:\n\n*   Go to the **Upcoming Kuppi** panel on your dashboard.\n*   Find the **Kuppi: Object-Oriented Design** session and choose it.\n*   You can set a reminder, and then join directly from your session card when it's time!",
+    "metadata": {
+      "source": "gemini",
+      "suggestions": [
+        "Upcoming Kuppi panel",
+        "Notification bell",
+        "OOP quiz set",
+        "Kuppi: Object-Oriented Design"
+      ]
+    },
+    "createdAt": "2026-03-25T17:52:58.979Z"
+  },
+  {
+    "id": "msg-1774461183085-464",
+    "studentId": "69bf553df81c0d7587c6ba41",
+    "role": "user",
+    "content": "OOP quiz set",
+    "metadata": {
+      "context": {
+        "currentCourse": "Dashboard"
+      }
+    },
+    "createdAt": "2026-03-25T17:53:03.085Z"
+  },
+  {
+    "id": "msg-1774461186325-931",
+    "studentId": "69bf553df81c0d7587c6ba41",
+    "role": "assistant",
+    "content": "The **OOP quiz set** is a great way to test your understanding of Object-Oriented Programming concepts!\n\nYou can usually find it in the \"Quizzes\" section of your EduConnect platform, or look for it on your",
+    "metadata": {
+      "source": "gemini",
+      "suggestions": [
+        "OOP quiz set",
+        "Kuppi: Object-Oriented Design",
+        "Upcoming Kuppi panel",
+        "Notification bell"
+      ]
+    },
+    "createdAt": "2026-03-25T17:53:06.325Z"
+  },
+  {
+    "id": "msg-1774461235395-338",
+    "studentId": "69bf553df81c0d7587c6ba41",
+    "role": "user",
+    "content": "Explain polymorphism simply",
+    "metadata": {
+      "context": {
+        "currentCourse": "Dashboard"
+      }
+    },
+    "createdAt": "2026-03-25T17:53:55.395Z"
+  },
+  {
+    "id": "msg-1774461238399-940",
+    "studentId": "69bf553df81c0d7587c6ba41",
+    "role": "assistant",
+    "content": "Hey there!\n\nPolymorphism simply means \"one interface, many forms.\"\n\n*   It's when the same method name can behave differently depending on the type of object it's called on.\n\nWant to test your knowledge?\n*   Try the **OOP quiz set**!\n*   Or join a **Kuppi: Object-Oriented Design** session to learn more.",
+    "metadata": {
+      "source": "gemini",
+      "suggestions": [
+        "OOP quiz set",
+        "Kuppi: Object-Oriented Design",
+        "Upcoming Kuppi panel",
+        "Notification bell"
+      ]
+    },
+    "createdAt": "2026-03-25T17:53:58.399Z"
+  },
+  {
+    "id": "msg-1774461247315-902",
+    "studentId": "69bf553df81c0d7587c6ba41",
+    "role": "user",
+    "content": "OOP quiz set",
+    "metadata": {
+      "context": {
+        "currentCourse": "Dashboard"
+      }
+    },
+    "createdAt": "2026-03-25T17:54:07.315Z"
+  },
+  {
+    "id": "msg-1774461249418-331",
+    "studentId": "69bf553df81c0d7587c6ba41",
+    "role": "assistant",
+    "content": "The **OOP quiz set** is a fantastic resource to test your understanding of Object-Oriented Programming!\n\nYou can usually find it in the \"Quizzes\" section of your EduConnect platform. Keep an eye out for it on your dashboard!",
+    "metadata": {
+      "source": "gemini",
+      "suggestions": [
+        "OOP quiz set",
+        "Kuppi: Object-Oriented Design",
+        "Upcoming Kuppi panel",
+        "Notification bell"
+      ]
+    },
+    "createdAt": "2026-03-25T17:54:09.418Z"
+  },
+  {
+    "id": "msg-1774461259842-33",
+    "studentId": "69bf553df81c0d7587c6ba41",
+    "role": "user",
+    "content": "Kuppi: Object-Oriented Design",
+    "metadata": {
+      "context": {
+        "currentCourse": "Dashboard"
+      }
+    },
+    "createdAt": "2026-03-25T17:54:19.842Z"
+  },
+  {
+    "id": "msg-1774461262425-741",
+    "studentId": "69bf553df81c0d7587c6ba41",
+    "role": "assistant",
+    "content": "That's a great session to join! The **Kuppi: Object-Oriented Design** session will help you dive deeper into concepts like polymorphism.\n\nHere's how you can join it:\n\n*   Go to the **Upcoming Kuppi** panel on your dashboard.\n*   Find the **Kuppi: Object-Oriented Design** session and choose it.\n*   You can set a reminder, and then join directly from your session card when it's time!\n\nWant to test your knowledge after the session? Try the **OOP quiz set**!",
+    "metadata": {
+      "source": "gemini",
+      "suggestions": [
+        "Upcoming Kuppi panel",
+        "Notification bell",
+        "OOP quiz set",
+        "Kuppi: Object-Oriented Design"
+      ]
+    },
+    "createdAt": "2026-03-25T17:54:22.425Z"
+  },
+  {
+    "id": "msg-1774461274583-271",
+    "studentId": "69bf553df81c0d7587c6ba41",
+    "role": "user",
+    "content": "How do I prepare for exams?",
+    "metadata": {
+      "context": {
+        "currentCourse": "Dashboard"
+      }
+    },
+    "createdAt": "2026-03-25T17:54:34.583Z"
+  },
+  {
+    "id": "msg-1774461279407-167",
+    "studentId": "69bf553df81c0d7587c6ba41",
+    "role": "assistant",
+    "content": "Great question. Try this quick exam plan:\n1. Split topics into daily blocks.\n2. Use 25-minute focused sessions with 5-minute breaks.\n3. End each day with 10 mixed recall questions.\n4. Track weak topics and revisit after 48 hours.\n\nNote: Live AI response is unavailable right now because provider quota/rate limit has been reached.",
+    "metadata": {
+      "source": "fallback",
+      "suggestions": [
+        "Weekly Performance dashboard",
+        "Upcoming Kuppi sessions",
+        "Upcoming Kuppi panel",
+        "Notification bell"
+      ]
+    },
+    "createdAt": "2026-03-25T17:54:39.407Z"
+  },
+  {
+    "id": "msg-1774461360393-450",
+    "studentId": "69bf553df81c0d7587c6ba41",
+    "role": "user",
+    "content": "Create a 7-day study plan",
+    "metadata": {
+      "context": {
+        "currentCourse": "Dashboard"
+      }
+    },
+    "createdAt": "2026-03-25T17:56:00.393Z"
+  },
+  {
+    "id": "msg-1774461361781-442",
+    "studentId": "69bf553df81c0d7587c6ba41",
+    "role": "assistant",
+    "content": "Great question. Try this quick exam plan:\n1. Split topics into daily blocks.\n2. Use 25-minute focused sessions with 5-minute breaks.\n3. End each day with 10 mixed recall questions.\n4. Track weak topics and revisit after 48 hours.\n\nNote: Live AI response is unavailable right now because provider quota/rate limit has been reached.",
+    "metadata": {
+      "source": "fallback",
+      "suggestions": [
+        "Weekly Performance dashboard",
+        "Upcoming Kuppi sessions",
+        "Upcoming Kuppi panel",
+        "Notification bell"
+      ]
+    },
+    "createdAt": "2026-03-25T17:56:01.781Z"
+  },
+  {
+    "id": "msg-1774461895541-400",
+    "studentId": "69bf553df81c0d7587c6ba41",
+    "role": "user",
+    "content": "Create a 7-day study plan",
+    "metadata": {
+      "context": {
+        "currentCourse": "Dashboard"
+      }
+    },
+    "createdAt": "2026-03-25T18:04:55.541Z"
+  },
+  {
+    "id": "msg-1774461899439-301",
+    "studentId": "69bf553df81c0d7587c6ba41",
+    "role": "assistant",
+    "content": "Hey there! Here's a 7-day study plan based on",
+    "metadata": {
+      "source": "gemini",
+      "suggestions": [
+        "Weekly Performance dashboard",
+        "Upcoming Kuppi sessions",
+        "Upcoming Kuppi panel",
+        "Notification bell"
+      ]
+    },
+    "createdAt": "2026-03-25T18:04:59.439Z"
+  },
+  {
+    "id": "msg-1774461905787-693",
+    "studentId": "69bf553df81c0d7587c6ba41",
+    "role": "user",
+    "content": "Upcoming Kuppi sessions",
+    "metadata": {
+      "context": {
+        "currentCourse": "Dashboard"
+      }
+    },
+    "createdAt": "2026-03-25T18:05:05.787Z"
+  },
+  {
+    "id": "msg-1774461907889-156",
+    "studentId": "69bf553df81c0d7587c6ba41",
+    "role": "assistant",
+    "content": "To see your upcoming Kuppi sessions, just:\n\n*   Go to the **Upcoming Kuppi** panel on your dashboard.\n*   There, you can view all available sessions and choose the one you'd like to join!\n*   You can also set a reminder so you don't miss it.",
+    "metadata": {
+      "source": "gemini",
+      "suggestions": [
+        "Upcoming Kuppi panel",
+        "Notification bell",
+        "Dashboard focused quiz set",
+        "Dashboard Kuppi session"
+      ]
+    },
+    "createdAt": "2026-03-25T18:05:07.889Z"
+  },
+  {
+    "id": "msg-1774461911055-144",
+    "studentId": "69bf553df81c0d7587c6ba41",
+    "role": "user",
+    "content": "Dashboard focused quiz set",
+    "metadata": {
+      "context": {
+        "currentCourse": "Dashboard"
+      }
+    },
+    "createdAt": "2026-03-25T18:05:11.055Z"
+  },
+  {
+    "id": "msg-1774461914487-491",
+    "studentId": "69bf553df81c0d7587c6ba41",
+    "role": "assistant",
+    "content": "It looks like you're looking for a quiz set specifically focused on the **Dashboard",
+    "metadata": {
+      "source": "gemini",
+      "suggestions": [
+        "Upcoming Kuppi panel",
+        "Notification bell",
+        "Weekly Performance dashboard",
+        "Upcoming Kuppi sessions"
+      ]
+    },
+    "createdAt": "2026-03-25T18:05:14.488Z"
+  },
+  {
+    "id": "msg-1774461919345-181",
+    "studentId": "69bf553df81c0d7587c6ba41",
+    "role": "user",
+    "content": "Weekly Performance dashboard",
+    "metadata": {
+      "context": {
+        "currentCourse": "Dashboard"
+      }
+    },
+    "createdAt": "2026-03-25T18:05:19.345Z"
+  },
+  {
+    "id": "msg-1774461923208-473",
+    "studentId": "69bf553df81c0d7587c6ba41",
+    "role": "assistant",
+    "content": "I don't have specific information about a \"Weekly Performance dashboard\" in the details I",
+    "metadata": {
+      "source": "gemini",
+      "suggestions": [
+        "Upcoming Kuppi panel",
+        "Notification bell",
+        "Dashboard focused quiz set",
+        "Dashboard Kuppi session"
+      ]
+    },
+    "createdAt": "2026-03-25T18:05:23.208Z"
+  },
+  {
+    "id": "msg-1774461926335-965",
+    "studentId": "69bf553df81c0d7587c6ba41",
+    "role": "user",
+    "content": "Create a 7-day study plan",
+    "metadata": {
+      "context": {
+        "currentCourse": "Dashboard"
+      }
+    },
+    "createdAt": "2026-03-25T18:05:26.335Z"
+  },
+  {
+    "id": "msg-1774461929039-21",
+    "studentId": "69bf553df81c0d7587c6ba41",
+    "role": "assistant",
+    "content": "Great question. Try this quick exam plan:\n1. Split topics into daily blocks.\n2. Use 25-minute focused sessions with 5-minute breaks.\n3. End each day with 10 mixed recall questions.\n4. Track weak topics and revisit after 48 hours.\n\nNote: Live AI response is unavailable right now because provider is temporarily unavailable.",
+    "metadata": {
+      "source": "fallback",
+      "suggestions": [
+        "Weekly Performance dashboard",
+        "Upcoming Kuppi sessions",
+        "Upcoming Kuppi panel",
+        "Notification bell"
+      ]
+    },
+    "createdAt": "2026-03-25T18:05:29.039Z"
+  },
+  {
+    "id": "msg-1774462258377-397",
+    "studentId": "69bf553df81c0d7587c6ba41",
+    "role": "user",
+    "content": "Weekly Performance dashboard",
+    "metadata": {
+      "context": {
+        "currentCourse": "Dashboard"
+      }
+    },
+    "createdAt": "2026-03-25T18:10:58.377Z"
+  },
+  {
+    "id": "msg-1774462261045-58",
+    "studentId": "69bf553df81c0d7587c6ba41",
+    "role": "assistant",
+    "content": "I can help with study plans, topic explanations, quizzes, and productivity tips. Ask me something like: 'Create a 7-day data structures revision plan'.\n\nNote: Live AI response is unavailable right now because provider is temporarily unavailable.",
+    "metadata": {
+      "source": "fallback",
+      "suggestions": [
+        "Upcoming Kuppi panel",
+        "Notification bell",
+        "Dashboard focused quiz set",
+        "Dashboard Kuppi session"
+      ]
+    },
+    "createdAt": "2026-03-25T18:11:01.045Z"
+  },
+  {
+    "id": "msg-1774463452367-137",
+    "studentId": "69bf553df81c0d7587c6ba41",
+    "role": "user",
+    "content": "Create a 7-day study plan",
+    "metadata": {
+      "context": {
+        "currentCourse": "Dashboard"
+      }
+    },
+    "createdAt": "2026-03-25T18:30:52.367Z"
+  },
+  {
+    "id": "msg-1774463456098-748",
+    "studentId": "69bf553df81c0d7587c6ba41",
+    "role": "assistant",
+    "content": "Here's a 7-day study plan you can adapt for your \"Dashboard\" course, focusing on effective exam preparation techniques:\n\n*   **Day 1-6: Daily Study Blocks**\n    *   **Morning (25-30 mins):** Focus on a specific \"Dashboard\" topic (e.g., a particular feature, data visualization technique, or reporting concept). Use **active recall** – try to remember information before looking at your notes.\n    *   **Break (5 mins):** Step away and relax.\n    *   **Afternoon (25-30 mins):** Tackle another \"Dashboard\" topic.\n    *   **Evening (10-15 mins):** Test yourself on *all* topics covered so far today. Use flashcards or create your own quiz questions.\n    *   **Track Weak Topics:** Note down any areas you struggled with.\n\n*   **Day 7: Review & Practice**",
+    "metadata": {
+      "source": "gemini",
+      "suggestions": [
+        "Weekly Performance dashboard",
+        "Upcoming Kuppi sessions",
+        "Upcoming Kuppi panel",
+        "Notification bell"
+      ]
+    },
+    "createdAt": "2026-03-25T18:30:56.098Z"
+  },
+  {
+    "id": "msg-1774463468357-166",
+    "studentId": "69bf553df81c0d7587c6ba41",
+    "role": "user",
+    "content": "Upcoming Kuppi panel",
+    "metadata": {
+      "context": {
+        "currentCourse": "Dashboard"
+      }
+    },
+    "createdAt": "2026-03-25T18:31:08.357Z"
+  },
+  {
+    "id": "msg-1774463470629-437",
+    "studentId": "69bf553df81c0d7587c6ba41",
+    "role": "assistant",
+    "content": "The **Upcoming Kuppi panel** is where you can find and join live Kuppi sessions.\n\nHere's what you can do with it:\n*   **View Upcoming Sessions:** See all the scheduled Kuppi sessions.\n*   **Set Reminders:** Choose a session and set a reminder so you don't miss it.\n*   **Join Sessions:** When a session is about to start, you can join directly from its card on the panel.\n\nYou'll find this panel on your dashboard.",
+    "metadata": {
+      "source": "gemini",
+      "suggestions": [
+        "Upcoming Kuppi panel",
+        "Notification bell",
+        "Dashboard focused quiz set",
+        "Dashboard Kuppi session"
+      ]
+    },
+    "createdAt": "2026-03-25T18:31:10.629Z"
+  },
+  {
+    "id": "msg-1774463476537-750",
+    "studentId": "69bf553df81c0d7587c6ba41",
+    "role": "user",
+    "content": "Dashboard focused quiz set",
+    "metadata": {
+      "context": {
+        "currentCourse": "Dashboard"
+      }
+    },
+    "createdAt": "2026-03-25T18:31:16.537Z"
+  },
+  {
+    "id": "msg-1774463479930-30",
+    "studentId": "69bf553df81c0d7587c6ba41",
+    "role": "assistant",
+    "content": "I don't have specific information about a \"Dashboard focused quiz set\" in the",
+    "metadata": {
+      "source": "gemini",
+      "suggestions": [
+        "Upcoming Kuppi panel",
+        "Notification bell",
+        "Weekly Performance dashboard",
+        "Upcoming Kuppi sessions"
+      ]
+    },
+    "createdAt": "2026-03-25T18:31:19.930Z"
+  },
+  {
+    "id": "msg-1774463492557-543",
+    "studentId": "69bf553df81c0d7587c6ba41",
+    "role": "user",
+    "content": "Create a 7-day study plan",
+    "metadata": {
+      "context": {
+        "currentCourse": "Dashboard"
+      }
+    },
+    "createdAt": "2026-03-25T18:31:32.557Z"
+  },
+  {
+    "id": "msg-1774463495846-224",
+    "studentId": "69bf553df81c0d7587c6ba41",
+    "role": "assistant",
+    "content": "Here's a 7-day study plan to help you prepare effectively, based on",
+    "metadata": {
+      "source": "gemini",
+      "suggestions": [
+        "Weekly Performance dashboard",
+        "Upcoming Kuppi sessions",
+        "Upcoming Kuppi panel",
+        "Notification bell"
+      ]
+    },
+    "createdAt": "2026-03-25T18:31:35.847Z"
+  },
+  {
+    "id": "msg-1774464160648-886",
+    "studentId": "69bf553df81c0d7587c6ba41",
+    "role": "user",
+    "content": "Explain polymorphism simply",
+    "metadata": {
+      "context": {
+        "currentCourse": "Dashboard"
+      }
+    },
+    "createdAt": "2026-03-25T18:42:40.648Z"
+  },
+  {
+    "id": "msg-1774464162550-437",
+    "studentId": "69bf553df81c0d7587c6ba41",
+    "role": "user",
+    "content": "Explain polymorphism simply",
+    "metadata": {
+      "context": {
+        "currentCourse": "Dashboard"
+      }
+    },
+    "createdAt": "2026-03-25T18:42:42.550Z"
+  },
+  {
+    "id": "msg-1774464257548-163",
+    "studentId": "69bf553df81c0d7587c6ba41",
+    "role": "user",
+    "content": "Create a 7-day study plan",
+    "metadata": {
+      "context": {
+        "currentCourse": "Dashboard"
+      }
+    },
+    "createdAt": "2026-03-25T18:44:17.548Z"
+  },
+  {
+    "id": "msg-1774464259224-415",
+    "studentId": "69bf553df81c0d7587c6ba41",
+    "role": "user",
+    "content": "Create a 7-day study plan",
+    "metadata": {
+      "context": {
+        "currentCourse": "Dashboard"
+      }
+    },
+    "createdAt": "2026-03-25T18:44:19.224Z"
+  },
+  {
+    "id": "msg-1774464568819-949",
+    "studentId": "debug-user",
+    "role": "user",
+    "content": "Create a 7-day study plan",
+    "metadata": {
+      "context": {}
+    },
+    "createdAt": "2026-03-25T18:49:28.819Z"
+  },
+  {
+    "id": "msg-1774464579225-588",
+    "studentId": "debug-user",
+    "role": "user",
+    "content": "Create a 7-day study plan",
+    "metadata": {
+      "context": {}
+    },
+    "createdAt": "2026-03-25T18:49:39.225Z"
+  },
+  {
+    "id": "msg-1774464634459-123",
+    "studentId": "debug-user",
+    "role": "user",
+    "content": "Create a 7-day study plan",
+    "metadata": {
+      "context": {}
+    },
+    "createdAt": "2026-03-25T18:50:34.459Z"
+  },
+  {
+    "id": "msg-1774464636356-591",
+    "studentId": "debug-user",
+    "role": "assistant",
+    "content": "Great question. Try this quick exam plan:\n1. Split topics into daily blocks.\n2. Use 25-minute focused sessions with 5-minute breaks.\n3. End each day with 10 mixed recall questions.\n4. Track weak topics and revisit after 48 hours.\n\nNote: Live AI response is unavailable right now because provider is temporarily unavailable.",
+    "metadata": {
+      "source": "fallback",
+      "suggestions": [
+        "Weekly Performance dashboard",
+        "Upcoming Kuppi sessions"
+      ]
+    },
+    "createdAt": "2026-03-25T18:50:36.356Z"
+  },
+  {
+    "id": "msg-1774464872535-468",
+    "studentId": "69bf553df81c0d7587c6ba41",
+    "role": "user",
+    "content": "Explain polymorphism simply",
+    "metadata": {
+      "context": {
+        "currentCourse": "Dashboard"
+      }
+    },
+    "createdAt": "2026-03-25T18:54:32.535Z"
+  },
+  {
+    "id": "msg-1774464874803-264",
+    "studentId": "69bf553df81c0d7587c6ba41",
+    "role": "user",
+    "content": "Explain polymorphism simply",
+    "metadata": {
+      "context": {
+        "currentCourse": "Dashboard"
+      }
+    },
+    "createdAt": "2026-03-25T18:54:34.803Z"
+  },
+  {
+    "id": "msg-1774464878568-963",
+    "studentId": "69bf553df81c0d7587c6ba41",
+    "role": "user",
+    "content": "Create a 7-day study plan",
+    "metadata": {
+      "context": {
+        "currentCourse": "Dashboard"
+      }
+    },
+    "createdAt": "2026-03-25T18:54:38.568Z"
+  },
+  {
+    "id": "msg-1774464881444-805",
+    "studentId": "69bf553df81c0d7587c6ba41",
+    "role": "user",
+    "content": "Create a 7-day study plan",
+    "metadata": {
+      "context": {
+        "currentCourse": "Dashboard"
+      }
+    },
+    "createdAt": "2026-03-25T18:54:41.444Z"
+  },
+  {
+    "id": "msg-1774464981903-783",
+    "studentId": "debug-user",
+    "role": "user",
+    "content": "ping",
+    "metadata": {
+      "context": {}
+    },
+    "createdAt": "2026-03-25T18:56:21.903Z"
+  },
+  {
+    "id": "msg-1774464983866-656",
+    "studentId": "debug-user",
+    "role": "user",
+    "content": "ping",
+    "metadata": {
+      "context": {}
+    },
+    "createdAt": "2026-03-25T18:56:23.866Z"
+  },
+  {
+    "id": "msg-1774464985480-311",
+    "studentId": "debug-user",
+    "role": "assistant",
+    "content": "I can help with study plans, topic explanations, quizzes, and productivity tips. Ask me something like: 'Create a 7-day data structures revision plan'.\n\nNote: Live AI response is unavailable right now because provider is temporarily unavailable.",
+    "metadata": {
+      "source": "fallback",
+      "suggestions": []
+    },
+    "createdAt": "2026-03-25T18:56:25.480Z"
+  },
+  {
+    "id": "msg-1774465070229-993",
+    "studentId": "69bf553df81c0d7587c6ba41",
+    "role": "user",
+    "content": "Create a 7-day study plan",
+    "metadata": {
+      "context": {
+        "currentCourse": "Dashboard"
+      }
+    },
+    "createdAt": "2026-03-25T18:57:50.229Z"
+  },
+  {
+    "id": "msg-1774465072503-131",
+    "studentId": "69bf553df81c0d7587c6ba41",
+    "role": "user",
+    "content": "Create a 7-day study plan",
+    "metadata": {
+      "context": {
+        "currentCourse": "Dashboard"
+      }
+    },
+    "createdAt": "2026-03-25T18:57:52.503Z"
+  },
+  {
+    "id": "msg-1774465079889-135",
+    "studentId": "69bf553df81c0d7587c6ba41",
+    "role": "user",
+    "content": "Create a 7-day study plan",
+    "metadata": {
+      "context": {
+        "currentCourse": "Dashboard"
+      }
+    },
+    "createdAt": "2026-03-25T18:57:59.889Z"
+  },
+  {
+    "id": "msg-1774465082087-531",
+    "studentId": "69bf553df81c0d7587c6ba41",
+    "role": "user",
+    "content": "Create a 7-day study plan",
+    "metadata": {
+      "context": {
+        "currentCourse": "Dashboard"
+      }
+    },
+    "createdAt": "2026-03-25T18:58:02.087Z"
+  },
+  {
+    "id": "msg-1774465184289-469",
+    "studentId": "69bf553df81c0d7587c6ba41",
+    "role": "user",
+    "content": "Create a 7-day study plan",
+    "metadata": {
+      "context": {
+        "currentCourse": "Dashboard"
+      }
+    },
+    "createdAt": "2026-03-25T18:59:44.289Z"
+  },
+  {
+    "id": "msg-1774465186150-64",
+    "studentId": "69bf553df81c0d7587c6ba41",
+    "role": "assistant",
+    "content": "Great question. Try this quick exam plan:\n1. Split topics into daily blocks.\n2. Use 25-minute focused sessions with 5-minute breaks.\n3. End each day with 10 mixed recall questions.\n4. Track weak topics and revisit after 48 hours.\n\nNote: Live AI response is unavailable right now because provider is temporarily unavailable.",
+    "metadata": {
+      "source": "fallback",
+      "suggestions": [
+        "Weekly Performance dashboard",
+        "Upcoming Kuppi sessions",
+        "Upcoming Kuppi panel",
+        "Notification bell"
+      ]
+    },
+    "createdAt": "2026-03-25T18:59:46.150Z"
+  },
+  {
+    "id": "msg-1774465468107-241",
+    "studentId": "69bf553df81c0d7587c6ba41",
+    "role": "user",
+    "content": "Create a 7-day study plan",
+    "metadata": {
+      "context": {
+        "currentCourse": "Dashboard"
+      }
+    },
+    "createdAt": "2026-03-25T19:04:28.107Z"
+  },
+  {
+    "id": "msg-1774465471522-196",
+    "studentId": "69bf553df81c0d7587c6ba41",
+    "role": "assistant",
+    "content": "Here's a 7-day study plan to help you prepare effectively:\n\n*   **Daily Focus:** Dedicate specific time blocks each day to study different topics.\n*   **Active Recall:** After each study session, test yourself on what you've learned.\n*   **Short Bursts:** Study in focused sessions (e.g., 25 minutes) with short breaks in between.\n*   **Track Progress:** Note down topics you find challenging.\n*   **Spaced Repetition:** Revisit your weak topics after a couple of days to reinforce your understanding.\n\n**To help you track your progress, consider using the Weekly Performance dashboard.**\n\n**Additionally, you might find it beneficial to join a Kuppi session. You can find upcoming sessions in the \"Upcoming Kuppi\" panel on your dashboard.**",
+    "metadata": {
+      "source": "gemini",
+      "suggestions": [
+        "Weekly Performance dashboard",
+        "Upcoming Kuppi sessions",
+        "Upcoming Kuppi panel",
+        "Notification bell"
+      ]
+    },
+    "createdAt": "2026-03-25T19:04:31.522Z"
+  },
+  {
+    "id": "msg-1774465502727-906",
+    "studentId": "69bf553df81c0d7587c6ba41",
+    "role": "user",
+    "content": "Upcoming Kuppi sessions",
+    "metadata": {
+      "context": {
+        "currentCourse": "Dashboard"
+      }
+    },
+    "createdAt": "2026-03-25T19:05:02.727Z"
+  },
+  {
+    "id": "msg-1774465504798-735",
+    "studentId": "69bf553df81c0d7587c6ba41",
+    "role": "assistant",
+    "content": "To find upcoming Kuppi sessions:\n\n*   Go to your **Dashboard**.\n*   Look for the **Upcoming Kuppi** panel.\n*   You can also set reminders using the **Notification bell**.\n\nOnce you find a session you're interested in, you can join it from its session card when the start time arrives.",
+    "metadata": {
+      "source": "gemini",
+      "suggestions": [
+        "Upcoming Kuppi panel",
+        "Notification bell",
+        "Dashboard focused quiz set",
+        "Dashboard Kuppi session"
+      ]
+    },
+    "createdAt": "2026-03-25T19:05:04.798Z"
+  },
+  {
+    "id": "msg-1774465509413-690",
+    "studentId": "69bf553df81c0d7587c6ba41",
+    "role": "user",
+    "content": "Upcoming Kuppi panel",
+    "metadata": {
+      "context": {
+        "currentCourse": "Dashboard"
+      }
+    },
+    "createdAt": "2026-03-25T19:05:09.413Z"
+  },
+  {
+    "id": "msg-1774465511364-754",
+    "studentId": "69bf553df81c0d7587c6ba41",
+    "role": "assistant",
+    "content": "To find upcoming Kuppi sessions:\n\n*   Open the **Upcoming Kuppi** panel on your dashboard.\n*   You can also set reminders using the **Notification bell**.\n\nOnce you find a session you're interested in, you can join it from its session card when the start time arrives.",
+    "metadata": {
+      "source": "gemini",
+      "suggestions": [
+        "Upcoming Kuppi panel",
+        "Notification bell",
+        "Dashboard focused quiz set",
+        "Dashboard Kuppi session"
+      ]
+    },
+    "createdAt": "2026-03-25T19:05:11.364Z"
+  },
+  {
+    "id": "msg-1774465513254-73",
+    "studentId": "69bf553df81c0d7587c6ba41",
+    "role": "user",
+    "content": "Notification bell",
+    "metadata": {
+      "context": {
+        "currentCourse": "Dashboard"
+      }
+    },
+    "createdAt": "2026-03-25T19:05:13.254Z"
+  },
+  {
+    "id": "msg-1774465514809-109",
+    "studentId": "69bf553df81c0d7587c6ba41",
+    "role": "assistant",
+    "content": "To set reminders for upcoming Kuppi sessions:\n\n*   Use the **Notification bell** on your dashboard.\n*   You can also find sessions in the **Upcoming Kuppi** panel and join from your session card at the start time.",
+    "metadata": {
+      "source": "gemini",
+      "suggestions": [
+        "Upcoming Kuppi panel",
+        "Notification bell",
+        "Dashboard focused quiz set",
+        "Dashboard Kuppi session"
+      ]
+    },
+    "createdAt": "2026-03-25T19:05:14.809Z"
+  },
+  {
+    "id": "msg-1774465521428-32",
+    "studentId": "69bf553df81c0d7587c6ba41",
+    "role": "user",
+    "content": "Create a 7-day study plan",
+    "metadata": {
+      "context": {
+        "currentCourse": "Dashboard"
+      }
+    },
+    "createdAt": "2026-03-25T19:05:21.428Z"
+  },
+  {
+    "id": "msg-1774465524529-542",
+    "studentId": "69bf553df81c0d7587c6ba41",
+    "role": "assistant",
+    "content": "That's a great goal! Since I don't have details on your specific subjects or exam dates, here's a general 7-day study plan framework you can adapt:\n\n**Your 7-Day Study Plan Framework:**\n\n*   **Daily:**\n    *   **Short, Focused Blocks:** Study in 25-50 minute blocks, followed by short breaks.\n    *   **Active Recall:** After each block, try to recall what",
+    "metadata": {
+      "source": "gemini",
+      "suggestions": [
+        "Weekly Performance dashboard",
+        "Upcoming Kuppi sessions",
+        "Upcoming Kuppi panel",
+        "Notification bell"
+      ]
+    },
+    "createdAt": "2026-03-25T19:05:24.529Z"
+  },
+  {
+    "id": "msg-1774465624687-326",
+    "studentId": "69bf553df81c0d7587c6ba41",
+    "role": "user",
+    "content": "Create a 7-day study plan",
+    "metadata": {
+      "context": {
+        "currentCourse": "Dashboard"
+      }
+    },
+    "createdAt": "2026-03-25T19:07:04.687Z"
+  },
+  {
+    "id": "msg-1774465626738-86",
+    "studentId": "69bf553df81c0d7587c6ba41",
+    "role": "assistant",
+    "content": "Great question. Try this quick exam plan:\n1. Split topics into daily blocks.\n2. Use 25-minute focused sessions with 5-minute breaks.\n3. End each day with 10 mixed recall questions.\n4. Track weak topics and revisit after 48 hours.\n\nNote: Live AI response is unavailable right now because provider is temporarily unavailable.",
+    "metadata": {
+      "source": "fallback",
+      "suggestions": [
+        "Weekly Performance dashboard",
+        "Upcoming Kuppi sessions",
+        "Upcoming Kuppi panel",
+        "Notification bell"
+      ]
+    },
+    "createdAt": "2026-03-25T19:07:06.738Z"
+  },
+  {
+    "id": "msg-1774465632853-365",
+    "studentId": "69bf553df81c0d7587c6ba41",
+    "role": "user",
+    "content": "Upcoming Kuppi panel",
+    "metadata": {
+      "context": {
+        "currentCourse": "Dashboard"
+      }
+    },
+    "createdAt": "2026-03-25T19:07:12.853Z"
+  },
+  {
+    "id": "msg-1774465634557-390",
+    "studentId": "69bf553df81c0d7587c6ba41",
+    "role": "assistant",
+    "content": "I can help with study plans, topic explanations, quizzes, and productivity tips. Ask me something like: 'Create a 7-day data structures revision plan'.\n\nNote: Live AI response is unavailable right now because provider is temporarily unavailable.",
+    "metadata": {
+      "source": "fallback",
+      "suggestions": [
+        "Upcoming Kuppi panel",
+        "Notification bell",
+        "Dashboard focused quiz set",
+        "Dashboard Kuppi session"
+      ]
+    },
+    "createdAt": "2026-03-25T19:07:14.557Z"
+  },
+  {
+    "id": "msg-1774465654865-991",
+    "studentId": "69bf553df81c0d7587c6ba41",
+    "role": "user",
+    "content": "Upcoming Kuppi panel",
+    "metadata": {
+      "context": {
+        "currentCourse": "Dashboard"
+      }
+    },
+    "createdAt": "2026-03-25T19:07:34.865Z"
+  },
+  {
+    "id": "msg-1774465656549-468",
+    "studentId": "69bf553df81c0d7587c6ba41",
+    "role": "assistant",
+    "content": "I can help with study plans, topic explanations, quizzes, and productivity tips. Ask me something like: 'Create a 7-day data structures revision plan'.\n\nNote: Live AI response is unavailable right now because provider is temporarily unavailable.",
+    "metadata": {
+      "source": "fallback",
+      "suggestions": [
+        "Upcoming Kuppi panel",
+        "Notification bell",
+        "Dashboard focused quiz set",
+        "Dashboard Kuppi session"
+      ]
+    },
+    "createdAt": "2026-03-25T19:07:36.549Z"
+  },
+  {
+    "id": "msg-1774465748241-863",
+    "studentId": "69bf553df81c0d7587c6ba41",
+    "role": "user",
+    "content": "Create a 7-day study plan",
+    "metadata": {
+      "context": {
+        "currentCourse": "Dashboard"
+      }
+    },
+    "createdAt": "2026-03-25T19:09:08.242Z"
+  },
+  {
+    "id": "msg-1774465751667-250",
+    "studentId": "69bf553df81c0d7587c6ba41",
+    "role": "assistant",
+    "content": "To create a 7-day study plan, let's focus on effective study techniques.\n\nHere’s a plan incorporating active recall and spaced repetition:\n\n*   **Daily:**\n    *   Study in short, focused blocks.\n    *   Test yourself on what you've learned.\n    *   Identify and track any topics you find difficult.\n*   **Weekly:**\n    *   Dedicate time to revise the topics you've tracked as weak.\n    *   Review your progress on the **Weekly Performance dashboard**.\n*   **Consider Kuppi Sessions:**\n    *   Check the **Upcoming Kuppi** panel on your dashboard for sessions that might cover your weaker topics.\n    *   Joining a Kuppi session can be a great way to get extra help and practice.\n\n**Assumption:** This plan assumes you have access to your course materials and the ability to track your progress.\n\nWould you like to explore how to find relevant Kuppi sessions for your weak topics?",
+    "metadata": {
+      "source": "gemini",
+      "suggestions": [
+        "Weekly Performance dashboard",
+        "Upcoming Kuppi sessions",
+        "Upcoming Kuppi panel",
+        "Notification bell"
+      ]
+    },
+    "createdAt": "2026-03-25T19:09:11.667Z"
+  },
+  {
+    "id": "msg-1774465760164-74",
+    "studentId": "69bf553df81c0d7587c6ba41",
+    "role": "user",
+    "content": "yes",
+    "metadata": {
+      "context": {
+        "currentCourse": "Dashboard"
+      }
+    },
+    "createdAt": "2026-03-25T19:09:20.164Z"
+  },
+  {
+    "id": "msg-1774465761932-427",
+    "studentId": "69bf553df81c0d7587c6ba41",
+    "role": "assistant",
+    "content": "Great! To find Kuppi sessions relevant to your studies:\n\n*   Go to your **Dashboard**.\n*   Look for the **Upcoming Kuppi** panel.\n*   Browse the listed sessions. If you see one that covers a topic you're struggling with, you can:\n    *   Choose the session.\n    *   Set a reminder so you don't miss it.\n*   You can join the session from its card on your dashboard when it starts.\n\n**Assumption:** You can see the \"Upcoming Kuppi\" panel on your dashboard.\n\nLet me know if you'd like help understanding how to identify which topics are covered in the Kuppi sessions!",
+    "metadata": {
+      "source": "gemini",
+      "suggestions": [
+        "Upcoming Kuppi panel",
+        "Notification bell",
+        "Dashboard focused quiz set",
+        "Dashboard Kuppi session"
+      ]
+    },
+    "createdAt": "2026-03-25T19:09:21.932Z"
+  },
+  {
+    "id": "msg-1774465764777-260",
+    "studentId": "69bf553df81c0d7587c6ba41",
+    "role": "user",
+    "content": "Dashboard focused quiz set",
+    "metadata": {
+      "context": {
+        "currentCourse": "Dashboard"
+      }
+    },
+    "createdAt": "2026-03-25T19:09:24.777Z"
+  },
+  {
+    "id": "msg-1774465767045-496",
+    "studentId": "69bf553df81c0d7587c6ba41",
+    "role": "assistant",
+    "content": "You're looking for quiz sets related to your Dashboard!\n\nBased on the knowledge I have, here's what I can suggest:\n\n*   **For general exam preparation:** Doc 2 mentions using active recall and spaced repetition. You can apply this by testing yourself daily on the topics you're covering.\n*   **For specific topics:** Doc 3 explains polymorphism in OOP. If this is a topic you need to practice, there's an **OOP quiz set** available.\n*   **For interactive learning:** Doc 1 and Doc 2 both point to **Kuppi sessions**. You can find sessions related to various topics in the **Upcoming Kuppi** panel on your dashboard.\n\n**Assumption:** You are looking for quiz sets that are accessible through your current course materials or platform.\n\nWould you like me to help you find a Kuppi session related to OOP, or perhaps explain how to use the \"Upcoming Kuppi\" panel more effectively?",
+    "metadata": {
+      "source": "gemini",
+      "suggestions": [
+        "Upcoming Kuppi panel",
+        "Notification bell",
+        "Weekly Performance dashboard",
+        "Upcoming Kuppi sessions"
+      ]
+    },
+    "createdAt": "2026-03-25T19:09:27.045Z"
   }
 ]

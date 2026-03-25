@@ -178,7 +178,7 @@ Frontend/
 
 ### Port already in use
 - Frontend: Change port with `PORT=3001 npm start`
-- Backend: Change port in .env `PORT=5001`
+- Backend: Change port in .env `PORT=5000`
 
 ## 📊 Database Schema
 

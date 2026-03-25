@@ -71,8 +71,43 @@ const getGeminiModelCandidates = (primaryModel) => {
     .map((item) => item.trim())
     .filter(Boolean);
 
-  const defaults = ['gemini-2.0-flash', 'gemini-1.5-flash-latest', 'gemini-1.5-flash'];
-  return [primaryModel, ...fromEnv, ...defaults].filter((model, idx, arr) => model && arr.indexOf(model) === idx);
+  const defaults = ['gemini-2.5-flash', 'gemini-2.5-flash-lite', 'gemini-2.5-flash-latest'];
+  return [primaryModel, ...fromEnv, ...defaults]
+    .map((model) => normalizeGeminiModelName(model))
+    .filter((model, idx, arr) => model && arr.indexOf(model) === idx);
+};
+
+const normalizeGeminiModelName = (name) => String(name || '').replace(/^models\//, '').trim();
+
+let geminiModelCache = {
+  expiresAt: 0,
+  models: []
+};
+
+const listGeminiGenerateContentModels = async (apiKey) => {
+  const now = Date.now();
+  if (geminiModelCache.expiresAt > now && geminiModelCache.models.length) {
+    return geminiModelCache.models;
+  }
+
+  const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`);
+  if (!response.ok) {
+    const errorPayload = await response.text();
+    throw new Error(`Gemini list models failed: ${errorPayload}`);
+  }
+
+  const data = await response.json();
+  const availableModels = (data?.models || [])
+    .filter((model) => Array.isArray(model?.supportedGenerationMethods) && model.supportedGenerationMethods.includes('generateContent'))
+    .map((model) => normalizeGeminiModelName(model.name))
+    .filter(Boolean);
+
+  geminiModelCache = {
+    expiresAt: now + 10 * 60 * 1000,
+    models: availableModels
+  };
+
+  return availableModels;
 };
 
 const askOpenAI = async ({ message, history, apiKey, model }) => {
@@ -112,7 +147,8 @@ const askOpenAI = async ({ message, history, apiKey, model }) => {
 };
 
 const askGemini = async ({ message, history, apiKey, model }) => {
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent?key=${apiKey}`;
+  const normalizedModel = normalizeGeminiModelName(model);
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(normalizedModel)}:generateContent?key=${apiKey}`;
   const contents = toGeminiContents(history, message);
 
   const response = await fetch(url, {
@@ -151,8 +187,16 @@ const askGemini = async ({ message, history, apiKey, model }) => {
 };
 
 const askGeminiWithFallbackModels = async ({ message, history, apiKey, primaryModel }) => {
-  const models = getGeminiModelCandidates(primaryModel);
+  const configuredModels = getGeminiModelCandidates(primaryModel);
+  let models = [...configuredModels];
   let lastError = '';
+
+  try {
+    const discoveredModels = await listGeminiGenerateContentModels(apiKey);
+    models = [...configuredModels, ...discoveredModels].filter((model, idx, arr) => model && arr.indexOf(model) === idx);
+  } catch (discoveryError) {
+    lastError = discoveryError.message;
+  }
 
   for (const model of models) {
     try {
@@ -263,7 +307,7 @@ const askAI = async (req, res) => {
     const openAIKey = process.env.OPENAI_API_KEY;
     const openAIModel = process.env.OPENAI_MODEL || "gpt-4o-mini";
     const geminiKey = process.env.GEMINI_API_KEY;
-    const geminiModel = process.env.GEMINI_MODEL || "gemini-1.5-flash";
+    const geminiModel = process.env.GEMINI_MODEL || "gemini-2.5-flash";
 
     const validOpenAIKey = isUsableApiKey(openAIKey) ? openAIKey : '';
     const validGeminiKey = isUsableApiKey(geminiKey) ? geminiKey : '';
