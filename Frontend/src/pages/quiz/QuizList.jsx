@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import DashboardLayout from '../../components/DashboardLayout';
 import { getQuizzes, deleteQuiz } from '../../services/quizService';
@@ -17,13 +17,13 @@ const QuizList = () => {
   const [difficulty, setDifficulty] = useState('All');
   const [subject, setSubject] = useState('');
 
-  const fetchQuizzes = async () => {
+  const fetchQuizzes = useCallback(async (searchTerm = '') => {
     try {
       setLoading(true);
       const filters = {};
       if (difficulty !== 'All') filters.difficulty = difficulty;
       if (subject.trim()) filters.subject = subject.trim();
-      if (search.trim()) filters.search = search.trim();
+      if (searchTerm.trim()) filters.search = searchTerm.trim();
       const res = await getQuizzes(filters);
       setQuizzes(res.data || []);
     } catch (err) {
@@ -31,13 +31,15 @@ const QuizList = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [difficulty, subject]);
 
-  useEffect(() => { fetchQuizzes(); }, [difficulty, subject]);
+  useEffect(() => {
+    fetchQuizzes();
+  }, [fetchQuizzes]);
 
   const handleSearch = (e) => {
     e.preventDefault();
-    fetchQuizzes();
+    fetchQuizzes(search);
   };
 
   const handleDelete = async (id) => {
@@ -88,7 +90,7 @@ const QuizList = () => {
             value={subject}
             onChange={e => setSubject(e.target.value)}
             className="filter-input"
-            onBlur={fetchQuizzes}
+            onBlur={() => fetchQuizzes(search)}
           />
 
           <div className="difficulty-tabs">

@@ -55,7 +55,7 @@ const QuizAttempt = () => {
   }, [submitting, quiz, answers, id, navigate]);
 
   useEffect(() => {
-    if (!started || timeLeft <= 0) return;
+    if (!started) return;
     timerRef.current = setInterval(() => {
       setTimeLeft(prev => {
         if (prev <= 1) {
