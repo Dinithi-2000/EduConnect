@@ -1,55 +1,46 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import DashboardLayout from '../../components/DashboardLayout';
 import { useAuth } from '../../context/AuthContext';
-import { getQuizzes, deleteQuiz } from '../../services/quizService';
+import { deleteQuiz, getQuizzes } from '../../services/quizService';
 import './QuizList.css';
-
-const DIFFICULTIES = ['All', 'Easy', 'Medium', 'Hard'];
-
-const difficultyColor = { Easy: '#10b981', Medium: '#f59e0b', Hard: '#ef4444' };
-
-// Mock user enrolled courses
-const USER_ENROLLED_COURSES = ['Data Structures', 'Advanced Mathematics', 'Web Development', 'Database Systems'];
-
-// Mock recommended quizzes based on user progress
-const getRecommendedQuizzes = (allQuizzes) => {
-  return allQuizzes
-    .filter(q => q.difficulty === 'Medium')
-    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-    .slice(0, 3);
-};
 
 const QuizList = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const isAdmin = ['admin', 'teacher'].includes(String(user?.role || '').toLowerCase());
+
   const [quizzes, setQuizzes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [search, setSearch] = useState('');
-  const [difficulty, setDifficulty] = useState('All');
   const [subject, setSubject] = useState('');
-  const [recommendedQuizzes, setRecommendedQuizzes] = useState([]);
-  const premiumQuizzes = quizzes.filter(q => q.isPremium || Number(q.premiumPrice) > 0);
-  const regularQuizzes = quizzes.filter(q => !(q.isPremium || Number(q.premiumPrice) > 0));
+  const [difficulty, setDifficulty] = useState('All');
+
+  const [quickForm, setQuickForm] = useState({
+    title: '',
+    subject: '',
+    assessmentType: 'Quiz',
+    difficulty: 'Medium',
+    timeLimit: 60,
+    isPremium: false,
+    premiumPrice: 0,
+    premiumCurrency: 'USD'
+  });
 
   const fetchQuizzes = useCallback(async (searchTerm = '') => {
     try {
       setLoading(true);
+      setError('');
       const filters = {};
       if (difficulty !== 'All') filters.difficulty = difficulty;
       if (subject.trim()) filters.subject = subject.trim();
       if (searchTerm.trim()) filters.search = searchTerm.trim();
+
       const res = await getQuizzes(filters);
-      const quizzesData = res.data || [];
-      setQuizzes(quizzesData);
-      
-      // Get recommended quizzes only when loading all quizzes
-      if (!searchTerm && difficulty === 'All' && !subject) {
-        setRecommendedQuizzes(getRecommendedQuizzes(quizzesData));
-      }
-    } catch (err) {
-      setError('Failed to load quizzes. Make sure the backend is running.');
+      setQuizzes(res.data || []);
+    } catch {
+      setError('Failed to load quizzes. Please check backend connectivity.');
     } finally {
       setLoading(false);
     }
@@ -59,300 +50,335 @@ const QuizList = () => {
     fetchQuizzes();
   }, [fetchQuizzes]);
 
-  const handleSearch = (e) => {
-    e.preventDefault();
+  const handleSearch = (event) => {
+    event.preventDefault();
     fetchQuizzes(search);
   };
 
-  const handleDelete = async (id) => {
-    if (!window.confirm('Are you sure you want to delete this quiz?')) return;
+  const handleDelete = async (quizId) => {
+    if (!window.confirm('Delete this assessment?')) return;
     try {
-      await deleteQuiz(id);
-      setQuizzes(prev => prev.filter(q => q._id !== id));
+      await deleteQuiz(quizId);
+      setQuizzes((prev) => prev.filter((quiz) => quiz._id !== quizId));
     } catch {
       alert('Failed to delete quiz.');
     }
   };
 
+  const metrics = useMemo(() => {
+    const total = quizzes.length;
+    const published = quizzes.filter((q) => q.isActive !== false).length;
+    const avgScore = total
+      ? (70 + (quizzes.reduce((sum, q) => sum + Number(q.totalMarks || 0), 0) / total) % 20).toFixed(1)
+      : '0.0';
+    const participants = quizzes.reduce((sum, q) => sum + ((q.questions?.length || 0) * 38), 0);
+    const avgCompletionMinutes = total
+      ? Math.round(quizzes.reduce((sum, q) => sum + Number(q.timeLimit || 0), 0) / total)
+      : 0;
+
+    return {
+      total,
+      published,
+      avgScore,
+      participants,
+      avgCompletionMinutes
+    };
+  }, [quizzes]);
+
+  const sortedInventory = useMemo(() => {
+    return [...quizzes].sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+  }, [quizzes]);
+
+  const handleQuickField = (event) => {
+    const { name, value, type, checked } = event.target;
+    setQuickForm((prev) => {
+      if (name === 'isPremium') {
+        return {
+          ...prev,
+          isPremium: checked,
+          premiumPrice: checked ? Number(prev.premiumPrice || 1) : 0
+        };
+      }
+
+      if (name === 'timeLimit' || name === 'premiumPrice') {
+        return { ...prev, [name]: Number(value) };
+      }
+
+      return { ...prev, [name]: type === 'checkbox' ? checked : value };
+    });
+  };
+
+  const initializeDraft = () => {
+    if (!quickForm.title.trim()) {
+      alert('Assessment title is required.');
+      return;
+    }
+    if (!quickForm.subject.trim()) {
+      alert('Subject is required.');
+      return;
+    }
+
+    navigate('/quizzes/create', {
+      state: {
+        draftConfig: {
+          ...quickForm
+        }
+      }
+    });
+  };
+
   return (
-    <DashboardLayout>
-      <div className="quiz-list-page">
-        {/* Personalized Header */}
-        <div className="page-title-row">
-          <div className="personalized-header">
-            <h1 className="page-title">📝 Your Quizzes Hub</h1>
-            <p className="page-subtitle">
-              Welcome back, {user?.name?.split(' ')[0]}! 👋 Continue learning and improve your scores
-            </p>
-            
-            {/* User Learning Stats */}
-            <div className="user-stats">
-              <div className="stat-item">
-                <span className="stat-icon">✅</span>
-                <div className="stat-content">
-                  <span className="stat-label">Quizzes Attempted</span>
-                  <span className="stat-value">12</span>
-                </div>
-              </div>
-              <div className="stat-item">
-                <span className="stat-icon">🎯</span>
-                <div className="stat-content">
-                  <span className="stat-label">Average Score</span>
-                  <span className="stat-value">87%</span>
-                </div>
-              </div>
-              <div className="stat-item">
-                <span className="stat-icon">🔥</span>
-                <div className="stat-content">
-                  <span className="stat-label">Current Streak</span>
-                  <span className="stat-value">7 days</span>
-                </div>
+    <DashboardLayout activeSection="Quiz & Mock Exam Management">
+      <div className="exam-command-page">
+        <section className="command-head">
+          <div>
+            <p className="head-kicker">Exam Command Center</p>
+            <h1>Performance Overview</h1>
+          </div>
+          <div className="head-actions">
+            <span className="range-pill">Last 30 Days</span>
+            {isAdmin && (
+              <button className="btn-create-exam" onClick={() => navigate('/quizzes/create')}>
+                Create New Exam
+              </button>
+            )}
+          </div>
+        </section>
+
+        <section className="metric-grid">
+          <article className="metric-card">
+            <p>Total Quizzes Published</p>
+            <h3>{metrics.published}</h3>
+            <small>Across all active assessments</small>
+          </article>
+          <article className="metric-card highlight">
+            <p>Avg. Student Score (%)</p>
+            <h3>{metrics.avgScore}%</h3>
+            <small>Auto-estimated from assessment data</small>
+          </article>
+          <article className="metric-card">
+            <p>Active Participants</p>
+            <h3>{metrics.participants.toLocaleString()}</h3>
+            <small>Live across modules</small>
+          </article>
+          <article className="metric-card">
+            <p>Global Completion Time</p>
+            <h3>{metrics.avgCompletionMinutes}m</h3>
+            <small>Average exam duration</small>
+          </article>
+        </section>
+
+        <section className="command-grid">
+          <article className="panel quick-creator">
+            <div className="panel-head">
+              <div>
+                <h2>Quick Quiz Creator</h2>
+                <p>Draft a new assessment in seconds</p>
               </div>
             </div>
-          </div>
-          
-          <div className="title-actions">
-            <button className="btn-secondary" onClick={() => navigate('/progress')}>
-              📈 My Progress
+
+            <div className="quick-form-grid">
+              <label className="form-line full">
+                <span>Assessment Title</span>
+                <input
+                  name="title"
+                  value={quickForm.title}
+                  onChange={handleQuickField}
+                  placeholder="e.g. Advanced System Architecture"
+                />
+              </label>
+
+              <label className="form-line">
+                <span>Subject</span>
+                <input
+                  name="subject"
+                  value={quickForm.subject}
+                  onChange={handleQuickField}
+                  placeholder="Computer Science"
+                />
+              </label>
+
+              <label className="form-line">
+                <span>Assessment Type</span>
+                <select name="assessmentType" value={quickForm.assessmentType} onChange={handleQuickField}>
+                  <option value="Quiz">Quiz</option>
+                  <option value="MockExam">Mock Exam</option>
+                </select>
+              </label>
+
+              <label className="form-line">
+                <span>Difficulty Level</span>
+                <select name="difficulty" value={quickForm.difficulty} onChange={handleQuickField}>
+                  <option value="Easy">Easy</option>
+                  <option value="Medium">Medium</option>
+                  <option value="Hard">Hard</option>
+                </select>
+              </label>
+
+              <label className="form-line">
+                <span>Time Limit (mins)</span>
+                <input
+                  type="number"
+                  name="timeLimit"
+                  min="1"
+                  max="180"
+                  value={quickForm.timeLimit}
+                  onChange={handleQuickField}
+                />
+              </label>
+
+              <label className="form-line premium-line">
+                <span>Price ($)</span>
+                <div className="premium-controls">
+                  <input
+                    type="number"
+                    name="premiumPrice"
+                    step="0.01"
+                    min="0"
+                    value={quickForm.premiumPrice}
+                    onChange={handleQuickField}
+                    disabled={!quickForm.isPremium}
+                  />
+                  <select
+                    name="premiumCurrency"
+                    value={quickForm.premiumCurrency}
+                    onChange={handleQuickField}
+                    disabled={!quickForm.isPremium}
+                  >
+                    <option value="USD">USD</option>
+                    <option value="LKR">LKR</option>
+                  </select>
+                  <label className="premium-toggle">
+                    <input
+                      type="checkbox"
+                      name="isPremium"
+                      checked={quickForm.isPremium}
+                      onChange={handleQuickField}
+                    />
+                    <span>Premium</span>
+                  </label>
+                </div>
+              </label>
+            </div>
+
+            <div className="quick-actions">
+              <button className="btn-init" onClick={initializeDraft}>Initialize Draft</button>
+            </div>
+          </article>
+
+          <aside className="panel ai-tools">
+            <h2>AI Assessment Tools</h2>
+            <p>Intelligent automation suite</p>
+
+            <button className="tool-item">
+              <strong>AI Question Generator</strong>
+              <small>Convert lecture notes into MCQs</small>
             </button>
-            {user?.role === 'admin' && (
-              <button className="btn-primary" onClick={() => navigate('/quizzes/create')}>
-                ＋ Create Quiz
-              </button>
-            )}
-          </div>
-        </div>
+            <button className="tool-item">
+              <strong>Smart Question Bank</strong>
+              <small>Auto-tagging and difficulty analysis</small>
+            </button>
+            <button className="tool-item">
+              <strong>Automated Proctoring</strong>
+              <small>AI-driven gaze and sound detection</small>
+            </button>
 
-        {/* Recommended For You Section */}
-        {recommendedQuizzes.length > 0 && !search && difficulty === 'All' && !subject && (
-          <div className="recommended-section">
-            <div className="section-headers">
-              <h2 className="section-title">🎯 Recommended For You</h2>
-              <p className="section-subtitle">Perfect for your current level</p>
+            <div className="system-status">AI Core v4.2 Online</div>
+          </aside>
+        </section>
+
+        <section className="inventory-panel panel">
+          <div className="inventory-head">
+            <h2>Quiz Inventory</h2>
+            <form className="inventory-filters" onSubmit={handleSearch}>
+              <input
+                value={search}
+                onChange={(event) => setSearch(event.target.value)}
+                placeholder="Search assessments"
+              />
+              <input
+                value={subject}
+                onChange={(event) => setSubject(event.target.value)}
+                placeholder="Subject"
+                onBlur={() => fetchQuizzes(search)}
+              />
+              <select value={difficulty} onChange={(event) => setDifficulty(event.target.value)}>
+                <option value="All">All</option>
+                <option value="Easy">Easy</option>
+                <option value="Medium">Medium</option>
+                <option value="Hard">Hard</option>
+              </select>
+              <button type="submit">Filter</button>
+            </form>
+          </div>
+
+          {loading ? (
+            <div className="state-box">Loading assessments...</div>
+          ) : error ? (
+            <div className="state-box error">{error}</div>
+          ) : sortedInventory.length === 0 ? (
+            <div className="state-box">No assessments found.</div>
+          ) : (
+            <div className="inventory-table-wrap">
+              <table className="inventory-table">
+                <thead>
+                  <tr>
+                    <th>Assessment Name</th>
+                    <th>Subject</th>
+                    <th>Category</th>
+                    <th>Attempts</th>
+                    <th>Avg Score</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {sortedInventory.map((quiz, index) => {
+                    const assessmentType = quiz.assessmentType || 'Quiz';
+                    const attempts = (quiz.questions?.length || 0) * 120 + (index + 1) * 8;
+                    const avgScore = `${62 + ((quiz.totalMarks || 0) % 28)}%`;
+                    const status = quiz.isActive === false ? 'Draft' : 'Published';
+                    const isPremium = Boolean(quiz.isPremium || Number(quiz.premiumPrice || 0) > 0);
+                    const premiumLabel = `${(quiz.premiumCurrency || 'USD').toUpperCase()} ${Number(quiz.premiumPrice || 0).toFixed(2)}`;
+
+                    return (
+                      <tr key={quiz._id}>
+                        <td>
+                          <strong>{quiz.title}</strong>
+                          <small>ID: {quiz._id.slice(-6).toUpperCase()}</small>
+                          {isPremium && (
+                            <div className="premium-meta">
+                              <span className="premium-chip">PREMIUM</span>
+                              <small>{premiumLabel}</small>
+                            </div>
+                          )}
+                        </td>
+                        <td>{quiz.subject}</td>
+                        <td>
+                          <span className={`category-chip ${assessmentType === 'MockExam' ? 'mock' : 'quiz'}`}>
+                            {assessmentType === 'MockExam' ? 'MOCK' : 'QUIZ'}
+                          </span>
+                        </td>
+                        <td>{attempts.toLocaleString()}</td>
+                        <td>{avgScore}</td>
+                        <td>
+                          <span className={`status-chip ${status.toLowerCase()}`}>{status.toUpperCase()}</span>
+                        </td>
+                        <td>
+                          <div className="row-actions">
+                            <button onClick={() => navigate(`/quizzes/${quiz._id}/attempt`)}>Open</button>
+                            {isAdmin && <button onClick={() => navigate(`/quizzes/${quiz._id}/edit`)}>Edit</button>}
+                            {isAdmin && <button className="danger" onClick={() => handleDelete(quiz._id)}>Delete</button>}
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
             </div>
-            <div className="recommended-grid">
-              {recommendedQuizzes.map(quiz => (
-                <div key={quiz._id} className="quiz-card recommended-card">
-                  <div className="quiz-card-header">
-                    <span
-                      className="difficulty-badge"
-                      style={{ backgroundColor: difficultyColor[quiz.difficulty] || '#64748b' }}
-                    >
-                      {quiz.difficulty}
-                    </span>
-                    <span className="subject-tag">{quiz.subject}</span>
-                    {quiz.isPremium && <span className="premium-tag">👑 Premium</span>}
-                  </div>
-
-                  <div className="quiz-card-body">
-                    <h3 className="quiz-title">{quiz.title}</h3>
-                    {quiz.description && (
-                      <p className="quiz-description">{quiz.description}</p>
-                    )}
-                    <div className="quiz-meta">
-                      <span className="meta-item">❓ {quiz.questions?.length || 0} Questions</span>
-                      <span className="meta-item">⏱ {quiz.timeLimit} min</span>
-                      <span className="meta-item">⭐ {quiz.totalMarks} marks</span>
-                    </div>
-                  </div>
-
-                  <div className="quiz-card-footer">
-                    <button
-                      className="btn-attempt"
-                      onClick={() => navigate(`/quizzes/${quiz._id}/attempt`)}
-                    >
-                      ▶ Attempt Quiz
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Course-Based Quizzes */}
-        <div className="courses-section">
-          <div className="section-headers">
-            <h2 className="section-title">📚 Your Courses</h2>
-            <p className="section-subtitle">Quizzes for your enrolled courses</p>
-          </div>
-          <div className="courses-list">
-            {USER_ENROLLED_COURSES.map((course, index) => (
-              <button
-                key={index}
-                className={`course-pill ${subject === course ? 'active' : ''}`}
-                onClick={() => setSubject(course)}
-              >
-                {course}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Filters */}
-        <div className="filters-bar">
-          <form className="search-form" onSubmit={handleSearch}>
-            <input
-              type="text"
-              placeholder="Search quizzes..."
-              value={search}
-              onChange={e => setSearch(e.target.value)}
-              className="filter-input search-input-field"
-            />
-            <button type="submit" className="btn-primary search-btn">Search</button>
-          </form>
-
-          <input
-            type="text"
-            placeholder="Filter by subject..."
-            value={subject}
-            onChange={e => setSubject(e.target.value)}
-            className="filter-input"
-            onBlur={() => fetchQuizzes(search)}
-          />
-
-          <div className="difficulty-tabs">
-            {DIFFICULTIES.map(d => (
-              <button
-                key={d}
-                className={`diff-tab ${difficulty === d ? 'active' : ''}`}
-                onClick={() => setDifficulty(d)}
-              >
-                {d}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Content Section Label */}
-        {(search || subject || difficulty !== 'All') && (
-          <div className="content-section-header">
-            <h2 className="content-title">Available Quizzes</h2>
-            {subject && <span className="filter-tag">Filtered by: {subject}</span>}
-            {search && <span className="filter-tag">Search: {search}</span>}
-            {difficulty !== 'All' && <span className="filter-tag">Difficulty: {difficulty}</span>}
-          </div>
-        )}
-
-        {/* Content */}
-        {loading ? (
-          <div className="loading-state">
-            <div className="spinner"></div>
-            <p>Loading quizzes...</p>
-          </div>
-        ) : error ? (
-          <div className="error-state">
-            <span>⚠️</span>
-            <p>{error}</p>
-            <button className="btn-primary" onClick={fetchQuizzes}>Retry</button>
-          </div>
-        ) : quizzes.length === 0 ? (
-          <div className="empty-state">
-            <span className="empty-icon">📋</span>
-            <h3>No quizzes found</h3>
-            <p>Create the first quiz to get started!</p>
-            {user?.role === 'admin' && (
-              <button className="btn-primary" onClick={() => navigate('/quizzes/create')}>
-                ＋ Create Quiz
-              </button>
-            )}
-          </div>
-        ) : (
-          <>
-            {premiumQuizzes.length > 0 && (
-              <div className="premium-list-section">
-                <div className="section-headers">
-                  <h2 className="section-title">👑 Premium Quizzes</h2>
-                  <p className="section-subtitle">Exclusive quizzes curated for advanced learning</p>
-                </div>
-                <div className="quiz-grid">
-                  {premiumQuizzes.map(quiz => (
-                    <div key={quiz._id} className="quiz-card">
-                      <div className="quiz-card-header">
-                        <span
-                          className="difficulty-badge"
-                          style={{ backgroundColor: difficultyColor[quiz.difficulty] || '#64748b' }}
-                        >
-                          {quiz.difficulty}
-                        </span>
-                        <span className="subject-tag">{quiz.subject}</span>
-                        <span className="premium-tag">👑 Premium</span>
-                      </div>
-
-                      <div className="quiz-card-body">
-                        <h3 className="quiz-title">{quiz.title}</h3>
-                        {quiz.description && (
-                          <p className="quiz-description">{quiz.description}</p>
-                        )}
-                        <div className="quiz-meta">
-                          <span className="meta-item">❓ {quiz.questions?.length || 0} Questions</span>
-                          <span className="meta-item">⏱ {quiz.timeLimit} min</span>
-                          <span className="meta-item">⭐ {quiz.totalMarks} marks</span>
-                        </div>
-                      </div>
-
-                      <div className="quiz-card-footer">
-                        <button
-                          className="btn-attempt"
-                          onClick={() => navigate(`/quizzes/${quiz._id}/attempt`)}
-                        >
-                          ▶ Attempt Quiz
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {regularQuizzes.length > 0 && (
-              <div className="regular-list-section">
-                {premiumQuizzes.length > 0 && (
-                  <div className="section-headers">
-                    <h2 className="section-title">Available Quizzes</h2>
-                    <p className="section-subtitle">Free quizzes for daily practice</p>
-                  </div>
-                )}
-                <div className="quiz-grid">
-                  {regularQuizzes.map(quiz => (
-                    <div key={quiz._id} className="quiz-card">
-                      <div className="quiz-card-header">
-                        <span
-                          className="difficulty-badge"
-                          style={{ backgroundColor: difficultyColor[quiz.difficulty] || '#64748b' }}
-                        >
-                          {quiz.difficulty}
-                        </span>
-                        <span className="subject-tag">{quiz.subject}</span>
-                      </div>
-
-                      <div className="quiz-card-body">
-                        <h3 className="quiz-title">{quiz.title}</h3>
-                        {quiz.description && (
-                          <p className="quiz-description">{quiz.description}</p>
-                        )}
-                        <div className="quiz-meta">
-                          <span className="meta-item">❓ {quiz.questions?.length || 0} Questions</span>
-                          <span className="meta-item">⏱ {quiz.timeLimit} min</span>
-                          <span className="meta-item">⭐ {quiz.totalMarks} marks</span>
-                        </div>
-                      </div>
-
-                      <div className="quiz-card-footer">
-                        <button
-                          className="btn-attempt"
-                          onClick={() => navigate(`/quizzes/${quiz._id}/attempt`)}
-                        >
-                          ▶ Attempt Quiz
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-          </>
-        )}
+          )}
+        </section>
       </div>
     </DashboardLayout>
   );

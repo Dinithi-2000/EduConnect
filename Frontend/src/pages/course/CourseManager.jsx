@@ -25,6 +25,7 @@ const CourseManager = () => {
   const { user } = useAuth();
   const currentRole = String(user?.role || '').toLowerCase();
   const isManager = ['admin', 'teacher'].includes(currentRole);
+  const pageTitle = isManager ? 'Course Management' : 'My Courses';
 
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -36,6 +37,7 @@ const CourseManager = () => {
   const [publishFilter, setPublishFilter] = useState('all');
   const [sortBy, setSortBy] = useState('newest');
   const [uploadingModuleId, setUploadingModuleId] = useState('');
+  const [thumbnailDropActive, setThumbnailDropActive] = useState(false);
   const [completedContent, setCompletedContent] = useState({});
   const [courseForm, setCourseForm] = useState({
     title: '',
@@ -129,12 +131,76 @@ const CourseManager = () => {
     };
   }, [courses]);
   const moduleFileInputRefs = useRef({});
+  const thumbnailFileInputRef = useRef(null);
 
   const getContentUrl = (url) => {
     if (!url) return '';
     if (/^https?:\/\//i.test(url)) return url;
     if (url.startsWith('/')) return `${API_ORIGIN}${url}`;
     return `${API_ORIGIN}/${url}`;
+  };
+
+  const updateThumbnailUrl = (value) => {
+    setCourseForm((prev) => ({ ...prev, thumbnailUrl: value }));
+  };
+
+  const fileToDataUrl = (file) => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(String(reader.result || ''));
+      reader.onerror = () => reject(new Error('Failed to read image file.'));
+      reader.readAsDataURL(file);
+    });
+  };
+
+  const handleThumbnailFile = async (file) => {
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      alert('Please drop or upload an image file for thumbnail.');
+      return;
+    }
+
+    try {
+      const dataUrl = await fileToDataUrl(file);
+      updateThumbnailUrl(dataUrl);
+    } catch {
+      alert('Unable to read image file. Please try another one.');
+    }
+  };
+
+  const handleThumbnailDragOver = (event) => {
+    event.preventDefault();
+    setThumbnailDropActive(true);
+  };
+
+  const handleThumbnailDragLeave = () => {
+    setThumbnailDropActive(false);
+  };
+
+  const handleThumbnailDrop = async (event) => {
+    event.preventDefault();
+    setThumbnailDropActive(false);
+
+    const droppedFile = event.dataTransfer.files?.[0];
+    if (droppedFile) {
+      await handleThumbnailFile(droppedFile);
+      return;
+    }
+
+    const droppedText =
+      event.dataTransfer.getData('text/uri-list') ||
+      event.dataTransfer.getData('text/plain');
+
+    if (droppedText && /^https?:\/\//i.test(droppedText.trim())) {
+      updateThumbnailUrl(droppedText.trim());
+    }
+  };
+
+  const handleThumbnailPickerChange = async (event) => {
+    const file = event.target.files?.[0];
+    await handleThumbnailFile(file);
+    event.target.value = '';
   };
 
   const loadCourses = async () => {
@@ -444,7 +510,7 @@ const CourseManager = () => {
       <div className="course-page">
         <div className="course-head">
           <div>
-            <h1>My Courses</h1>
+            <h1>{pageTitle}</h1>
             <p>{isManager ? 'Create courses, modules, and learning content.' : 'Browse available published courses.'}</p>
             <p className="role-note">
               Logged in role: <strong>{currentRole || 'unknown'}</strong>
@@ -475,6 +541,10 @@ const CourseManager = () => {
 
         <div className="course-grid">
           <section className="course-sidebar">
+            <div className="sidebar-title">
+              <h3>Filters</h3>
+            </div>
+
             <div className="search-row">
               <input
                 value={search}
@@ -535,6 +605,8 @@ const CourseManager = () => {
             {loading ? <p>Loading courses...</p> : null}
             {error ? <p className="err-text">{error}</p> : null}
 
+            <p className="list-title">Recent Courses</p>
+
             <div className="course-list">
               {filteredCourses.map((course) => (
                 <button
@@ -558,7 +630,10 @@ const CourseManager = () => {
           <section className="course-main">
             {isManager && (
               <form className="course-create" onSubmit={handleCreateCourse}>
-                <h3>Create Course</h3>
+                <div className="create-head">
+                  <h3>Create Course</h3>
+                  <span className="create-plus">+</span>
+                </div>
                 <div className="form-grid">
                   <input
                     required
@@ -579,10 +654,40 @@ const CourseManager = () => {
                     {LEVELS.map((level) => <option key={level} value={level}>{level}</option>)}
                   </select>
                   <input
-                    value={courseForm.thumbnailUrl}
-                    onChange={(e) => setCourseForm((prev) => ({ ...prev, thumbnailUrl: e.target.value }))}
-                    placeholder="Thumbnail URL (optional)"
+                    type="file"
+                    accept="image/*"
+                    ref={thumbnailFileInputRef}
+                    style={{ display: 'none' }}
+                    onChange={handleThumbnailPickerChange}
                   />
+                  <div
+                    className={`thumbnail-dropzone ${thumbnailDropActive ? 'active' : ''}`}
+                    onDragOver={handleThumbnailDragOver}
+                    onDragEnter={handleThumbnailDragOver}
+                    onDragLeave={handleThumbnailDragLeave}
+                    onDrop={handleThumbnailDrop}
+                  >
+                    <div className="thumbnail-dropzone-row">
+                      <input
+                        value={courseForm.thumbnailUrl}
+                        onChange={(e) => updateThumbnailUrl(e.target.value)}
+                        placeholder="Thumbnail URL (optional)"
+                      />
+                      <button
+                        type="button"
+                        className="btn-upload-thumb"
+                        onClick={() => thumbnailFileInputRef.current?.click()}
+                      >
+                        Drag & Drop / Upload
+                      </button>
+                    </div>
+                    <p>Drop image file or image URL here.</p>
+                    {courseForm.thumbnailUrl ? (
+                      <div className="thumbnail-preview-wrap">
+                        <img src={courseForm.thumbnailUrl} alt="Thumbnail preview" className="thumbnail-preview" />
+                      </div>
+                    ) : null}
+                  </div>
                   <textarea
                     value={courseForm.description}
                     onChange={(e) => setCourseForm((prev) => ({ ...prev, description: e.target.value }))}

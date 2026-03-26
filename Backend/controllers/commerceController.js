@@ -8,9 +8,9 @@ const Quiz = require('../models/Quiz');
 const Stripe = require('stripe');
 
 const premiumCatalog = [
-  { id: 'quiz-premium-001', title: 'Advanced OOP Quiz Pack', amount: 9.99, currency: 'USD' },
-  { id: 'course-premium-001', title: 'Data Structures Masterclass', amount: 19.99, currency: 'USD' },
-  { id: 'kuppi-premium-001', title: 'Kuppi Live: Exam Sprint', amount: 14.99, currency: 'USD' }
+  { id: 'quiz-premium-001', type: 'quiz', title: 'Advanced OOP Quiz Pack', amount: 9.99, currency: 'USD' },
+  { id: 'course-premium-001', type: 'course', title: 'Data Structures Masterclass', amount: 19.99, currency: 'USD' },
+  { id: 'kuppi-premium-001', type: 'kuppi', title: 'Kuppi Live: Exam Sprint', amount: 14.99, currency: 'USD' }
 ];
 
 const findCatalogItem = async (itemId) => {
@@ -24,6 +24,7 @@ const findCatalogItem = async (itemId) => {
 
     return {
       id: itemId,
+      type: 'quiz',
       title: quiz.title,
       amount: Number(quiz.premiumPrice || 0),
       currency: quiz.premiumCurrency || 'USD'
@@ -166,6 +167,7 @@ const getPremiumCatalog = (req, res) => {
 
     const quizItems = premiumQuizzes.map((quiz) => ({
       id: `quiz-premium-${quiz._id.toString()}`,
+      type: 'quiz',
       title: quiz.title,
       amount: Number(quiz.premiumPrice || 0),
       currency: quiz.premiumCurrency || 'USD'
@@ -184,6 +186,24 @@ const getPremiumCatalog = (req, res) => {
       message: 'Failed to load premium catalog',
       error: error.message
     });
+  });
+};
+
+const getPaymentGatewayStatus = (req, res) => {
+  const stripeKey = process.env.STRIPE_SECRET_KEY || '';
+  const stripeConfigured = Boolean(stripeKey);
+  const stripeMode = stripeKey.startsWith('sk_live_') ? 'live' : stripeConfigured ? 'test' : 'not-configured';
+
+  return res.json({
+    success: true,
+    data: {
+      stripe: {
+        configured: stripeConfigured,
+        mode: stripeMode
+      },
+      supportedGateways: ['stripe', 'paypal'],
+      defaultGateway: 'stripe'
+    }
   });
 };
 
@@ -346,6 +366,7 @@ const completeStripeCheckout = async (req, res) => {
 module.exports = {
   completePurchase,
   getPremiumCatalog,
+  getPaymentGatewayStatus,
   createStripeCheckoutSession,
   completeStripeCheckout
 };

@@ -7,188 +7,231 @@ import './Home.css';
 const Home = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const firstName = user?.name?.split(' ')[0] || 'Admin';
   const isAdmin = ['admin', 'teacher'].includes(user?.role);
 
   const kpiCards = [
     {
-      icon: '📚',
-      title: 'Active Courses',
-      value: '18',
-      delta: '+3 this month'
-    },
-    {
-      icon: '📝',
-      title: 'Published Quizzes',
-      value: '42',
-      delta: '+7 this week'
+      icon: '🤖',
+      title: 'AI Chatbot Accuracy',
+      value: '98.4%',
+      delta: '+1.2% from last week'
     },
     {
       icon: '👥',
-      title: 'Community Posts',
-      value: '126',
-      delta: '+19 today'
+      title: 'Total Students',
+      value: '12,842',
+      delta: '+428 new registrations'
     },
     {
-      icon: '💳',
-      title: 'Premium Revenue',
-      value: '$1,260',
-      delta: '+14% vs last month'
+      icon: '📖',
+      title: 'Active Courses',
+      value: '156',
+      delta: '12 recently updated'
+    },
+    {
+      icon: '💵',
+      title: 'Monthly Revenue',
+      value: '$42,900',
+      delta: '+18% increase'
     }
   ];
 
-  const weeklyPerformance = [
-    { day: 'Mon', value: 58 },
-    { day: 'Tue', value: 72 },
-    { day: 'Wed', value: 64 },
-    { day: 'Thu', value: 86 },
-    { day: 'Fri', value: 78 },
-    { day: 'Sat', value: 70 },
-    { day: 'Sun', value: 82 }
+  const weeklyTraining = [
+    { day: 'Mon', value: 42 },
+    { day: 'Tue', value: 56 },
+    { day: 'Wed', value: 52 },
+    { day: 'Thu', value: 74 },
+    { day: 'Fri', value: 62 },
+    { day: 'Sat', value: 66 },
+    { day: 'Sun', value: 80 }
   ];
 
-  const recentActivities = [
+  const upcomingSessions = [
     {
-      badge: 'Quiz',
-      title: 'Advanced React Patterns was published',
-      time: '12 minutes ago'
+      title: 'Advanced Calculus',
+      tutor: 'Dr. Jerome',
+      time: '5:00 PM',
+      status: 'Active'
     },
     {
-      badge: 'Payment',
-      title: '4 premium quiz purchases completed',
-      time: '48 minutes ago'
+      title: 'Data Structures',
+      tutor: 'Anura Mahinda',
+      time: '4:30 PM',
+      status: 'Queued'
+    }
+  ];
+
+  const systemLogs = [
+    {
+      title: 'New student cohort imported',
+      time: '3 minutes ago'
     },
     {
-      badge: 'Community',
-      title: 'New moderation queue has 3 flagged posts',
+      title: 'Chatbot model v2.1 deployed',
+      time: '14 minutes ago'
+    },
+    {
+      title: 'Backup completed successfully',
       time: '1 hour ago'
-    },
-    {
-      badge: 'Course',
-      title: 'Data Structures module 5 was updated',
-      time: '2 hours ago'
     }
   ];
 
-  const priorityItems = [
-    { text: 'Review premium quiz approval queue', level: 'high' },
-    { text: 'Respond to 6 community reports', level: 'medium' },
-    { text: 'Publish weekly instructor summary', level: 'low' }
+  const courseRows = [
+    {
+      course: 'Quantum Physics 101',
+      dept: 'Department of Science',
+      enrollment: '1,240 students',
+      completion: 86,
+      status: 'Published'
+    },
+    {
+      course: 'Digital Marketing Essentials',
+      dept: 'Faculty of Management',
+      enrollment: '3,412 students',
+      completion: 62,
+      status: 'Reviewing'
+    },
+    {
+      course: 'UI/UX Design Masterclass',
+      dept: 'Design Academy',
+      enrollment: '920 students',
+      completion: 92,
+      status: 'Published'
+    }
   ];
 
   return (
     <DashboardLayout activeSection="Dashboard">
       <div className="admin-dashboard">
-        <section className="admin-hero">
-          <div className="hero-copy">
-            <span className="hero-role">{isAdmin ? 'Admin Control Center' : 'Instructor Workspace'}</span>
-            <h1>Welcome back, {firstName}</h1>
-            <p>
-              Monitor platform health, publish premium quizzes, and keep your learning community active with
-              one streamlined dashboard.
-            </p>
-            <div className="hero-actions">
-              <button className="hero-btn primary" onClick={() => navigate('/quizzes/create')}>
-                Create New Quiz
-              </button>
-              <button className="hero-btn" onClick={() => navigate('/premium')}>
-                Manage Premium
-              </button>
-              <button className="hero-btn ghost" onClick={() => navigate('/progress')}>
-                Open Reports
-              </button>
-            </div>
-          </div>
-          <div className="hero-panel">
-            <p className="panel-title">System Pulse</p>
-            <div className="pulse-item">
-              <span>Course Completion Trend</span>
-              <strong>+8.2%</strong>
-            </div>
-            <div className="pulse-item">
-              <span>Premium Conversion</span>
-              <strong>12.4%</strong>
-            </div>
-            <div className="pulse-item">
-              <span>Community Response Time</span>
-              <strong>18 min</strong>
-            </div>
+        <section className="overview-head">
+          <div>
+            <h1>System Overview</h1>
+            <p>{isAdmin ? 'Live Admin Terminal' : 'Instructor Overview'}</p>
           </div>
         </section>
 
         <section className="kpi-grid">
           {kpiCards.map((card) => (
-            <article key={card.title} className="kpi-card">
-              <div className="kpi-top">
-                <span className="kpi-icon">{card.icon}</span>
-                <span className="kpi-delta">{card.delta}</span>
+            <article key={card.title} className="metric-card">
+              <div className="metric-head">
+                <span>{card.title}</span>
+                <span className="metric-icon">{card.icon}</span>
               </div>
-              <h3>{card.value}</h3>
-              <p>{card.title}</p>
+              <h2>{card.value}</h2>
+              <small>{card.delta}</small>
             </article>
           ))}
         </section>
 
-        <section className="dashboard-grid">
-          <article className="dashboard-card performance-card">
-            <div className="card-head">
-              <h2>Weekly Performance</h2>
-              <button onClick={() => navigate('/progress')}>View Reports</button>
+        <section className="dashboard-main-grid">
+          <article className="panel panel-training">
+            <div className="panel-head">
+              <div>
+                <h3>AI Training Progress</h3>
+                <p>Large Language Model fine-tuning cycles for Semester 2</p>
+              </div>
+              <div className="switch-buttons">
+                <button>Daily</button>
+                <button className="active">Weekly</button>
+              </div>
             </div>
-            <div className="bars-wrap">
-              {weeklyPerformance.map((point) => (
-                <div key={point.day} className="bar-unit">
-                  <div className="bar-track">
-                    <div className="bar-fill" style={{ height: `${point.value}%` }}></div>
+
+            <div className="training-bars">
+              {weeklyTraining.map((item) => (
+                <div className="bar-col" key={item.day}>
+                  <div className="bar-shell">
+                    <div
+                      className={`bar-fill ${item.day === 'Thu' ? 'focus' : ''}`}
+                      style={{ height: `${item.value}%` }}
+                    ></div>
                   </div>
-                  <span>{point.day}</span>
+                  <span>{item.day}</span>
                 </div>
               ))}
             </div>
           </article>
 
-          <article className="dashboard-card activity-card">
-            <div className="card-head">
-              <h2>Recent Activity</h2>
-              <button onClick={() => navigate('/community')}>Go Community</button>
-            </div>
-            <ul className="activity-list">
-              {recentActivities.map((activity, idx) => (
-                <li key={`${activity.badge}-${idx}`}>
-                  <span className="activity-badge">{activity.badge}</span>
-                  <div>
-                    <p>{activity.title}</p>
-                    <small>{activity.time}</small>
+          <aside className="right-stack">
+            <article className="panel panel-sessions">
+              <div className="panel-head compact">
+                <h3>Upcoming Kuppi Sessions</h3>
+              </div>
+              <div className="session-list">
+                {upcomingSessions.map((session) => (
+                  <div className="session-item" key={session.title}>
+                    <div className="session-avatar">👨‍🏫</div>
+                    <div className="session-details">
+                      <p>{session.title}</p>
+                      <small>
+                        {session.tutor} • {session.time}
+                      </small>
+                    </div>
+                    <span className={`session-status ${session.status.toLowerCase()}`}>{session.status}</span>
                   </div>
-                </li>
-              ))}
-            </ul>
-          </article>
+                ))}
+              </div>
+              <button className="outline-btn" onClick={() => navigate('/kuppi')}>
+                Manage All Sessions
+              </button>
+            </article>
 
-          <article className="dashboard-card priorities-card">
-            <div className="card-head">
-              <h2>Priority Queue</h2>
-              <button onClick={() => navigate('/quizzes')}>Review</button>
-            </div>
-            <div className="priority-list">
-              {priorityItems.map((item) => (
-                <div key={item.text} className={`priority-item ${item.level}`}>
-                  <span className="dot"></span>
-                  <span>{item.text}</span>
-                </div>
-              ))}
-            </div>
-          </article>
+            <article className="panel panel-logs">
+              <div className="panel-head compact">
+                <h3>System Log</h3>
+              </div>
+              <ul>
+                {systemLogs.map((log) => (
+                  <li key={log.title}>
+                    <span className="dot"></span>
+                    <div>
+                      <p>{log.title}</p>
+                      <small>{log.time}</small>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </article>
+          </aside>
+        </section>
 
-          <article className="dashboard-card quick-actions-card">
-            <h2>Quick Actions</h2>
-            <div className="quick-grid">
-              <button onClick={() => navigate('/courses')}>Update Courses</button>
-              <button onClick={() => navigate('/quizzes')}>Review Quizzes</button>
-              <button onClick={() => navigate('/premium')}>Premium Catalog</button>
-              <button onClick={() => navigate('/community')}>Moderate Posts</button>
-            </div>
-          </article>
+        <section className="panel panel-table">
+          <div className="panel-head">
+            <h3>Course Management Overview</h3>
+            <button className="outline-btn" onClick={() => navigate('/courses')}>
+              Export Data
+            </button>
+          </div>
+
+          <div className="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Course Name</th>
+                  <th>Department</th>
+                  <th>Enrollment</th>
+                  <th>Completion Rate</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {courseRows.map((row) => (
+                  <tr key={row.course}>
+                    <td>{row.course}</td>
+                    <td>{row.dept}</td>
+                    <td>{row.enrollment}</td>
+                    <td>
+                      <div className="progress-shell">
+                        <div style={{ width: `${row.completion}%` }}></div>
+                      </div>
+                    </td>
+                    <td>
+                      <span className={`status-chip ${row.status.toLowerCase()}`}>{row.status}</span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </section>
       </div>
     </DashboardLayout>

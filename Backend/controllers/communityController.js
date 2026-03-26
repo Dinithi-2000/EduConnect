@@ -147,6 +147,8 @@ exports.updatePost = async (req, res) => {
     const { id } = req.params;
     const { title, description, category, tags, imageUrl, location, contactInfo } = req.body;
     const userId = req.user?._id || req.body.userId;
+    const requestRole = String(req.user?.role || req.body.userRole || '').toLowerCase();
+    const isRoleAdmin = requestRole === 'admin' || requestRole === 'teacher';
 
     const post = await CommunityPost.findById(id);
     if (!post) {
@@ -156,7 +158,9 @@ exports.updatePost = async (req, res) => {
       });
     }
 
-    if (post.author.toString() !== userId.toString() && req.user?.role !== 'admin') {
+    const isAuthor = userId && post.author.toString() === String(userId);
+
+    if (!isAuthor && !isRoleAdmin) {
       return res.status(403).json({
         success: false,
         message: 'Not authorized to update this post'

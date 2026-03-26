@@ -1,19 +1,11 @@
-const fs = require('fs/promises');
-const path = require('path');
-
-const dataDir = path.join(__dirname, '..', 'data');
-
-const filePaths = {
-  knowledgeBase: path.join(dataDir, 'knowledgeBase.json'),
-  chatHistory: path.join(dataDir, 'chatHistory.json'),
-  transactions: path.join(dataDir, 'transactions.json'),
-  unlockedContent: path.join(dataDir, 'unlockedContent.json'),
-  receiptOutbox: path.join(dataDir, 'receiptOutbox.json')
-};
+const KnowledgeEntry = require('../models/KnowledgeEntry');
+const ChatMessage = require('../models/ChatMessage');
+const PaymentTransaction = require('../models/PaymentTransaction');
+const UnlockedContent = require('../models/UnlockedContent');
+const ReceiptQueueItem = require('../models/ReceiptQueueItem');
 
 const defaultKnowledgeBase = [
   {
-    id: 'kb-001',
     question: 'How can I prepare for exams effectively?',
     answer:
       'Use active recall and spaced repetition. Study in short focused blocks, test yourself daily, and track weak topics for revision.',
@@ -22,7 +14,6 @@ const defaultKnowledgeBase = [
     resources: ['Weekly Performance dashboard', 'Upcoming Kuppi sessions']
   },
   {
-    id: 'kb-002',
     question: 'What is polymorphism in OOP?',
     answer:
       'Polymorphism means one interface, many forms. The same method name can show different behavior depending on the object type.',
@@ -31,7 +22,6 @@ const defaultKnowledgeBase = [
     resources: ['OOP quiz set', 'Kuppi: Object-Oriented Design']
   },
   {
-    id: 'kb-003',
     question: 'How do I join a Kuppi session?',
     answer:
       'Open Upcoming Kuppi on the dashboard, choose a session, and set a reminder. Join from your session card at start time.',
@@ -40,38 +30,6 @@ const defaultKnowledgeBase = [
     resources: ['Upcoming Kuppi panel', 'Notification bell']
   }
 ];
-
-const ensureDataFile = async (filePath, defaultData) => {
-  try {
-    await fs.access(filePath);
-  } catch {
-    await fs.mkdir(path.dirname(filePath), { recursive: true });
-    await fs.writeFile(filePath, JSON.stringify(defaultData, null, 2), 'utf8');
-  }
-};
-
-const initDataFiles = async () => {
-  await Promise.all([
-    ensureDataFile(filePaths.knowledgeBase, defaultKnowledgeBase),
-    ensureDataFile(filePaths.chatHistory, []),
-    ensureDataFile(filePaths.transactions, []),
-    ensureDataFile(filePaths.unlockedContent, []),
-    ensureDataFile(filePaths.receiptOutbox, [])
-  ]);
-};
-
-const readJson = async (filePath, fallback = []) => {
-  try {
-    const raw = await fs.readFile(filePath, 'utf8');
-    return JSON.parse(raw);
-  } catch {
-    return fallback;
-  }
-};
-
-const writeJson = async (filePath, data) => {
-  await fs.writeFile(filePath, JSON.stringify(data, null, 2), 'utf8');
-};
 
 const tokenize = (text = '') => {
   return String(text)
@@ -101,9 +59,17 @@ const scoreKnowledgeEntry = (entry, queryText, contextText = '') => {
   return score;
 };
 
+const initDataFiles = async () => {
+  const existingCount = await KnowledgeEntry.countDocuments();
+  if (existingCount === 0) {
+    await KnowledgeEntry.insertMany(defaultKnowledgeBase);
+  }
+};
+
 const retrieveKnowledge = async ({ query, context, limit = 3 }) => {
   await initDataFiles();
-  const kb = await readJson(filePaths.knowledgeBase, defaultKnowledgeBase);
+
+  const kb = await KnowledgeEntry.find().lean();
   const contextText = [
     context?.currentCourse || '',
     ...(Array.isArray(context?.recentActivities) ? context.recentActivities : []),
@@ -113,6 +79,7 @@ const retrieveKnowledge = async ({ query, context, limit = 3 }) => {
   return kb
     .map((entry) => ({
       ...entry,
+      id: entry._id?.toString(),
       score: scoreKnowledgeEntry(entry, query, contextText)
     }))
     .filter((entry) => entry.score > 0)
@@ -121,88 +88,87 @@ const retrieveKnowledge = async ({ query, context, limit = 3 }) => {
 };
 
 const addKnowledgeEntry = async (payload) => {
-  await initDataFiles();
-  const kb = await readJson(filePaths.knowledgeBase, defaultKnowledgeBase);
-  const newEntry = {
-    id: payload.id || `kb-${Date.now()}`,
+  const newEntry = await KnowledgeEntry.create({
     question: payload.question,
     answer: payload.answer,
     aliases: Array.isArray(payload.aliases) ? payload.aliases : [],
     tags: Array.isArray(payload.tags) ? payload.tags : [],
     resources: Array.isArray(payload.resources) ? payload.resources : []
-  };
+  });
 
-  kb.push(newEntry);
-  await writeJson(filePaths.knowledgeBase, kb);
-  return { entry: newEntry, count: kb.length };
+  const count = await KnowledgeEntry.countDocuments();
+  return {
+    entry: {
+      id: newEntry._id.toString(),
+      question: newEntry.question,
+      answer: newEntry.answer,
+      aliases: newEntry.aliases,
+      tags: newEntry.tags,
+      resources: newEntry.resources
+    },
+    count
+  };
 };
 
 const appendChatHistory = async ({ studentId, role, content, metadata = {} }) => {
-  await initDataFiles();
-  const records = await readJson(filePaths.chatHistory, []);
-  records.push({
-    id: `msg-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+  await ChatMessage.create({
     studentId,
     role,
     content,
-    metadata,
-    createdAt: new Date().toISOString()
+    metadata
   });
-  await writeJson(filePaths.chatHistory, records);
 };
 
 const getChatHistory = async ({ studentId, limit = 20 }) => {
-  await initDataFiles();
-  const records = await readJson(filePaths.chatHistory, []);
-  return records
-    .filter((record) => record.studentId === studentId)
-    .sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt))
-    .slice(-limit);
+  const records = await ChatMessage.find({ studentId })
+    .sort({ createdAt: -1 })
+    .limit(limit)
+    .lean();
+
+  return records.reverse().map((record) => ({
+    id: record._id.toString(),
+    studentId: record.studentId,
+    role: record.role,
+    content: record.content,
+    metadata: record.metadata || {},
+    createdAt: record.createdAt
+  }));
 };
 
 const saveTransaction = async (transaction) => {
-  await initDataFiles();
-  const transactions = await readJson(filePaths.transactions, []);
-  transactions.push(transaction);
-  await writeJson(filePaths.transactions, transactions);
+  await PaymentTransaction.create(transaction);
 };
 
 const unlockPremiumContent = async ({ studentId, itemId, title }) => {
-  await initDataFiles();
-  const unlocked = await readJson(filePaths.unlockedContent, []);
-  const exists = unlocked.find((item) => item.studentId === studentId && item.itemId === itemId);
-  if (!exists) {
-    unlocked.push({
-      id: `unlock-${Date.now()}`,
-      studentId,
-      itemId,
-      title,
-      unlockedAt: new Date().toISOString()
-    });
-    await writeJson(filePaths.unlockedContent, unlocked);
-  }
+  await UnlockedContent.updateOne(
+    { studentId, itemId },
+    {
+      $setOnInsert: {
+        studentId,
+        itemId,
+        title,
+        unlockedAt: new Date()
+      }
+    },
+    { upsert: true }
+  );
 };
 
 const hasUnlockedContent = async ({ studentId, itemId }) => {
-  await initDataFiles();
-  const unlocked = await readJson(filePaths.unlockedContent, []);
-  return unlocked.some((item) => item.studentId === studentId && item.itemId === itemId);
+  const unlocked = await UnlockedContent.exists({ studentId, itemId });
+  return Boolean(unlocked);
 };
 
 const queueReceiptEmail = async ({ studentId, email, transactionId, itemTitle, amount }) => {
-  await initDataFiles();
-  const outbox = await readJson(filePaths.receiptOutbox, []);
-  outbox.push({
-    id: `receipt-${Date.now()}`,
+  await ReceiptQueueItem.create({
     studentId,
     email,
     transactionId,
     itemTitle,
     amount,
-    queuedAt: new Date().toISOString(),
+    queuedAt: new Date(),
     status: 'queued'
   });
-  await writeJson(filePaths.receiptOutbox, outbox);
 };
 
 module.exports = {

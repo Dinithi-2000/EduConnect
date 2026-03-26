@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import DashboardLayout from '../../components/DashboardLayout';
 import { createQuiz, getQuizById, updateQuiz } from '../../services/quizService';
 import './QuizBuilder.css';
@@ -15,14 +15,18 @@ const EMPTY_QUESTION = {
 
 const QuizBuilder = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { id } = useParams(); // present when editing
   const isEdit = Boolean(id);
+  const draftConfig = location.state?.draftConfig;
+  const isDraftInitialized = Boolean(draftConfig) && !isEdit;
 
   const [form, setForm] = useState({
     title: '',
     subject: '',
     description: '',
     difficulty: 'Medium',
+    assessmentType: 'Quiz',
     timeLimit: 30,
     isPremium: false,
     premiumPrice: 0,
@@ -45,6 +49,7 @@ const QuizBuilder = () => {
           subject: quiz.subject,
           description: quiz.description || '',
           difficulty: quiz.difficulty,
+          assessmentType: quiz.assessmentType || 'Quiz',
           timeLimit: quiz.timeLimit,
           isPremium: Boolean(quiz.isPremium),
           premiumPrice: Number(quiz.premiumPrice || 0),
@@ -59,6 +64,23 @@ const QuizBuilder = () => {
     };
     load();
   }, [id, isEdit]);
+
+  useEffect(() => {
+    if (isEdit || !draftConfig) return;
+
+    setForm((prev) => ({
+      ...prev,
+      title: draftConfig.title || prev.title,
+      subject: draftConfig.subject || prev.subject,
+      description: draftConfig.description || prev.description,
+      difficulty: draftConfig.difficulty || prev.difficulty,
+      assessmentType: draftConfig.assessmentType || prev.assessmentType,
+      timeLimit: Number(draftConfig.timeLimit || prev.timeLimit),
+      isPremium: Boolean(draftConfig.isPremium),
+      premiumPrice: Number(draftConfig.premiumPrice || 0),
+      premiumCurrency: draftConfig.premiumCurrency || prev.premiumCurrency
+    }));
+  }, [draftConfig, isEdit]);
 
   // ── Form handlers ──────────────────────────────────────────────────────────
   const handleFormChange = e => {
@@ -182,17 +204,31 @@ const QuizBuilder = () => {
         <div className="builder-header">
           <button className="back-btn" onClick={() => navigate('/quizzes')}>← Back</button>
           <div>
-            <h1 className="page-title">{isEdit ? '✏️ Edit Quiz' : '➕ Create New Quiz'}</h1>
-            <p className="page-subtitle">Fill in quiz details then add your questions</p>
+            <h1 className="page-title">{isEdit ? 'Edit Assessment' : 'Assessment Draft Studio'}</h1>
+            <p className="page-subtitle">
+              {isDraftInitialized
+                ? 'Draft initialized from command center. Complete fields and publish.'
+                : 'Design quiz or mock exam structure, then publish to inventory.'}
+            </p>
+            {form.isPremium && (
+              <span className="premium-live-pill">
+                PREMIUM {(form.premiumCurrency || 'USD').toUpperCase()} {Number(form.premiumPrice || 0).toFixed(2)}
+              </span>
+            )}
           </div>
         </div>
 
         {error && <div className="form-error">⚠️ {error}</div>}
+        {isDraftInitialized && (
+          <div className="draft-notice">
+            Draft initialized with quick settings. You can adjust premium price, assessment type, and questions before publish.
+          </div>
+        )}
 
         <form onSubmit={handleSubmit} className="builder-form">
           {/* Quiz Details Card */}
           <div className="builder-card">
-            <h2 className="card-section-title">📋 Quiz Details</h2>
+            <h2 className="card-section-title">Assessment Configuration</h2>
             <div className="form-grid">
               <div className="form-group full-width">
                 <label>Quiz Title <span className="required">*</span></label>
@@ -208,6 +244,13 @@ const QuizBuilder = () => {
                   <option>Easy</option>
                   <option>Medium</option>
                   <option>Hard</option>
+                </select>
+              </div>
+              <div className="form-group">
+                <label>Assessment Type</label>
+                <select name="assessmentType" value={form.assessmentType} onChange={handleFormChange} className="form-input">
+                  <option value="Quiz">Quiz</option>
+                  <option value="MockExam">Mock Exam</option>
                 </select>
               </div>
               <div className="form-group">
@@ -232,33 +275,44 @@ const QuizBuilder = () => {
               </div>
 
               {form.isPremium && (
-                <>
-                  <div className="form-group">
-                    <label>Premium Price <span className="required">*</span></label>
-                    <input
-                      type="number"
-                      name="premiumPrice"
-                      value={form.premiumPrice}
-                      onChange={handleFormChange}
-                      min="1"
-                      step="0.01"
-                      className="form-input"
-                    />
+                <div className="premium-config full-width">
+                  <div className="premium-config-head">
+                    <h3>Premium {form.assessmentType === 'MockExam' ? 'Mock Exam' : 'Quiz'} Configuration</h3>
+                    <span>Payment Gateway: Stripe</span>
                   </div>
-                  <div className="form-group">
-                    <label>Currency</label>
-                    <select
-                      name="premiumCurrency"
-                      value={form.premiumCurrency}
-                      onChange={handleFormChange}
-                      className="form-input"
-                    >
-                      <option value="USD">USD</option>
-                      <option value="LKR">LKR</option>
-                      <option value="EUR">EUR</option>
-                    </select>
+
+                  <div className="premium-config-grid">
+                    <div className="form-group">
+                      <label>Premium Price <span className="required">*</span></label>
+                      <input
+                        type="number"
+                        name="premiumPrice"
+                        value={form.premiumPrice}
+                        onChange={handleFormChange}
+                        min="1"
+                        step="0.01"
+                        className="form-input"
+                      />
+                    </div>
+                    <div className="form-group">
+                      <label>Currency</label>
+                      <select
+                        name="premiumCurrency"
+                        value={form.premiumCurrency}
+                        onChange={handleFormChange}
+                        className="form-input"
+                      >
+                        <option value="USD">USD</option>
+                        <option value="LKR">LKR</option>
+                        <option value="EUR">EUR</option>
+                      </select>
+                    </div>
                   </div>
-                </>
+
+                  <p className="premium-note">
+                    This premium {form.assessmentType === 'MockExam' ? 'mock exam' : 'quiz'} will be available through the Premium checkout flow after publishing.
+                  </p>
+                </div>
               )}
             </div>
           </div>
@@ -377,7 +431,7 @@ const QuizBuilder = () => {
 
           {/* Add Question Button */}
           <button type="button" className="add-question-btn" onClick={addQuestion}>
-            ＋ Add Question
+            + Add Question
           </button>
 
           {/* Total marks summary */}
@@ -391,7 +445,7 @@ const QuizBuilder = () => {
           <div className="builder-submit-row">
             <button type="button" className="btn-secondary-lg" onClick={() => navigate('/quizzes')}>Cancel</button>
             <button type="submit" className="btn-primary-lg" disabled={saving}>
-              {saving ? 'Saving...' : isEdit ? '💾 Update Quiz' : '🚀 Publish Quiz'}
+              {saving ? 'Saving...' : isEdit ? 'Update Assessment' : 'Publish Assessment'}
             </button>
           </div>
         </form>
