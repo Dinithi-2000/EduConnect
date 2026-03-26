@@ -25,10 +25,11 @@ import ProgressDashboard from './pages/quiz/ProgressDashboard';
 import PremiumQuizzes from './pages/quiz/PremiumQuizzes';
 import PremiumManagement from './pages/admin/PremiumManagement';
 import StudentManagement from './pages/admin/StudentManagement';
+import AdminSettings from './pages/admin/AdminSettings';
 import CommunityBoard from './pages/Community';
 import CourseManager from './pages/course/CourseManager';
 
-const DASHBOARD_PATHS = ['/', '/courses', '/student-management', '/quizzes', '/progress', '/community', '/premium', '/premium-management'];
+const DASHBOARD_PATHS = ['/', '/courses', '/student-management', '/quizzes', '/progress', '/community', '/premium', '/premium-management', '/settings'];
 
 // Protected Route Wrapper
 const ProtectedRoute = ({ element }) => {
@@ -78,6 +79,7 @@ function AppContent() {
         <Route path="/progress" element={<ProtectedRoute element={<ProgressDashboard />} />} />
         <Route path="/premium" element={<ProtectedRoute element={<PremiumQuizzes />} />} />
         <Route path="/premium-management" element={<ProtectedRoute element={<PremiumManagement />} />} />
+        <Route path="/settings" element={<ProtectedRoute element={<AdminSettings />} />} />
 
         {/* Community Board */}
         <Route path="/community" element={<ProtectedRoute element={<CommunityBoard />} />} />

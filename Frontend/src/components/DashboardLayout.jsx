@@ -80,7 +80,10 @@ const DashboardLayout = ({ children, activeSection = 'Quizzes' }) => {
               <span className="nav-label">AI Chatbot</span>
             </div>
           )}
-          <div className="nav-item nav-utility">
+          <div
+            className={`nav-item nav-utility ${location.pathname.startsWith('/settings') ? 'active' : ''}`}
+            onClick={() => navigate('/settings')}
+          >
             <span className="nav-icon">⚙️</span>
             <span className="nav-label">Settings</span>
           </div>
