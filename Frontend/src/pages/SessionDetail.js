@@ -7,6 +7,7 @@ import BookingButton from '../components/BookingButton';
 export default function SessionDetail() {
   const { id } = useParams();
   const { user } = useAuth();
+  const currentUserId = user?.id || user?._id;
   const navigate = useNavigate();
   const [session, setSession] = useState(null);
   const [isBooked, setIsBooked] = useState(false);
@@ -35,8 +36,8 @@ export default function SessionDetail() {
     setSession(prev => ({
       ...prev,
       participants: booked
-        ? [...(prev.participants || []), { _id: user.id }]
-        : (prev.participants || []).filter(p => p._id !== user.id),
+        ? [...(prev.participants || []), { _id: currentUserId }]
+        : (prev.participants || []).filter(p => p._id !== currentUserId),
     }));
   };
 
@@ -67,7 +68,17 @@ export default function SessionDetail() {
 
   const sessionDate = new Date(session.date);
   const spotsLeft = session.maxParticipants - (session.participants?.length || 0);
-  const isTutor = user?.role === 'tutor' && session.tutor?._id === user?.id;
+  const canManageSession = user?.role === 'tutor' || user?.role === 'teacher' || user?.role === 'admin';
+  const isTutor = canManageSession && session.tutor?._id === currentUserId;
+  const material = session.lectureMaterial;
+  const materialUrl = material?.path ? `http://localhost:5000${material.path}` : '';
+
+  const formatFileSize = (bytes) => {
+    if (!bytes) return '';
+    if (bytes < 1024) return `${bytes} B`;
+    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+  };
 
   return (
     <div className="container" style={{ paddingTop: 40, paddingBottom: 60 }}>
@@ -118,6 +129,21 @@ export default function SessionDetail() {
                   <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--primary)', marginBottom: 2 }}>Meeting Link</div>
                   <a href={session.meetingLink} target="_blank" rel="noopener noreferrer" style={{ fontSize: 14, color: 'var(--primary)' }}>{session.meetingLink}</a>
                 </div>
+              </div>
+            )}
+
+            {material?.path && (
+              <div style={{ marginTop: 14, padding: '14px 18px', background: '#eefbf7', border: '1px solid #c7f2e4', borderRadius: 'var(--radius-sm)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
+                <div>
+                  <div style={{ fontSize: 12, fontWeight: 700, color: '#0f766e', marginBottom: 2 }}>Lecture Material</div>
+                  <div style={{ fontSize: 14, color: 'var(--text-primary)' }}>{material.originalName || material.filename}</div>
+                  {material.size > 0 && (
+                    <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 2 }}>{formatFileSize(material.size)}</div>
+                  )}
+                </div>
+                <a href={materialUrl} download={material.originalName || material.filename} className="btn btn-secondary">
+                  Download Material
+                </a>
               </div>
             )}
           </div>

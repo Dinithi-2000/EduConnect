@@ -48,6 +48,13 @@ const sessionSchema = new mongoose.Schema(
       type: String,
       default: '',
     },
+    lectureMaterial: {
+      originalName: { type: String, default: '' },
+      filename: { type: String, default: '' },
+      path: { type: String, default: '' },
+      mimeType: { type: String, default: '' },
+      size: { type: Number, default: 0 },
+    },
     status: {
       type: String,
       enum: ['upcoming', 'ongoing', 'completed', 'cancelled'],

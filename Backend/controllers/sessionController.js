@@ -9,6 +9,17 @@ const Booking = require('../models/Booking');
 const createSession = async (req, res) => {
   try {
     const { title, subject, description, date, duration, maxParticipants, meetingLink } = req.body;
+    let lectureMaterial = undefined;
+
+    if (req.file) {
+      lectureMaterial = {
+        originalName: req.file.originalname,
+        filename: req.file.filename,
+        path: `/uploads/materials/${req.file.filename}`,
+        mimeType: req.file.mimetype,
+        size: req.file.size,
+      };
+    }
 
     // Validate that session date is in the future
     if (new Date(date) <= new Date()) {
@@ -23,6 +34,7 @@ const createSession = async (req, res) => {
       duration,
       maxParticipants,
       meetingLink,
+      lectureMaterial,
       tutor: req.user.id,
     });
 

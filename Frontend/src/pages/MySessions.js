@@ -15,8 +15,7 @@ export default function MySessions() {
   const [error, setError] = useState('');
   const [cancelling, setCancelling] = useState(null);
 
-  const isStudent = user?.role === 'student';
-
+const isStudent = user?.role === 'student';
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -69,8 +68,8 @@ export default function MySessions() {
     <div className="container" style={{ paddingTop: 40, paddingBottom: 60 }}>
       <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16, marginBottom: 32 }}>
         <div>
-          <h1 className="page-title">{isStudent ? '📋 My Bookings' : '🗓 My Sessions'}</h1>
-          <p className="page-subtitle">{isStudent ? 'Sessions you have booked' : 'Sessions you are teaching'}</p>
+          <h1 className="kuppi-page-title">{isStudent ? '📋 My Bookings' : '🗓 My Sessions'}</h1>
+          <p className="kuppi-page-subtitle">{isStudent ? 'Sessions you have booked' : 'Sessions you are teaching'}</p>
         </div>
         {!isStudent && (
           <Link to="/create-session" className="btn btn-primary">+ Create New Session</Link>

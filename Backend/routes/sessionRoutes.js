@@ -9,13 +9,13 @@ const {
   deleteSession,
 } = require('../controllers/sessionController');
 const { protect, authorize } = require('../middleware/authMiddleware');
+const sessionMaterialUpload = require('../middleware/sessionMaterialUpload');
 
-// /api/sessions
 router.get('/', protect, getSessions);
-router.post('/', protect, authorize('tutor'), createSession);
-router.get('/my-sessions', protect, authorize('tutor'), getTutorSessions);
+router.post('/', protect, authorize('tutor', 'teacher'), sessionMaterialUpload.single('lectureMaterial'), createSession);
+router.get('/my-sessions', protect, authorize('tutor', 'teacher'), getTutorSessions);
 router.get('/:id', protect, getSessionById);
-router.put('/:id', protect, authorize('tutor'), updateSession);
-router.delete('/:id', protect, authorize('tutor'), deleteSession);
+router.put('/:id', protect, authorize('tutor', 'teacher'), updateSession);
+router.delete('/:id', protect, authorize('tutor', 'teacher'), deleteSession);
 
 module.exports = router;

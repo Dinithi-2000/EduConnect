@@ -4,6 +4,7 @@ import api from '../services/api';
 
 export default function CreateSession() {
   const navigate = useNavigate();
+  const [lectureMaterial, setLectureMaterial] = useState(null);
   const [form, setForm] = useState({
     title: '',
     subject: '',
@@ -22,6 +23,21 @@ export default function CreateSession() {
     setForm(p => ({ ...p, [name]: value }));
   };
 
+  const handleMaterialChange = (e) => {
+    const file = e.target.files[0];
+    if (!file) {
+      setLectureMaterial(null);
+      return;
+    }
+
+    if (file.size > 15 * 1024 * 1024) {
+      setError('Lecture material must be smaller than 15MB.');
+      return;
+    }
+
+    setLectureMaterial(file);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
@@ -38,17 +54,21 @@ export default function CreateSession() {
 
     setLoading(true);
     try {
-      const payload = {
-        title: form.title,
-        subject: form.subject,
-        description: form.description,
-        date: combinedDate.toISOString(),
-        duration: parseInt(form.duration),
-        maxParticipants: parseInt(form.maxParticipants),
-        meetingLink: form.meetingLink,
-      };
+      const payload = new FormData();
+      payload.append('title', form.title);
+      payload.append('subject', form.subject);
+      payload.append('description', form.description);
+      payload.append('date', combinedDate.toISOString());
+      payload.append('duration', parseInt(form.duration));
+      payload.append('maxParticipants', parseInt(form.maxParticipants));
+      payload.append('meetingLink', form.meetingLink);
+      if (lectureMaterial) {
+        payload.append('lectureMaterial', lectureMaterial);
+      }
 
-      const { data } = await api.post('/sessions', payload);
+      const { data } = await api.post('/sessions', payload, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
       navigate(`/sessions/${data.session._id}`);
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to create session. Please try again.');
@@ -62,9 +82,9 @@ export default function CreateSession() {
 
   return (
     <div className="container" style={{ paddingTop: 40, paddingBottom: 60 }}>
-      <div className="page-header">
-        <h1 className="page-title">✨ Create Kuppi Session</h1>
-        <p className="page-subtitle">Share your knowledge — create a session for students</p>
+      <div className="kuppi-page-header">
+        <h1 className="kuppi-page-title">✨ Create Kuppi Session</h1>
+        <p className="kuppi-page-subtitle">Share your knowledge — create a session for students</p>
       </div>
 
       <div style={{ maxWidth: 680 }}>
@@ -118,6 +138,24 @@ export default function CreateSession() {
               <label className="form-label">Meeting Link (optional)</label>
               <input name="meetingLink" type="url" className="form-input" value={form.meetingLink} onChange={handleChange} placeholder="https://meet.google.com/..." />
               <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 4 }}>Google Meet, Zoom, or any online meeting link</div>
+            </div>
+
+            <div className="form-group">
+              <label className="form-label">Lecture Material (optional)</label>
+              <input
+                type="file"
+                className="form-input"
+                onChange={handleMaterialChange}
+                accept=".pdf,.jpg,.jpeg,.png,.webp,.gif,.doc,.docx,.ppt,.pptx,.txt"
+              />
+              <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 4 }}>
+                Upload PDF, images, slides, docs, or text files (max 15MB).
+              </div>
+              {lectureMaterial && (
+                <div style={{ fontSize: 12, color: 'var(--primary)', marginTop: 6 }}>
+                  Selected: {lectureMaterial.name}
+                </div>
+              )}
             </div>
 
             {/* Preview */}

@@ -83,7 +83,7 @@ export default function ProfileForm({ user }) {
         <textarea name="bio" className="form-textarea" value={form.bio} onChange={handleChange} placeholder="Tell students about yourself..." rows={4} />
       </div>
 
-      {user.role === 'tutor' && (
+      {(user.role === 'tutor' || user.role === 'teacher' || user.role === 'admin') && (
         <div className="form-group">
           <label className="form-label">Subjects (comma-separated)</label>
           <input name="subjects" className="form-input" value={form.subjects} onChange={handleChange} placeholder="e.g. Mathematics, Physics, Chemistry" />

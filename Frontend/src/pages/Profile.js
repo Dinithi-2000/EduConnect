@@ -6,6 +6,9 @@ export default function Profile() {
   const { user } = useAuth();
   if (!user) return null;
 
+  const roleBadgeClass = user.role === 'student' ? 'badge-blue' : user.role === 'admin' ? 'badge-purple' : 'badge-green';
+  const roleLabel = user.role === 'student' ? 'Student' : user.role === 'admin' ? 'Admin' : 'Tutor';
+
   return (
     <div className="container" style={{ paddingTop: 40, paddingBottom: 60 }}>
       <div className="page-header">
@@ -25,8 +28,8 @@ export default function Profile() {
             </div>
             <h2 style={{ fontSize: 20, fontWeight: 800, marginTop: 16 }}>{user.name}</h2>
             <p style={{ color: 'var(--text-muted)', fontSize: 14 }}>{user.email}</p>
-            <span className={`badge ${user.role === 'tutor' ? 'badge-purple' : 'badge-blue'}`} style={{ marginTop: 10, fontSize: 13 }}>
-              {user.role === 'tutor' ? '🎓 Tutor' : '📖 Student'}
+            <span className={`badge ${roleBadgeClass}`} style={{ marginTop: 10, fontSize: 13 }}>
+              {roleLabel}
             </span>
 
             {user.bio && (

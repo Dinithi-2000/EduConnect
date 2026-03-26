@@ -1,6 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import './App.css';
+import './styles/kuppi.css';
 
 // Team's components
 import Navbar from './components/Navbar';
@@ -32,16 +33,17 @@ const PrivateRoute = ({ children }) => {
 
 const TutorRoute = ({ children }) => {
   const { user } = useAuth();
-  return user?.role === 'tutor' ? children : <SessionList />;
+  return (user?.role === 'tutor' || user?.role === 'teacher' || user?.role === 'admin') ? children : <SessionList />;
 };
 
 function AppContent() {
   const location = useLocation();
-  const isDashboard = location.pathname === '/';
+  const hideNavbarRoutes = ['/', '/login', '/register'];
+  const shouldHideNavbar = hideNavbarRoutes.includes(location.pathname);
 
   return (
     <div className="App">
-      {!isDashboard && <Navbar />}
+      {!shouldHideNavbar && <Navbar />}
       <Routes>
         {/* Team's routes */}
         <Route path="/" element={<Home />} />

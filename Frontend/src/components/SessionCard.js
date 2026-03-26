@@ -19,12 +19,11 @@ export default function SessionCard({ session, isBooked = false }) {
   const spotsLeft = session.maxParticipants - (session.participants?.length || 0);
   const isFull = spotsLeft <= 0;
   const sessionDate = new Date(session.date);
-  const isUpcoming = sessionDate > new Date();
   const subStyle = getSubjectStyle(session.subject);
 
   return (
-    <div className="card" style={styles.card}>
-      <div style={styles.cardTop}>
+    <div className="card session-card" style={styles.card}>
+      <div className="session-card-top" style={styles.cardTop}>
         <span style={{ ...styles.subjectBadge, background: subStyle.bg, color: subStyle.color }}>
           {session.subject}
         </span>
@@ -32,29 +31,29 @@ export default function SessionCard({ session, isBooked = false }) {
         {isFull && !isBooked && <span className="badge badge-red">Full</span>}
       </div>
 
-      <h3 style={styles.title}>{session.title}</h3>
+      <h3 className="session-card-title" style={styles.title}>{session.title}</h3>
 
       {session.description && (
         <p style={styles.description}>{session.description.length > 100 ? session.description.slice(0, 100) + '…' : session.description}</p>
       )}
 
-      <div style={styles.meta}>
-        <div style={styles.metaItem}>
+      <div className="session-card-meta" style={styles.meta}>
+        <div className="session-card-meta-item" style={styles.metaItem}>
           <span style={styles.metaIcon}>📅</span>
           <span>{sessionDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
         </div>
-        <div style={styles.metaItem}>
+        <div className="session-card-meta-item" style={styles.metaItem}>
           <span style={styles.metaIcon}>🕐</span>
           <span>{sessionDate.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}</span>
         </div>
-        <div style={styles.metaItem}>
+        <div className="session-card-meta-item" style={styles.metaItem}>
           <span style={styles.metaIcon}>⏱</span>
           <span>{session.duration} min</span>
         </div>
       </div>
 
-      <div style={styles.footer}>
-        <div style={styles.tutorInfo}>
+      <div className="session-card-footer" style={styles.footer}>
+        <div className="session-card-tutor" style={styles.tutorInfo}>
           <div style={styles.tutorAvatar}>
             {session.tutor?.profilePicture
               ? <img src={`http://localhost:5000${session.tutor.profilePicture}`} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
@@ -64,7 +63,7 @@ export default function SessionCard({ session, isBooked = false }) {
           <span style={styles.tutorName}>{session.tutor?.name}</span>
         </div>
 
-        <div style={styles.right}>
+        <div className="session-card-actions" style={styles.right}>
           <span style={{ ...styles.spots, color: isFull ? 'var(--danger)' : spotsLeft <= 3 ? 'var(--warning)' : 'var(--success)' }}>
             {isFull ? 'Full' : `${spotsLeft} spot${spotsLeft !== 1 ? 's' : ''} left`}
           </span>
