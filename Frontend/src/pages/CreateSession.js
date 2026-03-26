@@ -66,9 +66,7 @@ export default function CreateSession() {
         payload.append('lectureMaterial', lectureMaterial);
       }
 
-      const { data } = await api.post('/sessions', payload, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      });
+      const { data } = await api.post('/sessions', payload);
       navigate(`/sessions/${data.session._id}`);
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to create session. Please try again.');

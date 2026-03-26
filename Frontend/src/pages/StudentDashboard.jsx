@@ -119,6 +119,10 @@ const StudentDashboard = () => {
               <span className="nav-icon">✏️</span>
               Quizzes
             </Link>
+            <Link to="/sessions" className="nav-item">
+              <span className="nav-icon">🎥</span>
+              Kuppi Sessions
+            </Link>
             <Link to="/progress" className="nav-item">
               <span className="nav-icon">📈</span>
               Progress

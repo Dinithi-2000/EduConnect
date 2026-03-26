@@ -1,5 +1,8 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
+const { sendAccountCreationEmail } = require('../utils/emailService');
+
+const STRONG_PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z\d]).{8,}$/;
 
 /**
  * Generate JWT token for a user
@@ -24,6 +27,13 @@ const register = async (req, res) => {
       return res.status(400).json({ success: false, message: 'Name, email, and password are required.' });
     }
 
+    if (!STRONG_PASSWORD_REGEX.test(password)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Password must be at least 8 characters and include uppercase, lowercase, number, and special character.',
+      });
+    }
+
     // Check if user already exists
     const existingUser = await User.findOne({ email });
     if (existingUser) {
@@ -32,6 +42,11 @@ const register = async (req, res) => {
 
     // Create user (password hashing handled by pre-save hook)
     const user = await User.create({ name, email, password, role: role || 'student' });
+
+    // Send welcome email in background (registration should still succeed if email fails)
+    sendAccountCreationEmail(user).catch((err) => {
+      console.error('Failed to send account creation email:', err.message);
+    });
 
     const token = generateToken(user._id);
 

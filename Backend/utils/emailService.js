@@ -4,10 +4,11 @@ const nodemailer = require('nodemailer');
  * Create reusable transporter using SMTP credentials from .env
  */
 const createTransporter = () => {
+  const port = parseInt(process.env.EMAIL_PORT) || 587;
   return nodemailer.createTransport({
     host: process.env.EMAIL_HOST || 'smtp.gmail.com',
-    port: parseInt(process.env.EMAIL_PORT) || 587,
-    secure: false, // true for port 465
+    port,
+    secure: port === 465,
     auth: {
       user: process.env.EMAIL_USER,
       pass: process.env.EMAIL_PASS,
@@ -133,4 +134,73 @@ const sendReminderEmail = async (user, session) => {
   console.log(`📧 Reminder sent to ${user.email}`);
 };
 
-module.exports = { sendBookingConfirmationEmail, sendReminderEmail };
+/**
+ * Send password reset email
+ */
+const sendPasswordResetEmail = async (user, resetUrl) => {
+  if (!process.env.EMAIL_USER) {
+    console.log('Email service not configured. Password reset link:', resetUrl);
+    return;
+  }
+
+  const transporter = createTransporter();
+
+  const html = emailTemplate(
+    'Reset Your Password',
+    `
+    <p>Hi <strong>${user.name}</strong>,</p>
+    <p>We received a request to reset your password.</p>
+    <p>Click the button below to set a new password. This link expires in <strong>15 minutes</strong>.</p>
+    <a href="${resetUrl}" class="btn">Reset Password</a>
+    <p style="margin-top:16px; font-size:13px; color:#6b7280;">If you did not request this, you can ignore this email.</p>
+  `
+  );
+
+  await transporter.sendMail({
+    from: process.env.EMAIL_FROM || 'Kuppi LMS <noreply@kuppilms.com>',
+    to: user.email,
+    subject: 'Reset your EduConnect password',
+    html,
+  });
+
+  console.log(`📧 Password reset email sent to ${user.email}`);
+};
+
+/**
+ * Send account creation welcome email
+ */
+const sendAccountCreationEmail = async (user) => {
+  if (!process.env.EMAIL_USER) {
+    console.log(`Email service not configured. Skipping welcome email for ${user.email}.`);
+    return;
+  }
+
+  const transporter = createTransporter();
+  const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+
+  const html = emailTemplate(
+    'Welcome to EduConnect!',
+    `
+    <p>Hi <strong>${user.name}</strong>,</p>
+    <p>Your account has been created successfully.</p>
+    <div class="info-box">
+      <p><strong>👤 Name:</strong> ${user.name}</p>
+      <p><strong>📧 Email:</strong> ${user.email}</p>
+      <p><strong>🎯 Role:</strong> ${user.role || 'student'}</p>
+    </div>
+    <p>You can now log in and start learning with EduConnect.</p>
+    <a href="${frontendUrl}/login" class="btn">Go to Login</a>
+  `
+  );
+
+  await transporter.sendMail({
+    from: process.env.EMAIL_FROM || 'Kuppi LMS <noreply@kuppilms.com>',
+    to: user.email,
+    subject: 'Welcome to EduConnect - Account Created',
+    html,
+  });
+
+  console.log(`📧 Account creation email sent to ${user.email}`);
+};
+
+module.exports = { sendBookingConfirmationEmail, sendReminderEmail, sendPasswordResetEmail, sendAccountCreationEmail };

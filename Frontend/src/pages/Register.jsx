@@ -4,6 +4,8 @@ import { useAuth } from '../context/AuthContext';
 import { registerUser } from '../services/userService';
 import './Auth.css';
 
+const STRONG_PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z\d]).{8,}$/;
+
 const Register = () => {
   const navigate = useNavigate();
   const { login } = useAuth();
@@ -34,8 +36,8 @@ const Register = () => {
       return;
     }
 
-    if (formData.password.length < 6) {
-      setError('Password must be at least 6 characters');
+    if (!STRONG_PASSWORD_REGEX.test(formData.password)) {
+      setError('Password must be at least 8 characters and include uppercase, lowercase, number, and special character');
       return;
     }
 
@@ -127,9 +129,12 @@ const Register = () => {
                 name="password"
                 value={formData.password}
                 onChange={handleChange}
-                placeholder="Enter a password (min 6 characters)"
+                placeholder="Min 8 chars with A-Z, a-z, 0-9 and symbol"
                 required
               />
+              <p style={{ fontSize: 12, color: '#666', marginTop: 6 }}>
+                Must contain uppercase, lowercase, number and special character.
+              </p>
             </div>
 
             <div className="form-group">

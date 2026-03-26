@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import api from '../services/api';
 
 const subjectColors = {
   default: { bg: '#eff6ff', color: '#1d4ed8' },
@@ -15,11 +16,29 @@ const getSubjectStyle = (subject) => {
   return subjectColors[key] || subjectColors.default;
 };
 
-export default function SessionCard({ session, isBooked = false }) {
+export default function SessionCard({ session, isBooked = false, userRole, onBookStatusChange }) {
   const spotsLeft = session.maxParticipants - (session.participants?.length || 0);
   const isFull = spotsLeft <= 0;
   const sessionDate = new Date(session.date);
+  const isPast = sessionDate <= new Date();
   const subStyle = getSubjectStyle(session.subject);
+  const [bookingLoading, setBookingLoading] = useState(false);
+  const [bookingError, setBookingError] = useState('');
+
+  const handleBookNow = async () => {
+    if (isBooked || isFull || isPast) return;
+
+    setBookingLoading(true);
+    setBookingError('');
+    try {
+      await api.post(`/bookings/${session._id}`);
+      if (onBookStatusChange) onBookStatusChange(session._id, true);
+    } catch (err) {
+      setBookingError(err.response?.data?.message || 'Booking failed. Please try again.');
+    } finally {
+      setBookingLoading(false);
+    }
+  };
 
   return (
     <div className="card session-card" style={styles.card}>
@@ -67,9 +86,24 @@ export default function SessionCard({ session, isBooked = false }) {
           <span style={{ ...styles.spots, color: isFull ? 'var(--danger)' : spotsLeft <= 3 ? 'var(--warning)' : 'var(--success)' }}>
             {isFull ? 'Full' : `${spotsLeft} spot${spotsLeft !== 1 ? 's' : ''} left`}
           </span>
+          {userRole === 'student' && (
+            <button
+              type="button"
+              className="btn btn-secondary btn-sm"
+              onClick={handleBookNow}
+              disabled={bookingLoading || isBooked || isFull || isPast}
+            >
+              {isBooked ? 'Booked' : bookingLoading ? 'Booking...' : isPast ? 'Ended' : 'Book the session'}
+            </button>
+          )}
           <Link to={`/sessions/${session._id}`} className="btn btn-primary btn-sm">View</Link>
         </div>
       </div>
+      {bookingError && (
+        <div className="alert alert-error" style={{ marginTop: 8, marginBottom: 0 }}>
+          {bookingError}
+        </div>
+      )}
     </div>
   );
 }

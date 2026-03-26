@@ -4,16 +4,24 @@ import { useAuth } from '../context/AuthContext';
 
 export default function ProfileForm({ user }) {
   const { updateUser } = useAuth();
-  const [form, setForm] = useState({
+  const initialForm = {
     name: user.name || '',
     bio: user.bio || '',
     subjects: Array.isArray(user.subjects) ? user.subjects.join(', ') : '',
+  };
+  const [form, setForm] = useState({
+    ...initialForm,
   });
   const [profilePicture, setProfilePicture] = useState(null);
   const [preview, setPreview] = useState(user.profilePicture ? `http://localhost:5000${user.profilePicture}` : '');
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState('');
   const [error, setError] = useState('');
+  const hasChanges =
+    form.name !== initialForm.name ||
+    form.bio !== initialForm.bio ||
+    form.subjects !== initialForm.subjects ||
+    !!profilePicture;
 
   const handleChange = (e) => setForm(prev => ({ ...prev, [e.target.name]: e.target.value }));
 
@@ -44,6 +52,7 @@ export default function ProfileForm({ user }) {
 
       updateUser(data.user);
       setSuccess('Profile updated successfully!');
+      setProfilePicture(null);
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to update profile.');
     } finally {
@@ -91,9 +100,14 @@ export default function ProfileForm({ user }) {
         </div>
       )}
 
-      <button type="submit" className="btn btn-primary" disabled={loading}>
-        {loading ? <><span className="spinner" />Saving…</> : 'Save Changes'}
-      </button>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginTop: 20 }}>
+        <button type="submit" className="btn btn-primary">
+          {loading ? <><span className="spinner" />Saving…</> : 'Save Profile'}
+        </button>
+        {!hasChanges && (
+          <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>No changes yet</span>
+        )}
+      </div>
     </form>
   );
 }

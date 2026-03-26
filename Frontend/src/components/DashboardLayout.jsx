@@ -11,6 +11,7 @@ const DashboardLayout = ({ children, activeSection = 'Quizzes' }) => {
   const location = useLocation();
   const { logout, user } = useAuth();
   const isAdminView = ['admin', 'teacher'].includes(user?.role);
+  const dashboardPath = user?.role === 'student' ? '/student-dashboard' : '/';
   const displayName = user?.name || 'User';
   const avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName)}&background=3b82f6&color=fff`;
 
@@ -20,11 +21,11 @@ const DashboardLayout = ({ children, activeSection = 'Quizzes' }) => {
   };
 
   const navItems = [
-    { icon: '📊', label: 'Dashboard', path: '/' },
+    { icon: '📊', label: 'Dashboard', path: dashboardPath },
     { icon: '📚', label: 'My Courses', path: '/courses' },
     { icon: '📝', label: 'Quizzes', path: '/quizzes' },
     { icon: '👑', label: 'Premium', path: '/premium' },
-    { icon: '🎥', label: 'Kuppi Sessions', path: '/kuppi' },
+    { icon: '🎥', label: 'Kuppi Sessions', path: '/sessions' },
     { icon: '👥', label: 'Community', path: '/community' },
     { icon: '📈', label: isAdminView ? 'Reports' : 'Analytics', path: '/progress' }
   ];
@@ -32,7 +33,7 @@ const DashboardLayout = ({ children, activeSection = 'Quizzes' }) => {
   const getActiveLabel = () => {
     const match = navItems.find(item => location.pathname.startsWith(item.path) && item.path !== '/');
     if (match) return match.label;
-    if (location.pathname === '/') return 'Dashboard';
+    if (location.pathname === dashboardPath) return 'Dashboard';
     return activeSection;
   };
 
@@ -41,7 +42,7 @@ const DashboardLayout = ({ children, activeSection = 'Quizzes' }) => {
       {/* Sidebar */}
       <aside className="layout-sidebar">
         <div className="sidebar-header">
-          <div className="logo" onClick={() => navigate('/')} style={{ cursor: 'pointer' }}>
+          <div className="logo" onClick={() => navigate(dashboardPath)} style={{ cursor: 'pointer' }}>
             <span className="logo-icon">🎓</span>
             <span className="logo-text">EduConnect</span>
           </div>

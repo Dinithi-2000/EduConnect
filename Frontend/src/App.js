@@ -9,6 +9,8 @@ import { useAuth } from './context/AuthContext';
 // Auth Pages
 import Login from './pages/Login';
 import Register from './pages/Register';
+import ForgotPassword from './pages/ForgotPassword';
+import ResetPassword from './pages/ResetPassword';
 
 // Team's Pages
 import Home from './pages/Home';
@@ -29,12 +31,13 @@ import CourseManager from './pages/course/CourseManager';
 // Kuppi Module Pages
 import SessionList from './pages/SessionList';
 import SessionDetail from './pages/SessionDetail';
+import EditSession from './pages/EditSession';
 import MySessions from './pages/MySessions';
 import Profile from './pages/Profile';
 import CreateSession from './pages/CreateSession';
 import VisionBoard from './pages/VisionBoard';
 
-const DASHBOARD_PATHS = ['/', '/courses', '/quizzes', '/progress', '/community', '/premium', '/sessions', '/my-sessions', '/create-session', '/vision-board', '/profile'];
+const DASHBOARD_PATHS = ['/', '/courses', '/quizzes', '/progress', '/community', '/premium'];
 
 // Protected Route Wrapper
 const ProtectedRoute = ({ element }) => {
@@ -57,12 +60,19 @@ const TutorRoute = ({ element }) => {
   return isTutor ? element : <Navigate to="/sessions" replace />;
 };
 
+// Role-based dashboard route
+const DashboardRoute = () => {
+  const { user } = useAuth();
+  return user?.role === 'student' ? <StudentDashboard /> : <Home />;
+};
+
 function AppContent() {
   const location = useLocation();
   const isDashboard = DASHBOARD_PATHS.some(p =>
     p === '/' ? location.pathname === '/' : location.pathname.startsWith(p)
   );
-  const isAuth = ['/login', '/register'].includes(location.pathname);
+  const isAuth = ['/login', '/register', '/forgot-password'].includes(location.pathname)
+    || location.pathname.startsWith('/reset-password/');
 
   return (
     <div className="App">
@@ -71,9 +81,11 @@ function AppContent() {
         {/* Auth routes */}
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password/:token" element={<ResetPassword />} />
 
         {/* Main dashboard */}
-        <Route path="/" element={<ProtectedRoute element={<Home />} />} />
+        <Route path="/" element={<ProtectedRoute element={<DashboardRoute />} />} />
         <Route path="/student-dashboard" element={<ProtectedRoute element={<StudentDashboard />} />} />
         <Route path="/about" element={<About />} />
 
@@ -93,6 +105,7 @@ function AppContent() {
         {/* Kuppi Module Routes */}
         <Route path="/sessions" element={<ProtectedRoute element={<SessionList />} />} />
         <Route path="/sessions/:id" element={<ProtectedRoute element={<SessionDetail />} />} />
+        <Route path="/sessions/:id/edit" element={<ProtectedRoute element={<TutorRoute element={<EditSession />} />} />} />
         <Route path="/my-sessions" element={<ProtectedRoute element={<MySessions />} />} />
         <Route path="/profile" element={<ProtectedRoute element={<Profile />} />} />
         <Route path="/vision-board" element={<ProtectedRoute element={<VisionBoard />} />} />
