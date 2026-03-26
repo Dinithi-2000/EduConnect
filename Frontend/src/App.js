@@ -24,10 +24,11 @@ import QuizResults from './pages/quiz/QuizResults';
 import ProgressDashboard from './pages/quiz/ProgressDashboard';
 import PremiumQuizzes from './pages/quiz/PremiumQuizzes';
 import PremiumManagement from './pages/admin/PremiumManagement';
+import StudentManagement from './pages/admin/StudentManagement';
 import CommunityBoard from './pages/Community';
 import CourseManager from './pages/course/CourseManager';
 
-const DASHBOARD_PATHS = ['/', '/courses', '/quizzes', '/progress', '/community', '/premium', '/premium-management'];
+const DASHBOARD_PATHS = ['/', '/courses', '/student-management', '/quizzes', '/progress', '/community', '/premium', '/premium-management'];
 
 // Protected Route Wrapper
 const ProtectedRoute = ({ element }) => {
@@ -68,6 +69,7 @@ function AppContent() {
 
         {/* Quiz & Mock Exam System */}
         <Route path="/courses" element={<ProtectedRoute element={<CourseManager />} />} />
+        <Route path="/student-management" element={<ProtectedRoute element={<StudentManagement />} />} />
         <Route path="/quizzes" element={<ProtectedRoute element={<QuizList />} />} />
         <Route path="/quizzes/create" element={<ProtectedRoute element={<QuizBuilder />} />} />
         <Route path="/quizzes/:id/edit" element={<ProtectedRoute element={<QuizBuilder />} />} />
