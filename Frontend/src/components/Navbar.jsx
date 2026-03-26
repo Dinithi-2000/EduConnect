@@ -14,32 +14,34 @@ const Navbar = () => {
     navigate('/login');
   };
 
+  const isStudent = String(user?.role || '').toLowerCase() === 'student';
+  const dashboardPath = isStudent ? '/student-dashboard' : '/';
   const isActive = (path) => location.pathname === path;
 
   return (
     <nav className="navbar">
       <div className="navbar-container">
-        <Link to="/" className="navbar-logo">
+        <Link to={dashboardPath} className="navbar-logo">
           <span className="logo-icon">🎓</span>
           <span className="logo-text">EduConnect</span>
         </Link>
 
         <div className="navbar-menu">
           <Link 
-            to="/" 
-            className={`navbar-link ${isActive('/') ? 'active' : ''}`}
+            to={dashboardPath}
+            className={`navbar-link ${isActive('/') || isActive('/student-dashboard') ? 'active' : ''}`}
           >
             Dashboard
           </Link>
           <Link 
-            to="/quizzes" 
-            className={`navbar-link ${isActive('/quizzes') ? 'active' : ''}`}
+            to={isStudent ? '/student/quizzes' : '/quizzes'} 
+            className={`navbar-link ${isActive('/quizzes') || isActive('/student/quizzes') ? 'active' : ''}`}
           >
             Quizzes
           </Link>
           <Link 
-            to="/progress" 
-            className={`navbar-link ${isActive('/progress') ? 'active' : ''}`}
+            to={isStudent ? '/student/progress' : '/progress'}
+            className={`navbar-link ${isActive('/progress') || isActive('/student/progress') ? 'active' : ''}`}
           >
             Progress
           </Link>

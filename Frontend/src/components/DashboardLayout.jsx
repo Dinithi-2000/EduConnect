@@ -4,13 +4,14 @@ import { useAuth } from '../context/AuthContext';
 import AIChatWidget from './AIChatWidget';
 import './DashboardLayout.css';
 
-const DashboardLayout = ({ children, activeSection = 'Quizzes' }) => {
+const DashboardLayout = ({ children, activeSection = 'Quizzes', theme = 'dark' }) => {
   const [chatOpenSignal, setChatOpenSignal] = useState(0);
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   const { logout, user } = useAuth();
   const isAdminView = ['admin', 'teacher'].includes(user?.role);
+  const dashboardPath = isAdminView ? '/' : '/student-dashboard';
   const displayName = user?.name || 'User';
   const profileLabel = isAdminView ? 'Administrator' : displayName;
   const avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName)}&background=3b82f6&color=fff`;
@@ -32,28 +33,28 @@ const DashboardLayout = ({ children, activeSection = 'Quizzes' }) => {
         { icon: '📈', label: 'Reports', path: '/progress' }
       ]
     : [
-        { icon: '📊', label: 'Dashboard', path: '/' },
-        { icon: '📚', label: 'My Courses', path: '/courses' },
-        { icon: '📝', label: 'Quizzes', path: '/quizzes' },
-        { icon: '👑', label: 'Premium', path: '/premium' },
+        { icon: '📊', label: 'Dashboard', path: '/student-dashboard' },
+        { icon: '📚', label: 'My Courses', path: '/student/courses' },
+        { icon: '📝', label: 'Quizzes', path: '/student/quizzes' },
+        { icon: '👑', label: 'Premium', path: '/student/premium' },
         { icon: '🎥', label: 'Kuppi Sessions', path: '/kuppi' },
-        { icon: '👥', label: 'Community', path: '/community' },
-        { icon: '📈', label: 'Analytics', path: '/progress' }
+        { icon: '👥', label: 'Community', path: '/student/community' },
+        { icon: '📈', label: 'Progress', path: '/student/progress' }
       ];
 
   const getActiveLabel = () => {
     const match = navItems.find(item => location.pathname.startsWith(item.path) && item.path !== '/');
     if (match) return match.label;
-    if (location.pathname === '/') return 'Dashboard';
+    if (location.pathname === '/' || location.pathname === '/student-dashboard') return 'Dashboard';
     return activeSection;
   };
 
   return (
-    <div className={`dashboard-layout ${isAdminView ? 'admin-shell' : ''}`}>
+    <div className={`dashboard-layout ${isAdminView ? 'admin-shell' : ''} ${theme === 'light' ? 'light-shell' : ''}`}>
       {/* Sidebar */}
       <aside className="layout-sidebar">
         <div className="sidebar-header">
-          <div className="logo" onClick={() => navigate('/')} style={{ cursor: 'pointer' }}>
+          <div className="logo" onClick={() => navigate(dashboardPath)} style={{ cursor: 'pointer' }}>
             <span className="logo-icon">🎓</span>
             <div className="logo-text-block">
               <span className="logo-text">EduConnect</span>

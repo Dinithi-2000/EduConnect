@@ -22,6 +22,93 @@
   font-family: 'Sora', 'Segoe UI', sans-serif;
 }
 
+.dashboard-layout.light-shell {
+  --line: #dbe5f3;
+  --text-strong: #0f172a;
+  --text-muted: #5c6c86;
+  background:
+    radial-gradient(circle at 12% 3%, rgba(87, 151, 255, 0.15), transparent 35%),
+    linear-gradient(180deg, #f7fbff, #edf4ff 48%, #eaf2ff);
+}
+
+.dashboard-layout.light-shell .layout-sidebar {
+  background: linear-gradient(180deg, #f8fbff, #f0f6ff);
+  border-right: 1px solid #d6e1f1;
+}
+
+.dashboard-layout.light-shell .sidebar-header {
+  border-bottom: 1px solid #d6e1f1;
+}
+
+.dashboard-layout.light-shell .logo-text {
+  color: #1f5ed8;
+}
+
+.dashboard-layout.light-shell .logo-text-block small {
+  color: #6780a7;
+}
+
+.dashboard-layout.light-shell .nav-item {
+  color: #445679;
+}
+
+.dashboard-layout.light-shell .nav-item:hover {
+  background: #e8f1ff;
+  border-color: #c2d5f7;
+  color: #1f3f73;
+}
+
+.dashboard-layout.light-shell .nav-item.active {
+  background: linear-gradient(135deg, #5a8df8, #7e8cff);
+  color: #ffffff;
+  box-shadow: 0 10px 20px rgba(79, 123, 230, 0.25);
+}
+
+.dashboard-layout.light-shell .nav-logout {
+  background: #fff3f3;
+  border-color: #ffcccc;
+  color: #c0392b;
+}
+
+.dashboard-layout.light-shell .layout-header {
+  background: rgba(246, 250, 255, 0.9);
+  border-bottom: 1px solid #d6e1f1;
+}
+
+.dashboard-layout.light-shell .search-bar {
+  background: #ffffff;
+  border: 1px solid #d3e0f4;
+}
+
+.dashboard-layout.light-shell .search-icon {
+  color: #6b7fa3;
+}
+
+.dashboard-layout.light-shell .search-input {
+  color: #1f2f4e;
+}
+
+.dashboard-layout.light-shell .search-input::placeholder {
+  color: #8394b4;
+}
+
+.dashboard-layout.light-shell .icon-btn,
+.dashboard-layout.light-shell .user-profile,
+.dashboard-layout.light-shell .profile-menu {
+  background: #ffffff;
+  border-color: #d3e0f4;
+  color: #324a73;
+}
+
+.dashboard-layout.light-shell .user-name,
+.dashboard-layout.light-shell .profile-menu-btn {
+  color: #2f4a77;
+}
+
+.dashboard-layout.light-shell .layout-content {
+  color: #13233f;
+}
+
 .layout-sidebar {
   width: 252px;
   background: linear-gradient(180deg, #030a1d, #040f2a);

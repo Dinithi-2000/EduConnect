@@ -78,15 +78,11 @@ const StudentDashboard = () => {
   };
 
   const handleNavigateToQuizzes = () => {
-    navigate('/quizzes');
+    navigate('/student/quizzes');
   };
 
   const handleNavigateToCourses = () => {
-    navigate('/courses');
-  };
-
-  const handleNavigateToCommunity = () => {
-    navigate('/community');
+    navigate('/student/courses');
   };
 
   return (
@@ -111,19 +107,23 @@ const StudentDashboard = () => {
               <span className="nav-icon">📊</span>
               Dashboard
             </Link>
-            <Link to="/courses" className="nav-item">
+            <Link to="/student/courses" className="nav-item">
               <span className="nav-icon">📚</span>
               Courses
             </Link>
-            <Link to="/quizzes" className="nav-item">
+            <Link to="/student/quizzes" className="nav-item">
               <span className="nav-icon">✏️</span>
               Quizzes
             </Link>
-            <Link to="/progress" className="nav-item">
+            <Link to="/student/progress" className="nav-item">
               <span className="nav-icon">📈</span>
               Progress
             </Link>
-            <Link to="/community" className="nav-item">
+            <Link to="/student/premium" className="nav-item">
+              <span className="nav-icon">👑</span>
+              Premium
+            </Link>
+            <Link to="/student/community" className="nav-item">
               <span className="nav-icon">💬</span>
               Community
             </Link>
@@ -194,7 +194,7 @@ const StudentDashboard = () => {
             <section className="upcoming-section">
               <div className="section-header">
                 <h2>Upcoming Kuppi Sessions</h2>
-                <Link to="/courses" className="view-all">View All →</Link>
+                <Link to="/student/courses" className="view-all">View All →</Link>
               </div>
               <div className="upcoming-list">
                 {upcomingClasses.map((classItem) => (
@@ -219,7 +219,7 @@ const StudentDashboard = () => {
             <section className="quizzes-section">
               <div className="section-header">
                 <h2>Recent Quizzes</h2>
-                <Link to="/quizzes" className="view-all">View All →</Link>
+                <Link to="/student/quizzes" className="view-all">View All →</Link>
               </div>
               <div className="quizzes-list">
                 {recentQuizzes.map((quiz) => (

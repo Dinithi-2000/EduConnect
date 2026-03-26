@@ -21,6 +21,8 @@ const ProgressDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const isAdminView = ['admin', 'teacher'].includes(String(user?.role || '').toLowerCase());
+  const quizHomePath = isAdminView ? '/quizzes' : '/student/quizzes';
+  const layoutTheme = isAdminView ? 'dark' : 'light';
   const headerTitle = isAdminView ? '📈 Reports' : '📈 My Progress';
   const headerSubtitle = isAdminView
     ? 'Review quiz performance and score trends'
@@ -191,17 +193,17 @@ const ProgressDashboard = () => {
   }, [isAdminView]);
 
   if (loading) return (
-    <DashboardLayout>
+    <DashboardLayout theme={layoutTheme}>
       <div className="progress-loading"><div className="spinner"></div><p>Loading progress...</p></div>
     </DashboardLayout>
   );
 
   if (error) return (
-    <DashboardLayout>
+    <DashboardLayout theme={layoutTheme}>
       <div className="progress-error">
         <span>⚠️</span>
         <p>{error}</p>
-        <button className="btn-primary" onClick={() => navigate('/quizzes')}>Back to Quizzes</button>
+        <button className="btn-primary" onClick={() => navigate(quizHomePath)}>Back to Quizzes</button>
       </div>
     </DashboardLayout>
   );
@@ -393,7 +395,7 @@ const ProgressDashboard = () => {
     };
 
     return (
-      <DashboardLayout activeSection="Reports">
+      <DashboardLayout activeSection="Reports" theme={layoutTheme}>
         <div className="reports-intel-page">
           <section className="reports-intel-head">
             <div>
@@ -533,7 +535,7 @@ const ProgressDashboard = () => {
   }
 
   return (
-    <DashboardLayout>
+    <DashboardLayout theme={layoutTheme}>
       <div className="progress-dashboard-page">
         {/* Header */}
         <div className="progress-header">
@@ -541,7 +543,7 @@ const ProgressDashboard = () => {
             <h1 className="page-title">{headerTitle}</h1>
             <p className="page-subtitle">{headerSubtitle}</p>
           </div>
-          <button className="btn-take-quiz" onClick={() => navigate('/quizzes')}>
+          <button className="btn-take-quiz" onClick={() => navigate(quizHomePath)}>
             📝 Take a Quiz
           </button>
         </div>
@@ -551,7 +553,7 @@ const ProgressDashboard = () => {
             <span className="no-icon">📊</span>
             <h3>No quiz attempts yet</h3>
             <p>Complete some quizzes to see your progress here!</p>
-            <button className="btn-primary" onClick={() => navigate('/quizzes')}>Browse Quizzes</button>
+            <button className="btn-primary" onClick={() => navigate(quizHomePath)}>Browse Quizzes</button>
           </div>
         ) : (
           <>
