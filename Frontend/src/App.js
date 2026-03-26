@@ -1,23 +1,89 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useLocation, Navigate } from 'react-router-dom';
 import './App.css';
 
 // Import components
 import Navbar from './components/Navbar';
+import { useAuth } from './context/AuthContext';
+
+// Auth Pages
+import Login from './pages/Login';
+import Register from './pages/Register';
+
+// Pages
 import Home from './pages/Home';
 import About from './pages/About';
 import NotFound from './pages/NotFound';
+import StudentDashboard from './pages/StudentDashboard';
+
+// Quiz & Mock Exam System
+import QuizList from './pages/quiz/QuizList';
+import QuizBuilder from './pages/quiz/QuizBuilder';
+import QuizAttempt from './pages/quiz/QuizAttempt';
+import QuizResults from './pages/quiz/QuizResults';
+import ProgressDashboard from './pages/quiz/ProgressDashboard';
+import PremiumQuizzes from './pages/quiz/PremiumQuizzes';
+import PremiumManagement from './pages/admin/PremiumManagement';
+import StudentManagement from './pages/admin/StudentManagement';
+import AdminSettings from './pages/admin/AdminSettings';
+import CommunityBoard from './pages/Community';
+import CourseManager from './pages/course/CourseManager';
+
+const DASHBOARD_PATHS = ['/', '/courses', '/student-management', '/quizzes', '/progress', '/community', '/premium', '/premium-management', '/settings'];
+
+// Protected Route Wrapper
+const ProtectedRoute = ({ element }) => {
+  const { isAuthenticated, loading } = useAuth();
+
+  if (loading) {
+    return <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+      <div className="spinner"></div>
+    </div>;
+  }
+
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />;
+  }
+
+  return element;
+};
 
 function AppContent() {
   const location = useLocation();
-  const isDashboard = location.pathname === '/';
+  const isDashboard = DASHBOARD_PATHS.some(p =>
+    p === '/' ? location.pathname === '/' : location.pathname.startsWith(p)
+  );
+  const isAuth = ['/login', '/register'].includes(location.pathname);
 
   return (
     <div className="App">
-      {!isDashboard && <Navbar />}
+      {!isDashboard && !isAuth && <Navbar />}
       <Routes>
-        <Route path="/" element={<Home />} />
+        {/* Auth routes */}
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+
+        {/* Main dashboard */}
+        <Route path="/" element={<ProtectedRoute element={<Home />} />} />
+        <Route path="/student-dashboard" element={<ProtectedRoute element={<StudentDashboard />} />} />
         <Route path="/about" element={<About />} />
+
+        {/* Quiz & Mock Exam System */}
+        <Route path="/courses" element={<ProtectedRoute element={<CourseManager />} />} />
+        <Route path="/student-management" element={<ProtectedRoute element={<StudentManagement />} />} />
+        <Route path="/quizzes" element={<ProtectedRoute element={<QuizList />} />} />
+        <Route path="/quizzes/create" element={<ProtectedRoute element={<QuizBuilder />} />} />
+        <Route path="/quizzes/:id/edit" element={<ProtectedRoute element={<QuizBuilder />} />} />
+        <Route path="/quizzes/:id/attempt" element={<ProtectedRoute element={<QuizAttempt />} />} />
+        <Route path="/quizzes/results/:attemptId" element={<ProtectedRoute element={<QuizResults />} />} />
+        <Route path="/progress" element={<ProtectedRoute element={<ProgressDashboard />} />} />
+        <Route path="/premium" element={<ProtectedRoute element={<PremiumQuizzes />} />} />
+        <Route path="/premium-management" element={<ProtectedRoute element={<PremiumManagement />} />} />
+        <Route path="/settings" element={<ProtectedRoute element={<AdminSettings />} />} />
+
+        {/* Community Board */}
+        <Route path="/community" element={<ProtectedRoute element={<CommunityBoard />} />} />
+
         <Route path="*" element={<NotFound />} />
       </Routes>
     </div>
@@ -26,7 +92,7 @@ function AppContent() {
 
 function App() {
   return (
-    <Router>
+    <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
       <AppContent />
     </Router>
   );

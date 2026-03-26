@@ -15,6 +15,8 @@ Create a `.env` file in the root directory and add:
 REACT_APP_API_URL=http://localhost:5000/api
 ```
 
+The AI chatbot on the home dashboard uses this backend URL and calls `POST /api/ai/chat`.
+
 ### 3. Run the Application
 
 **Development mode:**
@@ -75,6 +77,7 @@ Frontend/
 - **Context API** - State management
 - **Component-based architecture** - Reusable UI components
 - **Responsive design** - Mobile-friendly interface
+- **AI Chatbot panel** - Interactive tutor with quick prompts and typing indicators
 
 ## Technologies Used
 

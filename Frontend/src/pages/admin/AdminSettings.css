@@ -1,0 +1,414 @@
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap');
+
+.admin-settings-page {
+  --line: rgba(71, 102, 168, 0.28);
+  --text: #e9efff;
+  --soft: #8da6d3;
+  --bg: linear-gradient(145deg, rgba(12, 23, 56, 0.97), rgba(8, 16, 40, 0.97));
+
+  font-family: 'Space Grotesk', 'Segoe UI', sans-serif;
+  color: var(--text);
+  display: grid;
+  gap: 14px;
+}
+
+.panel-card,
+.settings-card {
+  border: 1px solid var(--line);
+  border-radius: 22px;
+  background: var(--bg);
+}
+
+.settings-topline {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 2px 2px 4px;
+}
+
+.settings-topline h1 {
+  margin: 0;
+  font-size: 2rem;
+  letter-spacing: -0.03em;
+}
+
+.settings-topline p {
+  margin: 0;
+  color: var(--soft);
+  font-size: 0.78rem;
+  border-left: 1px solid rgba(80, 110, 178, 0.42);
+  padding-left: 12px;
+}
+
+.settings-layout-row {
+  display: grid;
+  grid-template-columns: 1.75fr 1fr;
+  gap: 12px;
+}
+
+.profile-card,
+.prefs-card,
+.security-card,
+.institution-card {
+  padding: 16px;
+}
+
+.panel-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+
+.panel-head h2,
+.prefs-card h2,
+.security-card h2,
+.institution-card h2 {
+  margin: 0;
+  font-size: 1.8rem;
+  line-height: 1.1;
+}
+
+.panel-subtitle {
+  margin: 4px 0 0;
+  color: var(--soft);
+  font-size: 0.7rem;
+}
+
+.btn-secondary,
+.btn-primary {
+  border-radius: 999px;
+  font-family: inherit;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 10px 16px;
+  cursor: pointer;
+}
+
+.btn-secondary {
+  border: 1px solid rgba(96, 124, 195, 0.4);
+  background: #122a5c;
+  color: #d2e3ff;
+}
+
+.btn-primary {
+  border: none;
+  background: linear-gradient(135deg, #2f6dff, #8751ff);
+  color: #f1f6ff;
+}
+
+.profile-grid {
+  display: grid;
+  grid-template-columns: 110px 1fr;
+  gap: 12px;
+  margin-top: 10px;
+}
+
+.profile-avatar-block {
+  display: grid;
+  align-content: start;
+  gap: 8px;
+}
+
+.profile-avatar-block img {
+  width: 96px;
+  height: 96px;
+  border-radius: 18px;
+  border: 1px solid rgba(95, 123, 192, 0.42);
+}
+
+.profile-avatar-block small {
+  color: #7390c6;
+  font-size: 0.56rem;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+}
+
+.profile-fields {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.field-span-2 {
+  grid-column: 1 / -1;
+}
+
+.profile-fields label,
+.institution-fields label {
+  display: grid;
+  gap: 4px;
+  color: #98afdc;
+  font-size: 0.62rem;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  font-weight: 700;
+}
+
+.profile-fields input,
+.institution-fields input {
+  border: 1px solid rgba(89, 117, 188, 0.32);
+  border-radius: 12px;
+  background: rgba(18, 40, 84, 0.78);
+  color: #e0ebff;
+  padding: 9px 10px;
+  font-family: inherit;
+  font-size: 0.72rem;
+}
+
+.prefs-card {
+  display: grid;
+  gap: 10px;
+}
+
+.toggle-list {
+  display: grid;
+  gap: 8px;
+}
+
+.toggle-item {
+  border: 1px solid rgba(86, 114, 185, 0.24);
+  border-radius: 14px;
+  background: rgba(18, 36, 77, 0.72);
+  padding: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+
+.toggle-item span {
+  color: #d0ddfb;
+  font-size: 0.74rem;
+}
+
+.switch-btn {
+  width: 48px;
+  height: 24px;
+  border: 1px solid rgba(90, 118, 190, 0.34);
+  border-radius: 999px;
+  background: #263a63;
+  padding: 2px;
+  display: inline-flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.switch-btn i {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #9eb5dd;
+  transform: translateX(0);
+  transition: transform 0.18s ease;
+}
+
+.switch-btn.on {
+  border-color: transparent;
+  background: linear-gradient(135deg, #2f6dff, #8751ff);
+}
+
+.switch-btn.on i {
+  background: #f2f6ff;
+  transform: translateX(24px);
+}
+
+.toggle-item.inline {
+  padding: 8px 10px;
+}
+
+.security-card {
+  display: grid;
+  gap: 10px;
+}
+
+.security-row {
+  border: 1px solid rgba(87, 114, 185, 0.25);
+  border-radius: 14px;
+  background: rgba(18, 36, 77, 0.72);
+  padding: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+
+.security-row strong {
+  display: block;
+  font-size: 0.76rem;
+}
+
+.security-row small {
+  color: #88a2d2;
+  font-size: 0.62rem;
+}
+
+.arrow-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 1px solid rgba(91, 119, 191, 0.38);
+  background: #122a5c;
+  color: #d0dffe;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.security-toggle {
+  padding: 10px;
+}
+
+.sessions-box {
+  border: 1px solid rgba(87, 114, 185, 0.27);
+  border-radius: 14px;
+  background: rgba(16, 33, 74, 0.72);
+  padding: 10px;
+  display: grid;
+  gap: 8px;
+}
+
+.sessions-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.sessions-head span {
+  color: #cedcfa;
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+
+.sessions-head small {
+  color: #7ba6ff;
+  font-size: 0.58rem;
+  text-transform: uppercase;
+}
+
+.session-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  color: #9eb5de;
+  font-size: 0.68rem;
+}
+
+.session-item small {
+  color: #85a0d1;
+  text-transform: uppercase;
+  font-size: 0.54rem;
+}
+
+.revoke-btn {
+  border: 1px solid rgba(255, 110, 133, 0.38);
+  border-radius: 999px;
+  background: rgba(255, 110, 133, 0.15);
+  color: #ffc5d0;
+  font-size: 0.56rem;
+  font-weight: 700;
+  padding: 4px 8px;
+  cursor: pointer;
+}
+
+.institution-card {
+  display: grid;
+  gap: 10px;
+}
+
+.institution-fields {
+  display: grid;
+  grid-template-columns: 1fr 1.4fr;
+  gap: 8px;
+}
+
+.institution-footer {
+  border-top: 1px solid rgba(82, 110, 180, 0.28);
+  padding-top: 10px;
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  gap: 12px;
+  align-items: end;
+}
+
+.institution-footer span {
+  color: #87a1d3;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  font-size: 0.56rem;
+  font-weight: 700;
+}
+
+.institution-footer strong {
+  display: block;
+  margin-top: 4px;
+  color: #d6e5ff;
+  font-size: 0.72rem;
+}
+
+.institution-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.settings-footer {
+  margin-top: 4px;
+  border-top: 1px solid rgba(78, 107, 177, 0.22);
+  padding: 12px 2px 2px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+
+.settings-footer small {
+  color: #6f89be;
+  font-size: 0.62rem;
+}
+
+.settings-footer div:last-child {
+  display: flex;
+  gap: 12px;
+}
+
+@media (max-width: 1050px) {
+  .settings-layout-row {
+    grid-template-columns: 1fr;
+  }
+
+  .institution-fields,
+  .institution-footer {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 720px) {
+  .settings-topline {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
+
+  .settings-topline p {
+    border-left: none;
+    padding-left: 0;
+  }
+
+  .panel-head {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .profile-grid,
+  .profile-fields {
+    grid-template-columns: 1fr;
+  }
+
+  .institution-actions,
+  .settings-footer,
+  .settings-footer div:last-child {
+    width: 100%;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+  }
+}
