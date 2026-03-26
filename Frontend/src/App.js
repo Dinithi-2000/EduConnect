@@ -10,7 +10,7 @@ import { useAuth } from './context/AuthContext';
 import Login from './pages/Login';
 import Register from './pages/Register';
 
-// Pages
+// Team's Pages
 import Home from './pages/Home';
 import About from './pages/About';
 import NotFound from './pages/NotFound';
@@ -26,23 +26,35 @@ import PremiumQuizzes from './pages/quiz/PremiumQuizzes';
 import CommunityBoard from './pages/Community';
 import CourseManager from './pages/course/CourseManager';
 
-const DASHBOARD_PATHS = ['/', '/courses', '/quizzes', '/progress', '/community', '/premium'];
+// Kuppi Module Pages
+import SessionList from './pages/SessionList';
+import SessionDetail from './pages/SessionDetail';
+import MySessions from './pages/MySessions';
+import Profile from './pages/Profile';
+import CreateSession from './pages/CreateSession';
+import VisionBoard from './pages/VisionBoard';
+
+const DASHBOARD_PATHS = ['/', '/courses', '/quizzes', '/progress', '/community', '/premium', '/sessions', '/my-sessions', '/create-session', '/vision-board', '/profile'];
 
 // Protected Route Wrapper
 const ProtectedRoute = ({ element }) => {
   const { isAuthenticated, loading } = useAuth();
-
   if (loading) {
     return <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
       <div className="spinner"></div>
     </div>;
   }
-
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
   }
-
   return element;
+};
+
+// Tutor/Teacher/Admin Route Guard
+const TutorRoute = ({ element }) => {
+  const { user } = useAuth();
+  const isTutor = user?.role === 'tutor' || user?.role === 'teacher' || user?.role === 'admin';
+  return isTutor ? element : <Navigate to="/sessions" replace />;
 };
 
 function AppContent() {
@@ -78,6 +90,15 @@ function AppContent() {
         {/* Community Board */}
         <Route path="/community" element={<ProtectedRoute element={<CommunityBoard />} />} />
 
+        {/* Kuppi Module Routes */}
+        <Route path="/sessions" element={<ProtectedRoute element={<SessionList />} />} />
+        <Route path="/sessions/:id" element={<ProtectedRoute element={<SessionDetail />} />} />
+        <Route path="/my-sessions" element={<ProtectedRoute element={<MySessions />} />} />
+        <Route path="/profile" element={<ProtectedRoute element={<Profile />} />} />
+        <Route path="/vision-board" element={<ProtectedRoute element={<VisionBoard />} />} />
+        <Route path="/create-session" element={<ProtectedRoute element={<TutorRoute element={<CreateSession />} />} />} />
+
+        {/* 404 */}
         <Route path="*" element={<NotFound />} />
       </Routes>
     </div>
