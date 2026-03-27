@@ -6,6 +6,7 @@ import './AdminSettings.css';
 const AdminSettings = () => {
   const { user } = useAuth();
   const isAdmin = ['admin', 'teacher'].includes(String(user?.role || '').toLowerCase());
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
   const [profile, setProfile] = useState({
     adminName: user?.name || 'Alex Sterling',
@@ -32,8 +33,43 @@ const AdminSettings = () => {
   });
 
   const [savedAt, setSavedAt] = useState('Never');
+  const [saveError, setSaveError] = useState('');
 
   const handleSave = () => {
+    const adminName = String(profile.adminName || '').trim();
+    const role = String(profile.role || '').trim();
+    const email = String(profile.email || '').trim();
+    const institutionName = String(institution.name || '').trim();
+    const institutionAddress = String(institution.address || '').trim();
+
+    if (!adminName) {
+      setSaveError('Admin name is required.');
+      return;
+    }
+
+    if (!role) {
+      setSaveError('Role is required.');
+      return;
+    }
+
+    if (!emailRegex.test(email)) {
+      setSaveError('Please enter a valid email address.');
+      return;
+    }
+
+    if (!institutionName) {
+      setSaveError('University name is required.');
+      return;
+    }
+
+    if (!institutionAddress) {
+      setSaveError('Official address is required.');
+      return;
+    }
+
+    setSaveError('');
+    setProfile((prev) => ({ ...prev, adminName, role, email }));
+    setInstitution((prev) => ({ ...prev, name: institutionName, address: institutionAddress }));
     setSavedAt(new Date().toLocaleString());
   };
 
@@ -77,6 +113,7 @@ const AdminSettings = () => {
                 <label>
                   Admin Name
                   <input
+                    required
                     value={profile.adminName}
                     onChange={(event) => setProfile((prev) => ({ ...prev, adminName: event.target.value }))}
                   />
@@ -84,6 +121,7 @@ const AdminSettings = () => {
                 <label>
                   Role
                   <input
+                    required
                     value={profile.role}
                     onChange={(event) => setProfile((prev) => ({ ...prev, role: event.target.value }))}
                   />
@@ -91,6 +129,8 @@ const AdminSettings = () => {
                 <label className="field-span-2">
                   Email Address
                   <input
+                    required
+                    type="email"
                     value={profile.email}
                     onChange={(event) => setProfile((prev) => ({ ...prev, email: event.target.value }))}
                   />
@@ -188,6 +228,7 @@ const AdminSettings = () => {
             <label>
               University Name
               <input
+                required
                 value={institution.name}
                 onChange={(event) => setInstitution((prev) => ({ ...prev, name: event.target.value }))}
               />
@@ -195,6 +236,7 @@ const AdminSettings = () => {
             <label>
               Official Address
               <input
+                required
                 value={institution.address}
                 onChange={(event) => setInstitution((prev) => ({ ...prev, address: event.target.value }))}
               />
@@ -218,6 +260,11 @@ const AdminSettings = () => {
         </section>
 
         <footer className="settings-footer">
+          {saveError ? (
+            <div>
+              <small>{saveError}</small>
+            </div>
+          ) : null}
           <div>
             <small>(c) 2026 EduConnect LMS. All administrative rights reserved.</small>
           </div>

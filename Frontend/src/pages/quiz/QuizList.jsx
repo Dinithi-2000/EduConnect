@@ -27,6 +27,7 @@ const QuizList = () => {
     premiumPrice: 0,
     premiumCurrency: 'USD'
   });
+  const [quickError, setQuickError] = useState('');
 
   const fetchQuizzes = useCallback(async (searchTerm = '') => {
     try {
@@ -91,6 +92,7 @@ const QuizList = () => {
 
   const handleQuickField = (event) => {
     const { name, value, type, checked } = event.target;
+    if (quickError) setQuickError('');
     setQuickForm((prev) => {
       if (name === 'isPremium') {
         return {
@@ -109,14 +111,42 @@ const QuizList = () => {
   };
 
   const initializeDraft = () => {
-    if (!quickForm.title.trim()) {
-      alert('Assessment title is required.');
+    const title = String(quickForm.title || '').trim();
+    const selectedSubject = String(quickForm.subject || '').trim();
+    const timeLimit = Number(quickForm.timeLimit || 0);
+    const premiumPrice = Number(quickForm.premiumPrice || 0);
+
+    if (!title) {
+      setQuickError('Assessment title is required.');
       return;
     }
-    if (!quickForm.subject.trim()) {
-      alert('Subject is required.');
+
+    if (title.length < 3) {
+      setQuickError('Assessment title must be at least 3 characters long.');
       return;
     }
+
+    if (!selectedSubject) {
+      setQuickError('Subject is required.');
+      return;
+    }
+
+    if (selectedSubject.length < 2) {
+      setQuickError('Subject must be at least 2 characters long.');
+      return;
+    }
+
+    if (!Number.isFinite(timeLimit) || timeLimit < 1 || timeLimit > 180) {
+      setQuickError('Time limit must be between 1 and 180 minutes.');
+      return;
+    }
+
+    if (quickForm.isPremium && premiumPrice <= 0) {
+      setQuickError('Premium price must be greater than 0 for premium assessments.');
+      return;
+    }
+
+    setQuickError('');
 
     navigate('/quizzes/create', {
       state: {
@@ -177,6 +207,8 @@ const QuizList = () => {
               </div>
             </div>
 
+            {quickError ? <div className="state-box error">{quickError}</div> : null}
+
             <div className="quick-form-grid">
               <label className="form-line full">
                 <span>Assessment Title</span>
@@ -185,6 +217,7 @@ const QuizList = () => {
                   value={quickForm.title}
                   onChange={handleQuickField}
                   placeholder="e.g. Advanced System Architecture"
+                  required
                 />
               </label>
 
@@ -195,6 +228,7 @@ const QuizList = () => {
                   value={quickForm.subject}
                   onChange={handleQuickField}
                   placeholder="Computer Science"
+                  required
                 />
               </label>
 

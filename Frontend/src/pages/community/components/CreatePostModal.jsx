@@ -30,6 +30,15 @@ const typeSpecificDefaults = {
   'idea-tip': { tipTopic: '', resourceLink: '' }
 };
 
+const isValidHttpUrl = (value) => {
+  try {
+    const parsed = new URL(String(value || '').trim());
+    return parsed.protocol === 'http:' || parsed.protocol === 'https:';
+  } catch {
+    return false;
+  }
+};
+
 const CreatePostModal = ({ onClose, onPostCreated }) => {
   const { user } = useAuth();
   const [formData, setFormData] = useState({
@@ -87,6 +96,10 @@ const CreatePostModal = ({ onClose, onPostCreated }) => {
       if (!typeFields.preferredHelp?.trim()) {
         return 'Help request posts require preferred help details.';
       }
+    }
+
+    if (formData.type === 'idea-tip' && typeFields.resourceLink?.trim() && !isValidHttpUrl(typeFields.resourceLink)) {
+      return 'Resource link must start with http:// or https://';
     }
 
     return '';
@@ -187,9 +200,35 @@ const CreatePostModal = ({ onClose, onPostCreated }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const title = String(formData.title || '').trim();
+    const description = String(formData.description || '').trim();
+    const location = String(formData.location || '').trim();
+    const contactInfo = String(formData.contactInfo || '').trim();
+    const tags = String(formData.tags || '');
+    const category = String(formData.category || '').trim();
     
-    if (!formData.title.trim() || !formData.description.trim()) {
+    if (!title || !description) {
       setError('Title and description are required');
+      return;
+    }
+
+    if (title.length < 3) {
+      setError('Title must be at least 3 characters long');
+      return;
+    }
+
+    if (description.length < 10) {
+      setError('Description must be at least 10 characters long');
+      return;
+    }
+
+    if (contactInfo && contactInfo.length < 5) {
+      setError('Contact info looks too short. Add a valid phone or email.');
+      return;
+    }
+
+    if (location && location.length < 2) {
+      setError('Location must be at least 2 characters long.');
       return;
     }
 
@@ -219,17 +258,17 @@ const CreatePostModal = ({ onClose, onPostCreated }) => {
         .map((value) => String(value).trim())
         .filter((value) => value && value.length <= 30);
 
-      postPayload.append('title', formData.title);
+      postPayload.append('title', title);
       postPayload.append('description', enrichedDescription);
       postPayload.append('type', formData.type);
-      postPayload.append('category', formData.category || defaultCategoryByType[formData.type] || 'General');
-      postPayload.append('location', formData.location);
-      postPayload.append('contactInfo', formData.contactInfo);
+      postPayload.append('category', category || defaultCategoryByType[formData.type] || 'General');
+      postPayload.append('location', location);
+      postPayload.append('contactInfo', contactInfo);
       postPayload.append(
         'tags',
         JSON.stringify(
-          [...(formData.tags
-            ? formData.tags.split(',').map((tag) => tag.trim()).filter(Boolean)
+          [...(tags
+            ? tags.split(',').map((tag) => tag.trim()).filter(Boolean)
             : []), ...derivedTags]
         )
       );
@@ -289,6 +328,8 @@ const CreatePostModal = ({ onClose, onPostCreated }) => {
               placeholder="e.g., Blue Water Bottle Lost"
               className="form-control"
               maxLength="200"
+              minLength={3}
+              required
             />
           </div>
 
@@ -302,6 +343,8 @@ const CreatePostModal = ({ onClose, onPostCreated }) => {
               placeholder="Provide details..."
               className="form-control"
               rows="4"
+              minLength={10}
+              required
             />
           </div>
 
@@ -511,6 +554,7 @@ const CreatePostModal = ({ onClose, onPostCreated }) => {
                     onChange={handleTypeFieldChange}
                     placeholder="https://..."
                     className="form-control"
+                    pattern="https?://.+"
                   />
                 </div>
               </div>

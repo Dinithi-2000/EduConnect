@@ -53,12 +53,64 @@ const coursePdfStorage = multer.diskStorage({
   }
 });
 
+const courseImageStorage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, courseUploadDir);
+  },
+  filename: (req, file, cb) => {
+    const ext = path.extname(file.originalname).toLowerCase();
+    const base = path
+      .basename(file.originalname, ext)
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '');
+
+    cb(null, `${Date.now()}-${base || 'image'}${ext || '.jpg'}`);
+  }
+});
+
+const courseVideoStorage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, courseUploadDir);
+  },
+  filename: (req, file, cb) => {
+    const ext = path.extname(file.originalname).toLowerCase();
+    const base = path
+      .basename(file.originalname, ext)
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '');
+
+    cb(null, `${Date.now()}-${base || 'recording'}${ext || '.mp4'}`);
+  }
+});
+
 const pdfFileFilter = (req, file, cb) => {
   const isPdfMime = file.mimetype === 'application/pdf';
   const isPdfExt = path.extname(file.originalname).toLowerCase() === '.pdf';
 
   if (!isPdfMime && !isPdfExt) {
     return cb(new Error('Only PDF files are allowed'));
+  }
+
+  cb(null, true);
+};
+
+const courseImageFileFilter = (req, file, cb) => {
+  if (!file.mimetype.startsWith('image/')) {
+    return cb(new Error('Only image files are allowed'));
+  }
+
+  cb(null, true);
+};
+
+const courseVideoFileFilter = (req, file, cb) => {
+  const ext = path.extname(file.originalname).toLowerCase();
+  const allowedExts = ['.mp4', '.mov', '.m4v', '.webm', '.avi', '.mkv'];
+  const validMime = file.mimetype.startsWith('video/');
+
+  if (!validMime && !allowedExts.includes(ext)) {
+    return cb(new Error('Only video files are allowed'));
   }
 
   cb(null, true);
@@ -80,7 +132,25 @@ const uploadCoursePdf = multer({
   }
 });
 
+const uploadCourseImage = multer({
+  storage: courseImageStorage,
+  fileFilter: courseImageFileFilter,
+  limits: {
+    fileSize: 8 * 1024 * 1024
+  }
+});
+
+const uploadCourseVideo = multer({
+  storage: courseVideoStorage,
+  fileFilter: courseVideoFileFilter,
+  limits: {
+    fileSize: 150 * 1024 * 1024
+  }
+});
+
 module.exports = {
   uploadCommunityImage,
-  uploadCoursePdf
+  uploadCoursePdf,
+  uploadCourseImage,
+  uploadCourseVideo
 };

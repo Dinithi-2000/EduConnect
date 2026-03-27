@@ -163,12 +163,18 @@ const QuizBuilder = () => {
   // ── Validate ───────────────────────────────────────────────────────────────
   const validate = () => {
     if (!form.title.trim()) return 'Quiz title is required.';
+    if (form.title.trim().length < 3) return 'Quiz title must be at least 3 characters.';
     if (!form.subject.trim()) return 'Subject is required.';
+    if (form.subject.trim().length < 2) return 'Subject must be at least 2 characters.';
     if (form.timeLimit < 1) return 'Time limit must be at least 1 minute.';
+    if (form.timeLimit > 180) return 'Time limit cannot exceed 180 minutes.';
     if (form.isPremium && Number(form.premiumPrice) <= 0) return 'Premium price must be greater than 0.';
     for (let i = 0; i < questions.length; i++) {
       const q = questions[i];
       if (!q.questionText.trim()) return `Question ${i + 1}: text is required.`;
+      if (!Number.isFinite(Number(q.marks)) || Number(q.marks) < 1 || Number(q.marks) > 100) {
+        return `Question ${i + 1}: marks must be between 1 and 100.`;
+      }
       if (q.questionType === 'MCQ') {
         if (q.options.some(o => !o.trim())) return `Question ${i + 1}: all options must be filled.`;
         if (!OPTION_LABELS.includes(String(q.correctAnswer))) return `Question ${i + 1}: select the correct answer.`;
@@ -246,11 +252,11 @@ const QuizBuilder = () => {
             <div className="form-grid">
               <div className="form-group full-width">
                 <label>Quiz Title <span className="required">*</span></label>
-                <input name="title" value={form.title} onChange={handleFormChange} placeholder="e.g. Data Structures Final Exam" className="form-input" />
+                <input name="title" value={form.title} onChange={handleFormChange} placeholder="e.g. Data Structures Final Exam" className="form-input" minLength={3} required />
               </div>
               <div className="form-group">
                 <label>Subject <span className="required">*</span></label>
-                <input name="subject" value={form.subject} onChange={handleFormChange} placeholder="e.g. Computer Science" className="form-input" />
+                <input name="subject" value={form.subject} onChange={handleFormChange} placeholder="e.g. Computer Science" className="form-input" minLength={2} required />
               </div>
               <div className="form-group">
                 <label>Difficulty</label>
@@ -352,6 +358,7 @@ const QuizBuilder = () => {
                     placeholder="Enter question..."
                     className="form-input form-textarea"
                     rows={2}
+                    required
                   />
                 </div>
 
@@ -387,8 +394,8 @@ const QuizBuilder = () => {
                             <input
                               type="radio"
                               name={`correct-${qi}`}
-                              checked={q.correctAnswer === String(oi)}
-                              onChange={() => handleQuestionChange(qi, 'correctAnswer', String(oi))}
+                              checked={q.correctAnswer === OPTION_LABELS[oi]}
+                              onChange={() => handleQuestionChange(qi, 'correctAnswer', OPTION_LABELS[oi])}
                               className="radio-input-custom"
                             />
                             <div className="radio-visual"></div>
@@ -401,8 +408,9 @@ const QuizBuilder = () => {
                             onClick={(e) => e.stopPropagation()}
                             placeholder={`Type option ${OPTION_LABELS[oi]}...`}
                             className="option-field"
+                            required
                           />
-                          {q.correctAnswer === String(oi) && (
+                          {q.correctAnswer === OPTION_LABELS[oi] && (
                             <div className="correct-badge">
                               <span className="check-icon">✓</span>
                               <span>Correct</span>

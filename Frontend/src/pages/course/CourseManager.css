@@ -338,8 +338,44 @@ button.danger {
 
 .form-grid textarea,
 .form-grid .thumbnail-dropzone,
+.form-grid .initial-lecture-upload-row,
+.form-grid .initial-video-upload-row,
 .form-grid .checkbox-row {
   grid-column: 1 / -1;
+}
+
+.initial-lecture-upload-row {
+  border: 1px dashed rgba(108, 138, 214, 0.52);
+  border-radius: 11px;
+  padding: 9px 10px;
+  background: rgba(15, 34, 80, 0.55);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+
+.initial-video-upload-row {
+  border: 1px dashed rgba(108, 138, 214, 0.52);
+  border-radius: 11px;
+  padding: 9px 10px;
+  background: rgba(15, 34, 80, 0.55);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+
+.initial-video-upload-row span {
+  color: var(--text-mid);
+  font-size: 0.7rem;
+  word-break: break-word;
+}
+
+.initial-lecture-upload-row span {
+  color: var(--text-mid);
+  font-size: 0.7rem;
+  word-break: break-word;
 }
 
 .checkbox-row {
@@ -547,54 +583,60 @@ button.danger {
   border: 1px solid rgba(100, 129, 201, 0.42);
 }
 
-.module-head {
+.course-page .module-head {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 9px;
+  border: 1px solid rgba(86, 112, 181, 0.28);
+  border-radius: 12px;
+  padding: 10px;
+  background: linear-gradient(150deg, rgba(13, 28, 68, 0.72), rgba(10, 22, 54, 0.72));
 }
 
-.module-head h3 {
+.course-page .module-head h3 {
   margin: 0;
   font-size: 0.98rem;
+  color: var(--text-strong);
 }
 
-.module-list {
+.course-page .module-list {
   display: grid;
   gap: 10px;
 }
 
-.module-card {
+.course-page .module-card {
   border: 1px solid rgba(86, 112, 181, 0.34);
   border-radius: 14px;
   padding: 11px;
   background: linear-gradient(150deg, rgba(16, 33, 77, 0.86), rgba(12, 26, 62, 0.86));
 }
 
-.module-top {
+.course-page .module-top {
   display: flex;
   justify-content: space-between;
   gap: 8px;
 }
 
-.module-top h4 {
+.course-page .module-top h4 {
   margin: 0;
   font-size: 0.88rem;
+  color: var(--text-strong);
 }
 
-.module-top p {
+.course-page .module-top p {
   margin: 4px 0 0;
   color: var(--text-soft);
   font-size: 0.72rem;
 }
 
-.content-list {
+.course-page .content-list {
   margin-top: 9px;
   display: grid;
   gap: 7px;
 }
 
-.content-item {
+.course-page .content-item {
   border: 1px solid rgba(85, 111, 181, 0.34);
   border-radius: 11px;
   padding: 8px;
@@ -604,7 +646,7 @@ button.danger {
   gap: 8px;
 }
 
-.content-main {
+.course-page .content-main {
   display: flex;
   align-items: flex-start;
   gap: 8px;

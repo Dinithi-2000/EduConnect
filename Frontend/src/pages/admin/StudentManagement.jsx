@@ -7,6 +7,8 @@ import './StudentManagement.css';
 
 const rowsPerPage = 7;
 const departments = ['Computer Science', 'Biotechnology', 'Mechanical Engineering', 'Business Analytics', 'Design Studies', 'Civil Engineering'];
+const validRoles = new Set(['student', 'teacher', 'admin']);
+const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 const hashFromString = (value = '') => {
   return String(value)
@@ -259,6 +261,16 @@ const StudentManagement = () => {
 
     if (!payload.name || !payload.email) {
       setEditError('Name and email are required.');
+      return;
+    }
+
+    if (!emailRegex.test(payload.email)) {
+      setEditError('Please enter a valid email address.');
+      return;
+    }
+
+    if (!validRoles.has(payload.role)) {
+      setEditError('Please choose a valid role.');
       return;
     }
 

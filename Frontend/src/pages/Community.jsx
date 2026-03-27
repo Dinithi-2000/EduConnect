@@ -214,9 +214,32 @@ const CommunityBoard = () => {
 
     const title = String(editForm.title || '').trim();
     const description = String(editForm.description || '').trim();
+    const category = String(editForm.category || '').trim();
+    const location = String(editForm.location || '').trim();
+    const contactInfo = String(editForm.contactInfo || '').trim();
 
     if (!title || !description) {
       setEditError('Title and description are required.');
+      return;
+    }
+
+    if (title.length < 3) {
+      setEditError('Title must be at least 3 characters long.');
+      return;
+    }
+
+    if (description.length < 10) {
+      setEditError('Description must be at least 10 characters long.');
+      return;
+    }
+
+    if (location && location.length < 2) {
+      setEditError('Location must be at least 2 characters long.');
+      return;
+    }
+
+    if (contactInfo && contactInfo.length < 5) {
+      setEditError('Contact info looks too short.');
       return;
     }
 
@@ -232,10 +255,10 @@ const CommunityBoard = () => {
       await updatePost(editingPost._id, {
         title,
         description,
-        category: String(editForm.category || '').trim(),
+        category,
         tags,
-        location: String(editForm.location || '').trim(),
-        contactInfo: String(editForm.contactInfo || '').trim(),
+        location,
+        contactInfo,
         userId: user?._id,
         userRole: user?.role
       });
@@ -442,6 +465,8 @@ const CommunityBoard = () => {
                     value={editForm.title}
                     onChange={(event) => handleEditChange('title', event.target.value)}
                     placeholder="Post title"
+                    minLength={3}
+                    required
                   />
                 </div>
 
@@ -454,6 +479,8 @@ const CommunityBoard = () => {
                     value={editForm.description}
                     onChange={(event) => handleEditChange('description', event.target.value)}
                     placeholder="Post description"
+                    minLength={10}
+                    required
                   ></textarea>
                 </div>
 

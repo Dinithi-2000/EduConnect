@@ -180,8 +180,13 @@
   background: #fff;
   width: 36px;
   height: 36px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   border-radius: 50%;
   border: 1px solid var(--line);
+  line-height: 1;
   cursor: pointer;
 }
 

@@ -64,3 +64,21 @@ export const uploadModulePdf = async (courseId, moduleId, formData) => {
   });
   return response.data;
 };
+
+export const uploadModuleImage = async (courseId, moduleId, formData) => {
+  const response = await api.post(`/courses/${courseId}/modules/${moduleId}/upload-image`, formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data'
+    }
+  });
+  return response.data;
+};
+
+export const uploadModuleVideo = async (courseId, moduleId, formData) => {
+  const response = await api.post(`/courses/${courseId}/modules/${moduleId}/upload-video`, formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data'
+    }
+  });
+  return response.data;
+};

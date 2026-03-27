@@ -396,6 +396,88 @@ const uploadModulePdf = async (req, res) => {
   }
 };
 
+// @desc    Upload module image and add as content
+// @route   POST /api/courses/:id/modules/:moduleId/upload-image
+// @access  Admin/Teacher
+const uploadModuleImage = async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ success: false, message: 'Image file is required' });
+    }
+
+    const course = await Course.findById(req.params.id);
+    if (!course) {
+      return res.status(404).json({ success: false, message: 'Course not found' });
+    }
+
+    const module = course.modules.id(req.params.moduleId);
+    if (!module) {
+      return res.status(404).json({ success: false, message: 'Module not found' });
+    }
+
+    const nextOrder = module.contents.length + 1;
+    const fileUrl = `/uploads/courses/${req.file.filename}`;
+
+    module.contents.push({
+      title: req.body.title || req.file.originalname.replace(/\.[^/.]+$/i, ''),
+      contentType: 'Image',
+      url: fileUrl,
+      textContent: req.body.textContent || '',
+      durationMinutes: Number(req.body.durationMinutes) || 0,
+      order: Number(req.body.order) || nextOrder,
+      isPreview: req.body.isPreview === 'true' || req.body.isPreview === true
+    });
+
+    module.contents = normalizeOrder(module.contents);
+    await course.save();
+
+    return res.status(201).json({ success: true, data: course, fileUrl });
+  } catch (error) {
+    return res.status(400).json({ success: false, message: 'Failed to upload image', error: error.message });
+  }
+};
+
+// @desc    Upload module video and add as content
+// @route   POST /api/courses/:id/modules/:moduleId/upload-video
+// @access  Admin/Teacher
+const uploadModuleVideo = async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ success: false, message: 'Video file is required' });
+    }
+
+    const course = await Course.findById(req.params.id);
+    if (!course) {
+      return res.status(404).json({ success: false, message: 'Course not found' });
+    }
+
+    const module = course.modules.id(req.params.moduleId);
+    if (!module) {
+      return res.status(404).json({ success: false, message: 'Module not found' });
+    }
+
+    const nextOrder = module.contents.length + 1;
+    const fileUrl = `/uploads/courses/${req.file.filename}`;
+
+    module.contents.push({
+      title: req.body.title || req.file.originalname.replace(/\.[^/.]+$/i, ''),
+      contentType: 'LectureVideo',
+      url: fileUrl,
+      textContent: req.body.textContent || '',
+      durationMinutes: Number(req.body.durationMinutes) || 0,
+      order: Number(req.body.order) || nextOrder,
+      isPreview: req.body.isPreview === 'true' || req.body.isPreview === true
+    });
+
+    module.contents = normalizeOrder(module.contents);
+    await course.save();
+
+    return res.status(201).json({ success: true, data: course, fileUrl });
+  } catch (error) {
+    return res.status(400).json({ success: false, message: 'Failed to upload video', error: error.message });
+  }
+};
+
 module.exports = {
   getCourses,
   getCourseById,
@@ -408,5 +490,7 @@ module.exports = {
   addContent,
   updateContent,
   deleteContent,
-  uploadModulePdf
+  uploadModulePdf,
+  uploadModuleImage,
+  uploadModuleVideo
 };

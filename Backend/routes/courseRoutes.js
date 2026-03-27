@@ -11,10 +11,12 @@ const {
   addContent,
   updateContent,
   deleteContent,
-  uploadModulePdf
+  uploadModulePdf,
+  uploadModuleImage,
+  uploadModuleVideo
 } = require('../controllers/courseController');
 const { protect, authorize } = require('../middleware/auth');
-const { uploadCoursePdf } = require('../middleware/upload');
+const { uploadCoursePdf, uploadCourseImage, uploadCourseVideo } = require('../middleware/upload');
 
 const router = express.Router();
 
@@ -35,6 +37,8 @@ router.delete('/:id/modules/:moduleId', authorize('admin', 'teacher'), deleteMod
 
 router.post('/:id/modules/:moduleId/contents', authorize('admin', 'teacher'), addContent);
 router.post('/:id/modules/:moduleId/upload-pdf', authorize('admin', 'teacher'), uploadCoursePdf.single('file'), uploadModulePdf);
+router.post('/:id/modules/:moduleId/upload-image', authorize('admin', 'teacher'), uploadCourseImage.single('file'), uploadModuleImage);
+router.post('/:id/modules/:moduleId/upload-video', authorize('admin', 'teacher'), uploadCourseVideo.single('file'), uploadModuleVideo);
 router.put('/:id/modules/:moduleId/contents/:contentId', authorize('admin', 'teacher'), updateContent);
 router.delete('/:id/modules/:moduleId/contents/:contentId', authorize('admin', 'teacher'), deleteContent);
 

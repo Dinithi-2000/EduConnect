@@ -8,7 +8,7 @@ const contentSchema = new mongoose.Schema({
   },
   contentType: {
     type: String,
-    enum: ['LectureVideo', 'LecturePDF', 'ShortNote', 'Video', 'PDF', 'Article', 'Link', 'Quiz'],
+    enum: ['LectureVideo', 'LecturePDF', 'ShortNote', 'Video', 'PDF', 'Image', 'Article', 'Link', 'Quiz'],
     required: [true, 'Content type is required']
   },
   url: {
