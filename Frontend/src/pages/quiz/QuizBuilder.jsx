@@ -8,9 +8,20 @@ const EMPTY_QUESTION = {
   questionText: '',
   questionType: 'MCQ',
   options: ['', '', '', ''],
-  correctAnswer: '0',
+  correctAnswer: 'A',
   marks: 1,
   explanation: ''
+};
+
+const OPTION_LABELS = ['A', 'B', 'C', 'D'];
+
+const normalizeMcqAnswer = (value) => {
+  if (OPTION_LABELS.includes(value)) return value;
+  const asNumber = Number(value);
+  if (Number.isInteger(asNumber) && asNumber >= 0 && asNumber < OPTION_LABELS.length) {
+    return OPTION_LABELS[asNumber];
+  }
+  return 'A';
 };
 
 const QuizBuilder = () => {
@@ -57,7 +68,10 @@ const QuizBuilder = () => {
         });
         setQuestions(quiz.questions.map(q => ({
           ...q,
-          options: q.options?.length ? q.options : ['', '', '', '']
+          options: q.options?.length ? q.options : ['', '', '', ''],
+          correctAnswer: q.questionType === 'MCQ'
+            ? normalizeMcqAnswer(String(q.correctAnswer || 'A'))
+            : q.correctAnswer
         })));
       } catch { setError('Failed to load quiz.'); }
       finally { setLoading(false); }
@@ -112,7 +126,7 @@ const QuizBuilder = () => {
       // Reset correctAnswer when type changes
       if (field === 'questionType') {
         updated.options = value === 'MCQ' ? ['', '', '', ''] : [];
-        updated.correctAnswer = value === 'TrueFalse' ? 'True' : '';
+        updated.correctAnswer = value === 'MCQ' ? 'A' : (value === 'TrueFalse' ? 'True' : '');
       }
       return updated;
     }));
@@ -157,7 +171,7 @@ const QuizBuilder = () => {
       if (!q.questionText.trim()) return `Question ${i + 1}: text is required.`;
       if (q.questionType === 'MCQ') {
         if (q.options.some(o => !o.trim())) return `Question ${i + 1}: all options must be filled.`;
-        if (!['0', '1', '2', '3'].includes(String(q.correctAnswer))) return `Question ${i + 1}: select the correct answer.`;
+        if (!OPTION_LABELS.includes(String(q.correctAnswer))) return `Question ${i + 1}: select the correct answer.`;
       }
       if (q.questionType === 'TrueFalse' && !['True', 'False'].includes(q.correctAnswer)) {
         return `Question ${i + 1}: select True or False.`;
@@ -358,31 +372,45 @@ const QuizBuilder = () => {
                 {/* MCQ Options */}
                 {q.questionType === 'MCQ' && (
                   <div className="form-group full-width">
-                    <label>Options & Correct Answer <span className="required">*</span></label>
+                    <div className="section-header">
+                      <label>Options & Correct Answer <span className="required">*</span></label>
+                      <span className="hint-pill">Click the circle to mark correct</span>
+                    </div>
                     <div className="options-grid">
                       {q.options.map((opt, oi) => (
-                        <div key={oi} className={`option-row ${q.correctAnswer === String(oi) ? 'correct' : ''}`}>
-                          <input
-                            type="radio"
-                            name={`correct-${qi}`}
-                            checked={q.correctAnswer === String(oi)}
-                            onChange={() => handleQuestionChange(qi, 'correctAnswer', String(oi))}
-                            className="radio-input"
-                            title="Mark as correct"
-                          />
-                          <span className="option-label">{String.fromCharCode(65 + oi)}.</span>
+                        <div
+                          key={oi}
+                          className={`option-row ${q.correctAnswer === OPTION_LABELS[oi] ? 'correct' : ''}`}
+                          onClick={() => handleQuestionChange(qi, 'correctAnswer', OPTION_LABELS[oi])}
+                        >
+                          <div className="radio-wrapper">
+                            <input
+                              type="radio"
+                              name={`correct-${qi}`}
+                              checked={q.correctAnswer === String(oi)}
+                              onChange={() => handleQuestionChange(qi, 'correctAnswer', String(oi))}
+                              className="radio-input-custom"
+                            />
+                            <div className="radio-visual"></div>
+                          </div>
+                          <span className="option-letter">{OPTION_LABELS[oi]}</span>
                           <input
                             type="text"
                             value={opt}
                             onChange={e => handleOptionChange(qi, oi, e.target.value)}
-                            placeholder={`Option ${String.fromCharCode(65 + oi)}`}
-                            className="form-input option-input"
+                            onClick={(e) => e.stopPropagation()}
+                            placeholder={`Type option ${OPTION_LABELS[oi]}...`}
+                            className="option-field"
                           />
-                          {q.correctAnswer === String(oi) && <span className="correct-tag">✓ Correct</span>}
+                          {q.correctAnswer === String(oi) && (
+                            <div className="correct-badge">
+                              <span className="check-icon">✓</span>
+                              <span>Correct</span>
+                            </div>
+                          )}
                         </div>
                       ))}
                     </div>
-                    <p className="hint">Click the radio button to mark the correct answer</p>
                   </div>
                 )}
 

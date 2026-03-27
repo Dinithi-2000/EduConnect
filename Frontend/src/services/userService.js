@@ -22,6 +22,17 @@ export const loginUser = async (credentials) => {
   }
 };
 
+// Get current user (based on token)
+export const getCurrentUser = async () => {
+  try {
+    const response = await api.get('/users/me');
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching current user:', error);
+    throw error;
+  }
+};
+
 // Get all users
 export const getUsers = async () => {
   try {

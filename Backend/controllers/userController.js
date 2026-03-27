@@ -120,6 +120,31 @@ const login = async (req, res) => {
     }
 };
 
+// @desc    Get current user
+// @route   GET /api/users/me
+// @access  Private
+const getCurrentUser = async (req, res) => {
+    try {
+        if (!req.user) {
+            return res.status(401).json({
+                success: false,
+                message: 'Not authorized'
+            });
+        }
+
+        res.json({
+            success: true,
+            data: req.user
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: 'Failed to load user',
+            error: error.message
+        });
+    }
+};
+
 // @desc    Get all users
 // @route   GET /api/users
 // @access  Public
@@ -247,6 +272,7 @@ const deleteUser = async (req, res) => {
 module.exports = {
     register,
     login,
+    getCurrentUser,
     getUsers,
     getUserById,
     createUser,

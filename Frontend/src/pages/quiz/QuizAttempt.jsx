@@ -214,9 +214,9 @@ const QuizAttempt = () => {
                         name={`q-${currentQ}`}
                         value={String(oi)}
                         checked={answers[currentQuestion._id] === String(oi)}
-                        onChange={() => handleAnswer(currentQuestion._id, String(oi))}
+                        onChange={(e) => handleAnswer(currentQuestion._id, e.target.value)}
                       />
-                      <span className="option-letter">{String.fromCharCode(65 + oi)}</span>
+                      <span className="option-letter">{String.fromCharCode(64 + (oi + 1))}</span>
                       <span className="option-text">{opt}</span>
                     </label>
                   ))}

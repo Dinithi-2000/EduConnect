@@ -178,9 +178,25 @@ const submitAttempt = async (req, res) => {
             const studentAnswer = answers?.find(a => a.questionId === question._id.toString());
             const selected = studentAnswer ? studentAnswer.selectedAnswer : '';
 
+            const normalizeMcqCorrect = (value, options) => {
+                if (value === undefined || value === null) return '';
+                const trimmed = String(value).trim();
+                if (trimmed === '') return '';
+                const asNumber = Number(trimmed);
+                if (!Number.isNaN(asNumber)) return String(asNumber);
+                const upper = trimmed.toUpperCase();
+                const letterIndex = upper.charCodeAt(0) - 65;
+                if (letterIndex >= 0 && letterIndex < options.length) return String(letterIndex);
+                return trimmed;
+            };
+
+            const normalizedCorrect = question.questionType === 'MCQ'
+                ? normalizeMcqCorrect(question.correctAnswer, question.options)
+                : question.correctAnswer;
+
             let isCorrect = false;
             if (question.questionType === 'MCQ') {
-                isCorrect = selected === question.correctAnswer;
+                isCorrect = selected === normalizedCorrect;
             } else if (question.questionType === 'TrueFalse') {
                 isCorrect = selected.toLowerCase() === question.correctAnswer.toLowerCase();
             } else if (question.questionType === 'ShortAnswer') {
@@ -195,7 +211,9 @@ const submitAttempt = async (req, res) => {
                 questionText: question.questionText,
                 questionType: question.questionType,
                 selectedAnswer: selected,
-                correctAnswer: question.correctAnswer,
+                selectedAnswerText: question.questionType === 'MCQ' ? question.options[Number(selected)] : selected,
+                correctAnswer: normalizedCorrect,
+                correctAnswerText: question.questionType === 'MCQ' ? question.options[Number(normalizedCorrect)] : question.correctAnswer,
                 isCorrect,
                 marksObtained,
                 maxMarks: question.marks

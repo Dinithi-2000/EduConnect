@@ -11,7 +11,9 @@ const answerSchema = new mongoose.Schema({
         type: String,
         default: ''
     },
+    selectedAnswerText: String,
     correctAnswer: String,
+    correctAnswerText: String,
     isCorrect: {
         type: Boolean,
         default: false

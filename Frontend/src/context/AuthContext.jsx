@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { getCurrentUser } from '../services/userService';
 
 const AuthContext = createContext();
 
@@ -15,14 +16,44 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Check if user is logged in
-    const token = localStorage.getItem('token');
-    const userData = localStorage.getItem('user');
-    
-    if (token && userData) {
-      setUser(JSON.parse(userData));
-    }
-    setLoading(false);
+    let isMounted = true;
+
+    const bootstrapAuth = async () => {
+      // Check if user is logged in
+      const token = localStorage.getItem('token');
+      const userData = localStorage.getItem('user');
+
+      if (token && userData) {
+        try {
+          const parsedUser = JSON.parse(userData);
+          if (isMounted) {
+            setUser(parsedUser);
+          }
+
+          const result = await getCurrentUser();
+          if (result?.data && isMounted) {
+            localStorage.setItem('user', JSON.stringify(result.data));
+            setUser(result.data);
+          }
+        } catch (error) {
+          localStorage.removeItem('token');
+          localStorage.removeItem('user');
+          if (isMounted) {
+            setUser(null);
+          }
+        }
+      }
+
+      if (isMounted) {
+        setLoading(false);
+      }
+    };
+
+    bootstrapAuth();
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   const login = (userData, token) => {

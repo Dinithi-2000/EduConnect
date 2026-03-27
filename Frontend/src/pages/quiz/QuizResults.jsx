@@ -177,7 +177,9 @@ const QuizResults = () => {
                     <span className="answer-label">Your answer:</span>
                     <span className="answer-value">
                       {a.questionType === 'MCQ' && a.selectedAnswer !== ''
-                        ? `${String.fromCharCode(65 + Number(a.selectedAnswer))}. (option ${Number(a.selectedAnswer) + 1})`
+                        ? (isNaN(Number(a.selectedAnswer)) 
+                            ? a.selectedAnswer 
+                            : `${String.fromCharCode(65 + Number(a.selectedAnswer))}. ${a.selectedAnswerText || `(option ${Number(a.selectedAnswer) + 1})`}`)
                         : a.selectedAnswer || '(no answer)'}
                     </span>
                   </div>
@@ -186,7 +188,9 @@ const QuizResults = () => {
                       <span className="answer-label">Correct answer:</span>
                       <span className="answer-value">
                         {a.questionType === 'MCQ'
-                          ? `${String.fromCharCode(65 + Number(a.correctAnswer))}. (option ${Number(a.correctAnswer) + 1})`
+                          ? (isNaN(Number(a.correctAnswer)) 
+                              ? a.correctAnswer 
+                              : `${String.fromCharCode(65 + Number(a.correctAnswer))}. ${a.correctAnswerText || `(option ${Number(a.correctAnswer) + 1})`}`)
                           : a.correctAnswer}
                       </span>
                     </div>
