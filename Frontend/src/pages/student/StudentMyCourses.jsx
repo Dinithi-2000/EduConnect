@@ -2,9 +2,12 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import AIChatWidget from '../../components/AIChatWidget';
+import { API_URL } from '../../services/api';
 import { getCourses } from '../../services/courseService';
 import '../StudentDashboard.css';
 import './StudentMyCourses.css';
+
+const apiOrigin = API_URL.replace(/\/api\/?$/, '');
 
 const StudentMyCourses = () => {
   const navigate = useNavigate();
@@ -173,6 +176,15 @@ const StudentMyCourses = () => {
     navigate('/student/courses', { state: { courseId, openWorkspace } });
   };
 
+  const getThumbnailUrl = (url) => {
+    const value = String(url || '').trim();
+    if (!value) return '';
+    if (value.startsWith('data:image/')) return value;
+    if (/^https?:\/\//i.test(value)) return value;
+    if (value.startsWith('/')) return `${apiOrigin}${value}`;
+    return `${apiOrigin}/${value}`;
+  };
+
   return (
     <div className="student-v2-shell student-my-courses-shell">
       <aside className="student-v2-sidebar">
@@ -294,7 +306,7 @@ const StudentMyCourses = () => {
                   <article key={course._id} className="my-course-card">
                     <div
                       className="my-course-cover"
-                      style={course.thumbnailUrl ? { backgroundImage: `url(${course.thumbnailUrl})` } : undefined}
+                      style={course.thumbnailUrl ? { backgroundImage: `url(${getThumbnailUrl(course.thumbnailUrl)})` } : undefined}
                     >
                       <span className="my-course-subject">{course.subject || 'General'}</span>
                       {completed ? <span className="my-course-done">Done</span> : null}

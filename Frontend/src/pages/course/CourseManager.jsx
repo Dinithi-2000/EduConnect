@@ -188,6 +188,15 @@ const CourseManager = () => {
     return `${API_ORIGIN}/${url}`;
   };
 
+  const getThumbnailUrl = (url) => {
+    const value = String(url || '').trim();
+    if (!value) return '';
+    if (value.startsWith('data:image/')) return value;
+    if (/^https?:\/\//i.test(value)) return value;
+    if (value.startsWith('/')) return `${API_ORIGIN}${value}`;
+    return `${API_ORIGIN}/${value}`;
+  };
+
   const updateThumbnailUrl = (value) => {
     setCourseForm((prev) => ({ ...prev, thumbnailUrl: value }));
   };
@@ -922,6 +931,13 @@ const CourseManager = () => {
                   className={`course-item ${selectedCourseId === course._id ? 'active' : ''}`}
                   onClick={() => setSelectedCourseId(course._id)}
                 >
+                  {course.thumbnailUrl ? (
+                    <div
+                      className="course-item-thumb"
+                      style={{ backgroundImage: `url(${getThumbnailUrl(course.thumbnailUrl)})` }}
+                      aria-hidden="true"
+                    />
+                  ) : null}
                   <div className="course-item-title">{course.title}</div>
                   <div className="course-item-meta">{course.subject} • {course.level}</div>
                   <span className={`pill ${course.isPublished ? 'ok' : 'draft'}`}>
@@ -1104,6 +1120,14 @@ const CourseManager = () => {
                     </div>
                   )}
                 </div>
+
+                {selectedCourse.thumbnailUrl ? (
+                  <div
+                    className="course-detail-thumb"
+                    style={{ backgroundImage: `url(${getThumbnailUrl(selectedCourse.thumbnailUrl)})` }}
+                    aria-label="Course thumbnail"
+                  />
+                ) : null}
 
                 <p className="desc">{selectedCourse.description || 'No description added yet.'}</p>
 
