@@ -2,11 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import DashboardLayout from '../../components/DashboardLayout';
 import { useAuth } from '../../context/AuthContext';
+import AIChatWidget from '../../components/AIChatWidget';
 import { getMyProgress, getQuizAnalytics, getQuizzes } from '../../services/quizService';
 import { getCourses } from '../../services/courseService';
 import { getAdminStats, getPosts } from '../../services/communityService';
 import { getPremiumCatalog, getPaymentGatewayStatus } from '../../services/commerceService';
 import { getUsers } from '../../services/userService';
+import '../StudentDashboard.css';
 import './ProgressDashboard.css';
 
 const gradeColors = {
@@ -20,6 +22,7 @@ const ProgressDashboard = () => {
   const [adminData, setAdminData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [chatOpenSignal, setChatOpenSignal] = useState(0);
   const isAdminView = ['admin', 'teacher'].includes(String(user?.role || '').toLowerCase());
   const quizHomePath = isAdminView ? '/quizzes' : '/student/quizzes';
   const layoutTheme = isAdminView ? 'dark' : 'light';
@@ -27,6 +30,123 @@ const ProgressDashboard = () => {
   const headerSubtitle = isAdminView
     ? 'Review quiz performance and score trends'
     : 'Track your quiz performance and improvement over time';
+
+  const displayName = user?.name || 'Student';
+  const initials = displayName
+    .split(' ')
+    .map((part) => part.charAt(0))
+    .join('')
+    .slice(0, 2)
+    .toUpperCase();
+
+  const studentSidebarItems = [
+    { icon: '▦', label: 'Dashboard', route: '/student-dashboard' },
+    { icon: '🎓', label: 'My Courses', route: '/student/my-courses' },
+    { icon: '📚', label: 'Course & Contents', route: '/student/courses' },
+    { icon: '📝', label: 'Quiz & Mock Exams', route: '/student/quizzes' },
+    { icon: '🎥', label: 'Kuppi Sessions', route: '/student/courses' },
+    { icon: '💬', label: 'Community Board', route: '/student/community' },
+    { icon: '📈', label: 'Progress Analytics', route: '/student/progress', active: true },
+    { icon: '👑', label: 'Premium', route: '/student/premium' },
+    { icon: '🤖', label: 'AI Chatbot', action: () => setChatOpenSignal((prev) => prev + 1) },
+    { icon: '⚙', label: 'Settings', route: '/settings' }
+  ];
+
+  const handleStudentSidebarAction = (item) => {
+    if (item.action) {
+      item.action();
+      return;
+    }
+    navigate(item.route);
+  };
+
+  const handleStudentLogout = () => {
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+    }
+    navigate('/login');
+  };
+
+  const renderStudentShell = (content) => (
+    <div className="student-v2-shell student-progress-shell">
+      <aside className="student-v2-sidebar">
+        <div className="student-v2-brand">
+          <span className="brand-mark">E</span>
+          <div className="brand-copy">
+            <h1>EDUCONNECT</h1>
+            <small>Academic Portal</small>
+          </div>
+        </div>
+
+        <nav className="student-v2-nav" aria-label="Student navigation">
+          {studentSidebarItems.map((item) => (
+            <button
+              key={item.label}
+              type="button"
+              className={`student-v2-nav-item ${item.active ? 'active' : ''}`}
+              onClick={() => handleStudentSidebarAction(item)}
+            >
+              <span className="icon" aria-hidden="true">{item.icon}</span>
+              <span>{item.label}</span>
+            </button>
+          ))}
+        </nav>
+
+        <div className="student-v2-upgrade">
+          <p>Unlock all features</p>
+          <h3>Upgrade to Pro</h3>
+          <button type="button" onClick={() => navigate('/student/premium')}>Upgrade Now</button>
+        </div>
+
+        <button type="button" className="student-v2-logout" onClick={handleStudentLogout}>Logout</button>
+      </aside>
+
+      <main className="student-v2-main student-progress-main">
+        <header className="student-v2-topbar">
+          <div className="student-v2-search-wrap">
+            <span aria-hidden="true">⌕</span>
+            <input
+              type="text"
+              placeholder="Search progress, attempts, subjects..."
+              aria-label="Search progress, attempts, subjects"
+            />
+          </div>
+
+          <div className="student-v2-tools">
+            <button type="button" className="ghost-icon" aria-label="Theme">◐</button>
+            <button type="button" className="ghost-icon" aria-label="Notifications">🔔</button>
+            <button type="button" className="premium-pill" onClick={() => navigate('/student/premium')}>
+              <span aria-hidden="true">👑</span>
+              Premium
+            </button>
+            <div className="student-v2-profile-chip">
+              <div className="student-v2-profile-text">
+                <strong>{displayName}</strong>
+                <small>{user?.email || 'Student account'}</small>
+              </div>
+              <div className="student-v2-profile-avatar">{initials}</div>
+            </div>
+          </div>
+        </header>
+
+        {content}
+
+        <AIChatWidget
+          studentId={user?._id || 'guest-student'}
+          context={{
+            page: 'student-progress',
+            user: {
+              id: user?._id,
+              name: user?.name,
+              role: user?.role
+            }
+          }}
+          openSignal={chatOpenSignal}
+        />
+      </main>
+    </div>
+  );
 
   useEffect(() => {
     const getResultData = (result) => {
@@ -192,21 +312,39 @@ const ProgressDashboard = () => {
     load();
   }, [isAdminView]);
 
-  if (loading) return (
-    <DashboardLayout theme={layoutTheme}>
+  if (loading) {
+    if (isAdminView) {
+      return (
+        <DashboardLayout theme={layoutTheme}>
+          <div className="progress-loading"><div className="spinner"></div><p>Loading progress...</p></div>
+        </DashboardLayout>
+      );
+    }
+    return renderStudentShell(
       <div className="progress-loading"><div className="spinner"></div><p>Loading progress...</p></div>
-    </DashboardLayout>
-  );
+    );
+  }
 
-  if (error) return (
-    <DashboardLayout theme={layoutTheme}>
+  if (error) {
+    if (isAdminView) {
+      return (
+        <DashboardLayout theme={layoutTheme}>
+          <div className="progress-error">
+            <span>⚠️</span>
+            <p>{error}</p>
+            <button className="btn-primary" onClick={() => navigate(quizHomePath)}>Back to Quizzes</button>
+          </div>
+        </DashboardLayout>
+      );
+    }
+    return renderStudentShell(
       <div className="progress-error">
         <span>⚠️</span>
         <p>{error}</p>
         <button className="btn-primary" onClick={() => navigate(quizHomePath)}>Back to Quizzes</button>
       </div>
-    </DashboardLayout>
-  );
+    );
+  }
 
   const { summary, attempts, subjectBreakdown } = progressData || {
     summary: { totalAttempts: 0, averageScore: 0, bestScore: 0 },
@@ -534,9 +672,8 @@ const ProgressDashboard = () => {
     );
   }
 
-  return (
-    <DashboardLayout theme={layoutTheme}>
-      <div className="progress-dashboard-page">
+  return renderStudentShell(
+    <div className="progress-dashboard-page">
         {/* Header */}
         <div className="progress-header">
           <div>
@@ -690,8 +827,7 @@ const ProgressDashboard = () => {
             </div>
           </>
         )}
-      </div>
-    </DashboardLayout>
+    </div>
   );
 };
 

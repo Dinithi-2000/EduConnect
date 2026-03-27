@@ -21,7 +21,7 @@ router.route('/')
     .get(getUsers)
     .post(createUser);
 
-router.route('/:id')
+router.route('/:id([0-9a-fA-F]{24})')
     .get(getUserById)
     .put(updateUser)
     .delete(deleteUser);

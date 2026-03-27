@@ -10,7 +10,7 @@ const { protect } = require('../middleware/auth');
 
 const router = express.Router();
 
-router.get('/premium-catalog', getPremiumCatalog);
+router.get('/premium-catalog', protect, getPremiumCatalog);
 router.get('/payment-gateways', protect, getPaymentGatewayStatus);
 router.post('/complete-purchase', protect, completePurchase);
 router.post('/stripe/create-checkout-session', protect, createStripeCheckoutSession);

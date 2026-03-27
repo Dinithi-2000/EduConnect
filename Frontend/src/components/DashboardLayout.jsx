@@ -35,10 +35,10 @@ const DashboardLayout = ({ children, activeSection = 'Quizzes', theme = 'dark' }
     : [
         { icon: '📊', label: 'Dashboard', path: '/student-dashboard' },
         { icon: '📚', label: 'My Courses', path: '/student/courses' },
-        { icon: '📝', label: 'Quizzes', path: '/student/quizzes' },
-        { icon: '👑', label: 'Premium', path: '/student/premium' },
+        { icon: '�', label: 'Quizzes', path: '/student/quizzes' },
+        { icon: '�', label: 'Premium', path: '/student/premium' },
         { icon: '🎥', label: 'Kuppi Sessions', path: '/kuppi' },
-        { icon: '👥', label: 'Community', path: '/student/community' },
+        { icon: '�', label: 'Community', path: '/student/community' },
         { icon: '📈', label: 'Progress', path: '/student/progress' }
       ];
 

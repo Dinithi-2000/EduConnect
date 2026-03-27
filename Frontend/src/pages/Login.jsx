@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { loginUser } from '../services/userService';
-import './Auth.css';
+import './Login.css';
 
 const Login = () => {
   const navigate = useNavigate();
@@ -49,56 +49,83 @@ const Login = () => {
   };
 
   return (
-    <div className="auth-container">
-      <div className="auth-wrapper">
-        <div className="auth-logo">
-          <span className="logo-icon">🎓</span>
-          <h1>EduConnect</h1>
+    <div className="login-page">
+      <header className="login-header">
+        <div className="login-brand">
+          <span className="logo-icon" aria-hidden="true">🎓</span>
+          <span className="logo-text">EduConnect</span>
         </div>
+        <nav className="login-header-links" aria-label="Utility links">
+          <a href="#help">Help</a>
+          <a href="#support">Support</a>
+        </nav>
+      </header>
 
-        <div className="auth-card">
+      <main className="login-main">
+        <section className="login-card" aria-label="Login form">
           <h2>Welcome Back</h2>
-          <p className="auth-subtitle">Log in to your account</p>
+          <p className="login-subtitle">Access your institutional workspace</p>
 
-          {error && <div className="auth-error">{error}</div>}
+          {error && <div className="login-error">{error}</div>}
 
-          <form onSubmit={handleSubmit}>
-            <div className="form-group">
+          <form onSubmit={handleSubmit} className="login-form">
+            <div className="login-field">
               <label htmlFor="email">Email Address</label>
-              <input
-                type="email"
-                id="email"
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
-                placeholder="Enter your email"
-                required
-              />
+              <div className="login-input-wrap">
+                <span className="login-input-icon" aria-hidden="true">@</span>
+                <input
+                  type="email"
+                  id="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  placeholder="name@email.com"
+                  required
+                />
+              </div>
             </div>
 
-            <div className="form-group">
-              <label htmlFor="password">Password</label>
-              <input
-                type="password"
-                id="password"
-                name="password"
-                value={formData.password}
-                onChange={handleChange}
-                placeholder="Enter your password"
-                required
-              />
+            <div className="login-field">
+              <div className="login-label-row">
+                <label htmlFor="password">Security Phrase</label>
+                <Link to="/forgot-password" className="forgot-link">Forgot?</Link>
+              </div>
+              <div className="login-input-wrap">
+                <span className="login-input-icon" aria-hidden="true">🔒</span>
+                <input
+                  type="password"
+                  id="password"
+                  name="password"
+                  value={formData.password}
+                  onChange={handleChange}
+                  placeholder="••••••••"
+                  required
+                />
+              </div>
             </div>
 
-            <button type="submit" className="auth-btn" disabled={loading}>
-              {loading ? 'Logging in...' : 'Log in'}
+            <button type="submit" className="login-submit" disabled={loading}>
+              {loading ? 'Entering Workspace...' : 'Enter Workspace'}
             </button>
           </form>
 
-          <div className="auth-footer">
-            <p>Don't have an account? <Link to="/register">Create one</Link></p>
+          <div className="login-card-footer">
+            <p>
+              New to the institution? <Link to="/register">Request Enrollment</Link>
+            </p>
           </div>
-        </div>
-      </div>
+        </section>
+      </main>
+
+      <footer className="login-bottom">
+        <p>© 2024 EduConnect University. All Rights Reserved.</p>
+        <nav aria-label="Legal links">
+          <a href="#privacy">Privacy Policy</a>
+          <a href="#terms">Terms of Service</a>
+          <a href="#accessibility">Accessibility</a>
+          <a href="#contact">Contact Support</a>
+        </nav>
+      </footer>
     </div>
   );
 };

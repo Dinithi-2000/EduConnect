@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import DashboardLayout from '../../components/DashboardLayout';
+import { useAuth } from '../../context/AuthContext';
 import { getAttemptById } from '../../services/quizService';
 import './QuizResults.css';
 
@@ -11,10 +11,16 @@ const gradeColors = {
 const QuizResults = () => {
   const { attemptId } = useParams();
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [attempt, setAttempt] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [showReview, setShowReview] = useState(false);
+
+  const role = String(user?.role || '').toLowerCase();
+  const isStudentView = role === 'student';
+  const quizHomePath = isStudentView ? '/student/quizzes' : '/quizzes';
+  const progressPath = isStudentView ? '/student/progress' : '/progress';
 
   useEffect(() => {
     const load = async () => {
@@ -33,24 +39,38 @@ const QuizResults = () => {
     return `${m}m ${s}s`;
   };
 
+  const renderResultsShell = (content) => (
+    <div className="results-shell">
+      <header className="results-shell-head">
+        <button className="results-shell-back" onClick={() => navigate(quizHomePath)}>
+          ← Back to Quiz Center
+        </button>
+        <div className="results-shell-title-wrap">
+          <strong>Quiz Result</strong>
+          <small>{attempt?.quizSubject || 'Quiz & Mock Exams'}</small>
+        </div>
+      </header>
+      {content}
+    </div>
+  );
+
   if (loading) return (
-    <DashboardLayout>
+    renderResultsShell(
       <div className="results-loading"><div className="spinner"></div><p>Loading results...</p></div>
-    </DashboardLayout>
+    )
   );
 
   if (error) return (
-    <DashboardLayout>
+    renderResultsShell(
       <div className="results-error"><span>⚠️</span><p>{error}</p></div>
-    </DashboardLayout>
+    )
   );
 
   const gradeColor = gradeColors[attempt.grade] || '#64748b';
   const correctCount = attempt.answers.filter(a => a.isCorrect).length;
   const wrongCount = attempt.answers.length - correctCount;
 
-  return (
-    <DashboardLayout>
+  return renderResultsShell(
       <div className="quiz-results-page">
         {/* Score hero */}
         <div className="score-hero">
@@ -138,10 +158,10 @@ const QuizResults = () => {
 
         {/* Action buttons */}
         <div className="result-actions">
-          <button className="btn-secondary-r" onClick={() => navigate('/quizzes')}>
+          <button className="btn-secondary-r" onClick={() => navigate(quizHomePath)}>
             ← Back to Quizzes
           </button>
-          <button className="btn-secondary-r" onClick={() => navigate('/progress')}>
+          <button className="btn-secondary-r" onClick={() => navigate(progressPath)}>
             📈 View Progress
           </button>
           <button
@@ -201,8 +221,7 @@ const QuizResults = () => {
           </div>
         )}
       </div>
-    </DashboardLayout>
-  );
+    );
 };
 
 export default QuizResults;

@@ -21,6 +21,27 @@ const LEVELS = ['Beginner', 'Intermediate', 'Advanced'];
 const CONTENT_TYPES = ['LectureVideo', 'LecturePDF', 'ShortNote', 'Video', 'PDF', 'Article', 'Link', 'Quiz'];
 const API_ORIGIN = API_URL.replace(/\/api\/?$/, '');
 
+const parseFaqLines = (text) => {
+  return String(text || '')
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter(Boolean)
+    .map((line) => {
+      const [questionPart, ...answerParts] = line.split('|');
+      return {
+        question: String(questionPart || '').trim(),
+        answer: String(answerParts.join('|') || '').trim()
+      };
+    })
+    .filter((item) => item.question && item.answer);
+};
+
+const stringifyFaqLines = (faqs = []) => {
+  return (Array.isArray(faqs) ? faqs : [])
+    .map((item) => `${item.question || ''} | ${item.answer || ''}`)
+    .join('\n');
+};
+
 const CourseManager = () => {
   const { user } = useAuth();
   const currentRole = String(user?.role || '').toLowerCase();
@@ -44,6 +65,7 @@ const CourseManager = () => {
     subject: '',
     level: 'Beginner',
     description: '',
+    faqText: '',
     thumbnailUrl: '',
     isPublished: false
   });
@@ -232,7 +254,15 @@ const CourseManager = () => {
     e.preventDefault();
     try {
       setSaving(true);
-      const res = await createCourse(courseForm);
+      const res = await createCourse({
+        title: courseForm.title,
+        subject: courseForm.subject,
+        level: courseForm.level,
+        description: courseForm.description,
+        thumbnailUrl: courseForm.thumbnailUrl,
+        isPublished: courseForm.isPublished,
+        faqs: parseFaqLines(courseForm.faqText)
+      });
       const created = res.data;
       setCourses((prev) => [created, ...prev]);
       setSelectedCourseId(created._id);
@@ -241,6 +271,7 @@ const CourseManager = () => {
         subject: '',
         level: 'Beginner',
         description: '',
+        faqText: '',
         thumbnailUrl: '',
         isPublished: false
       });
@@ -276,6 +307,11 @@ const CourseManager = () => {
 
     const description = window.prompt('Edit description', course.description || '') || '';
     const thumbnailUrl = window.prompt('Edit thumbnail URL', course.thumbnailUrl || '') || '';
+    const faqText =
+      window.prompt(
+        'Course FAQs (one per line: question | answer)',
+        stringifyFaqLines(course.faqs || [])
+      ) || '';
 
     try {
       const res = await updateCourse(course._id, {
@@ -283,7 +319,8 @@ const CourseManager = () => {
         subject,
         level,
         description,
-        thumbnailUrl
+        thumbnailUrl,
+        faqs: parseFaqLines(faqText)
       });
       const updated = res.data;
       setCourses((prev) => prev.map((item) => (item._id === updated._id ? updated : item)));
@@ -313,9 +350,14 @@ const CourseManager = () => {
     if (!title) return;
 
     const description = window.prompt('Module description (optional)') || '';
+    const faqText = window.prompt('Module FAQs (optional, one per line: question | answer)') || '';
 
     try {
-      const res = await addModule(selectedCourse._id, { title, description });
+      const res = await addModule(selectedCourse._id, {
+        title,
+        description,
+        faqs: parseFaqLines(faqText)
+      });
       const updated = res.data;
       setCourses((prev) => prev.map((item) => (item._id === updated._id ? updated : item)));
     } catch (err) {
@@ -330,9 +372,18 @@ const CourseManager = () => {
     if (!title) return;
 
     const description = window.prompt('Edit module description', module.description || '') || '';
+    const faqText =
+      window.prompt(
+        'Module FAQs (one per line: question | answer)',
+        stringifyFaqLines(module.faqs || [])
+      ) || '';
 
     try {
-      const res = await updateModule(selectedCourse._id, module._id, { title, description });
+      const res = await updateModule(selectedCourse._id, module._id, {
+        title,
+        description,
+        faqs: parseFaqLines(faqText)
+      });
       const updated = res.data;
       setCourses((prev) => prev.map((item) => (item._id === updated._id ? updated : item)));
     } catch (err) {
@@ -693,6 +744,12 @@ const CourseManager = () => {
                     onChange={(e) => setCourseForm((prev) => ({ ...prev, description: e.target.value }))}
                     placeholder="Course description"
                     rows={3}
+                  />
+                  <textarea
+                    value={courseForm.faqText}
+                    onChange={(e) => setCourseForm((prev) => ({ ...prev, faqText: e.target.value }))}
+                    placeholder="Course FAQs (one per line: question | answer)"
+                    rows={4}
                   />
                   <label className="checkbox-row">
                     <input

@@ -159,8 +159,8 @@ const completePurchase = async (req, res) => {
   }
 };
 
-const getPremiumCatalog = (req, res) => {
-  const fetchCatalog = async () => {
+const getPremiumCatalog = async (req, res) => {
+  try {
     const premiumQuizzes = await Quiz.find({ isActive: true, isPremium: true })
       .select('_id title premiumPrice premiumCurrency')
       .sort({ createdAt: -1 });
@@ -173,20 +173,34 @@ const getPremiumCatalog = (req, res) => {
       currency: quiz.premiumCurrency || 'USD'
     }));
 
+    const allItems = [...quizItems, ...premiumCatalog];
+    const studentId = req.user?._id ? req.user._id.toString() : null;
+
+    const data = await Promise.all(
+      allItems.map(async (item) => {
+        const hasAccess = studentId
+          ? await hasUnlockedContent({ studentId, itemId: item.id })
+          : false;
+
+        return {
+          ...item,
+          hasAccess
+        };
+      })
+    );
+
     return res.json({
       success: true,
-      count: premiumCatalog.length + quizItems.length,
-      data: [...quizItems, ...premiumCatalog]
+      count: data.length,
+      data
     });
-  };
-
-  return fetchCatalog().catch((error) => {
+  } catch (error) {
     return res.status(500).json({
       success: false,
       message: 'Failed to load premium catalog',
       error: error.message
     });
-  });
+  }
 };
 
 const getPaymentGatewayStatus = (req, res) => {

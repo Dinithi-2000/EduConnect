@@ -12,14 +12,27 @@ const protect = async (req, res, next) => {
 
             // Verify token
             const decoded = jwt.verify(token, process.env.JWT_SECRET);
+            if (!decoded?.id) {
+                return res.status(401).json({
+                    success: false,
+                    message: 'Not authorized, invalid token payload'
+                });
+            }
 
             // Get user from token
             req.user = await User.findById(decoded.id).select('-password');
 
-            next();
+            if (!req.user) {
+                return res.status(401).json({
+                    success: false,
+                    message: 'Not authorized, user not found'
+                });
+            }
+
+            return next();
         } catch (error) {
             console.error(error);
-            res.status(401).json({
+            return res.status(401).json({
                 success: false,
                 message: 'Not authorized, token failed'
             });
@@ -27,7 +40,7 @@ const protect = async (req, res, next) => {
     }
 
     if (!token) {
-        res.status(401).json({
+        return res.status(401).json({
             success: false,
             message: 'Not authorized, no token'
         });

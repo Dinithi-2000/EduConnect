@@ -1,0 +1,125 @@
+.student-payment-page {
+  min-height: 72vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 18px;
+}
+
+.payment-card {
+  width: min(680px, 100%);
+  background: #ffffff;
+  border: 1px solid #dbe5ff;
+  border-radius: 20px;
+  box-shadow: 0 24px 60px rgba(20, 37, 79, 0.12);
+  padding: 26px;
+  display: grid;
+  gap: 12px;
+  text-align: center;
+}
+
+.payment-icon {
+  width: 64px;
+  height: 64px;
+  margin: 0 auto;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 30px;
+  font-weight: 800;
+}
+
+.payment-card h1 {
+  margin: 0;
+  color: #18284a;
+  font-size: 2rem;
+}
+
+.payment-card p {
+  margin: 0;
+  color: #5a6c93;
+  font-size: 1rem;
+}
+
+.payment-card small {
+  color: #6f7f9a;
+}
+
+.payment-card.processing .payment-icon {
+  background: #eef3ff;
+  color: #3559b7;
+}
+
+.payment-card.success {
+  border-color: #86efac;
+  background: #f0fdf4;
+}
+
+.payment-card.success .payment-icon {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.payment-card.cancelled {
+  border-color: #fde68a;
+  background: #fffbeb;
+}
+
+.payment-card.cancelled .payment-icon {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.payment-card.failed {
+  border-color: #fecaca;
+  background: #fff1f1;
+}
+
+.payment-card.failed .payment-icon {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.payment-actions {
+  margin-top: 8px;
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.payment-actions button {
+  border: none;
+  border-radius: 10px;
+  min-height: 38px;
+  padding: 0 16px;
+  background: linear-gradient(135deg, #1f56d9 0%, #4a78ef 100%);
+  color: #fff;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.payment-actions button.ghost {
+  border: 1px solid #d0dcf6;
+  background: #f7f9ff;
+  color: #37507d;
+}
+
+@media (max-width: 700px) {
+  .payment-card {
+    padding: 18px;
+  }
+
+  .payment-card h1 {
+    font-size: 1.6rem;
+  }
+
+  .payment-actions {
+    flex-direction: column;
+  }
+
+  .payment-actions button {
+    width: 100%;
+  }
+}

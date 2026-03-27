@@ -37,6 +37,19 @@ const contentSchema = new mongoose.Schema({
   }
 });
 
+const faqItemSchema = new mongoose.Schema({
+  question: {
+    type: String,
+    required: [true, 'FAQ question is required'],
+    trim: true
+  },
+  answer: {
+    type: String,
+    required: [true, 'FAQ answer is required'],
+    trim: true
+  }
+});
+
 const moduleSchema = new mongoose.Schema({
   title: {
     type: String,
@@ -55,6 +68,10 @@ const moduleSchema = new mongoose.Schema({
   },
   contents: {
     type: [contentSchema],
+    default: []
+  },
+  faqs: {
+    type: [faqItemSchema],
     default: []
   }
 });
@@ -91,6 +108,10 @@ const courseSchema = new mongoose.Schema({
   },
   modules: {
     type: [moduleSchema],
+    default: []
+  },
+  faqs: {
+    type: [faqItemSchema],
     default: []
   },
   createdBy: {

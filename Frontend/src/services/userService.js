@@ -22,13 +22,23 @@ export const loginUser = async (credentials) => {
   }
 };
 
+// Request password reset link
+export const requestPasswordReset = async (email) => {
+  try {
+    const response = await api.post('/users/forgot-password', { email });
+    return response.data;
+  } catch (error) {
+    console.error('Error requesting password reset:', error);
+    throw error;
+  }
+};
+
 // Get current user (based on token)
 export const getCurrentUser = async () => {
   try {
     const response = await api.get('/users/me');
     return response.data;
   } catch (error) {
-    console.error('Error fetching current user:', error);
     throw error;
   }
 };

@@ -1,12 +1,13 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import DashboardLayout from '../../components/DashboardLayout';
+import { useAuth } from '../../context/AuthContext';
 import { getQuizById, submitAttempt } from '../../services/quizService';
 import './QuizAttempt.css';
 
 const QuizAttempt = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { user } = useAuth();
 
   const [quiz, setQuiz] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -18,6 +19,10 @@ const QuizAttempt = () => {
   const [currentQ, setCurrentQ] = useState(0);
   const startTimeRef = useRef(null);
   const timerRef = useRef(null);
+
+  const role = String(user?.role || '').toLowerCase();
+  const isStudentView = role === 'student';
+  const quizHomePath = isStudentView ? '/student/quizzes' : '/quizzes';
 
   useEffect(() => {
     const fetchQuiz = async () => {
@@ -89,21 +94,36 @@ const QuizAttempt = () => {
   const progressPct = totalQ > 0 ? Math.round((answeredCount / totalQ) * 100) : 0;
   const isLowTime = timeLeft <= 60 && timeLeft > 0;
 
+  const renderAttemptFrame = (content) => (
+    <div className="attempt-shell">
+      <header className="attempt-shell-head">
+        <button className="attempt-shell-back" onClick={() => navigate(quizHomePath)}>
+          ← Back to Quiz Center
+        </button>
+        <div className="attempt-shell-title-wrap">
+          <strong>{quiz?.title || 'Quiz Session'}</strong>
+          <small>{quiz?.subject || 'Quiz & Mock Exams'}</small>
+        </div>
+      </header>
+      {content}
+    </div>
+  );
+
   if (loading) return (
-    <DashboardLayout>
+    renderAttemptFrame(
       <div className="attempt-loading"><div className="spinner"></div><p>Loading quiz...</p></div>
-    </DashboardLayout>
+    )
   );
 
   if (error) return (
-    <DashboardLayout>
-      <div className="attempt-error"><span>⚠️</span><p>{error}</p><button className="btn-primary" onClick={() => navigate('/quizzes')}>Back to Quizzes</button></div>
-    </DashboardLayout>
+    renderAttemptFrame(
+      <div className="attempt-error"><span>⚠️</span><p>{error}</p><button className="btn-primary" onClick={() => navigate(quizHomePath)}>Back to Quizzes</button></div>
+    )
   );
 
   // ── Start Screen ───────────────────────────────────────────────────────────
   if (!started) return (
-    <DashboardLayout>
+    renderAttemptFrame(
       <div className="start-screen">
         <div className="start-card">
           <div className="start-icon">📝</div>
@@ -139,16 +159,15 @@ const QuizAttempt = () => {
             </ul>
           </div>
           <button className="start-btn" onClick={startQuiz}>▶ Start Quiz</button>
-          <button className="back-btn-sm" onClick={() => navigate('/quizzes')}>← Back to Quizzes</button>
+          <button className="back-btn-sm" onClick={() => navigate(quizHomePath)}>← Back to Quizzes</button>
         </div>
       </div>
-    </DashboardLayout>
+    )
   );
 
   const currentQuestion = quiz.questions[currentQ];
 
-  return (
-    <DashboardLayout>
+  return renderAttemptFrame(
       <div className="quiz-attempt-page">
         {/* Top bar: title + timer */}
         <div className="attempt-topbar">
@@ -298,8 +317,7 @@ const QuizAttempt = () => {
           </div>
         </div>
       </div>
-    </DashboardLayout>
-  );
+    );
 };
 
 export default QuizAttempt;

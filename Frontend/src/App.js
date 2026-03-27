@@ -9,6 +9,7 @@ import { useAuth } from './context/AuthContext';
 // Auth Pages
 import Login from './pages/Login';
 import Register from './pages/Register';
+import ForgotPassword from './pages/ForgotPassword';
 
 // Pages
 import Home from './pages/Home';
@@ -29,11 +30,14 @@ import AdminSettings from './pages/admin/AdminSettings';
 import CommunityBoard from './pages/Community';
 import CourseManager from './pages/course/CourseManager';
 import StudentCourses from './pages/student/StudentCourses';
+import StudentMyCourses from './pages/student/StudentMyCourses';
 import StudentQuizzes from './pages/student/StudentQuizzes';
 import StudentPremium from './pages/student/StudentPremium';
 import StudentCommunity from './pages/student/StudentCommunity';
+import StudentPaymentSuccess from './pages/student/StudentPaymentSuccess';
+import StudentSettings from './pages/student/StudentSettings';
 
-const DASHBOARD_PATHS = ['/', '/student-dashboard', '/courses', '/student/courses', '/student-management', '/quizzes', '/student/quizzes', '/student/premium', '/student/community', '/student/progress', '/progress', '/community', '/premium', '/premium-management', '/settings'];
+const DASHBOARD_PATHS = ['/', '/student-dashboard', '/courses', '/student/courses', '/student/my-courses', '/student-management', '/quizzes', '/student/quizzes', '/student/premium', '/student/payment-success', '/student/community', '/student/progress', '/progress', '/community', '/premium', '/premium-management', '/settings'];
 
 // Protected Route Wrapper
 const ProtectedRoute = ({ element }) => {
@@ -63,12 +67,23 @@ const DashboardHomeRoute = () => {
   return <Home />;
 };
 
+const SettingsRoute = () => {
+  const { user } = useAuth();
+  const role = String(user?.role || '').toLowerCase();
+
+  if (role === 'admin' || role === 'teacher') {
+    return <AdminSettings />;
+  }
+
+  return <StudentSettings />;
+};
+
 function AppContent() {
   const location = useLocation();
   const isDashboard = DASHBOARD_PATHS.some(p =>
     p === '/' ? location.pathname === '/' : location.pathname.startsWith(p)
   );
-  const isAuth = ['/login', '/register'].includes(location.pathname);
+  const isAuth = ['/login', '/register', '/forgot-password'].includes(location.pathname);
 
   return (
     <div className="App">
@@ -77,6 +92,7 @@ function AppContent() {
         {/* Auth routes */}
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
 
         {/* Main dashboard */}
         <Route path="/" element={<ProtectedRoute element={<DashboardHomeRoute />} />} />
@@ -85,11 +101,13 @@ function AppContent() {
 
         {/* Quiz & Mock Exam System */}
         <Route path="/courses" element={<ProtectedRoute element={<CourseManager />} />} />
+        <Route path="/student/my-courses" element={<ProtectedRoute element={<StudentMyCourses />} />} />
         <Route path="/student/courses" element={<ProtectedRoute element={<StudentCourses />} />} />
         <Route path="/student-management" element={<ProtectedRoute element={<StudentManagement />} />} />
         <Route path="/quizzes" element={<ProtectedRoute element={<QuizList />} />} />
         <Route path="/student/quizzes" element={<ProtectedRoute element={<StudentQuizzes />} />} />
         <Route path="/student/premium" element={<ProtectedRoute element={<StudentPremium />} />} />
+        <Route path="/student/payment-success" element={<ProtectedRoute element={<StudentPaymentSuccess />} />} />
         <Route path="/student/community" element={<ProtectedRoute element={<StudentCommunity />} />} />
         <Route path="/quizzes/create" element={<ProtectedRoute element={<QuizBuilder />} />} />
         <Route path="/quizzes/:id/edit" element={<ProtectedRoute element={<QuizBuilder />} />} />
@@ -99,7 +117,7 @@ function AppContent() {
         <Route path="/progress" element={<ProtectedRoute element={<ProgressDashboard />} />} />
         <Route path="/premium" element={<ProtectedRoute element={<PremiumQuizzes />} />} />
         <Route path="/premium-management" element={<ProtectedRoute element={<PremiumManagement />} />} />
-        <Route path="/settings" element={<ProtectedRoute element={<AdminSettings />} />} />
+        <Route path="/settings" element={<ProtectedRoute element={<SettingsRoute />} />} />
 
         {/* Community Board */}
         <Route path="/community" element={<ProtectedRoute element={<CommunityBoard />} />} />

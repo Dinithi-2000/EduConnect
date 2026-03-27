@@ -9,11 +9,20 @@ const normalizeOrder = (arr = []) => {
     .map((item, idx) => ({ ...item, order: idx + 1 }));
 };
 
+const normalizeFaqs = (items = []) => {
+  return (Array.isArray(items) ? items : [])
+    .map((item) => ({
+      question: String(item?.question || '').trim(),
+      answer: String(item?.answer || '').trim()
+    }))
+    .filter((item) => item.question && item.answer);
+};
+
 const sanitizeForStudent = (course) => {
   const plain = course.toObject ? course.toObject() : course;
   plain.modules = (plain.modules || []).map((module) => ({
     ...module,
-    contents: (module.contents || []).filter((content) => content.isPreview)
+    contents: module.contents || []
   }));
   return plain;
 };
@@ -92,8 +101,10 @@ const createCourse = async (req, res) => {
       isPublished: Boolean(req.body.isPublished),
       modules: normalizeOrder((req.body.modules || []).map((module) => ({
         ...module,
+        faqs: normalizeFaqs(module.faqs),
         contents: normalizeOrder(module.contents || [])
       }))),
+      faqs: normalizeFaqs(req.body.faqs),
       createdBy: req.user._id
     };
 
@@ -119,6 +130,9 @@ const updateCourse = async (req, res) => {
     course.level = req.body.level ?? course.level;
     course.description = req.body.description ?? course.description;
     course.thumbnailUrl = req.body.thumbnailUrl ?? course.thumbnailUrl;
+    if (Array.isArray(req.body.faqs)) {
+      course.faqs = normalizeFaqs(req.body.faqs);
+    }
 
     if (typeof req.body.isPublished === 'boolean') {
       course.isPublished = req.body.isPublished;
@@ -162,6 +176,7 @@ const addModule = async (req, res) => {
       title: req.body.title,
       description: req.body.description || '',
       order: Number(req.body.order) || nextOrder,
+      faqs: normalizeFaqs(req.body.faqs),
       contents: []
     });
 
@@ -191,6 +206,9 @@ const updateModule = async (req, res) => {
 
     module.title = req.body.title ?? module.title;
     module.description = req.body.description ?? module.description;
+    if (Array.isArray(req.body.faqs)) {
+      module.faqs = normalizeFaqs(req.body.faqs);
+    }
     if (typeof req.body.order !== 'undefined') {
       module.order = Number(req.body.order) || module.order;
     }
