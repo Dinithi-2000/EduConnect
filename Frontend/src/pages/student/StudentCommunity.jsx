@@ -26,8 +26,16 @@ const StudentCommunity = () => {
   const [chatOpenSignal, setChatOpenSignal] = useState(0);
   const [searchQuery, setSearchQuery] = useState('');
   const [typeFilter, setTypeFilter] = useState('all');
-  const [postDraft, setPostDraft] = useState('');
-  const [draftCategory, setDraftCategory] = useState('announcement');
+  const [postForm, setPostForm] = useState({
+    title: '',
+    description: '',
+    category: 'announcement',
+    tags: '',
+    location: '',
+    contactInfo: ''
+  });
+  const [postErrors, setPostErrors] = useState({});
+  const [postNotice, setPostNotice] = useState('');
   const [posting, setPosting] = useState(false);
 
   const fetchPosts = useCallback(async () => {
@@ -132,24 +140,105 @@ const StudentCommunity = () => {
     }
   };
 
-  const handleCreatePost = async () => {
-    const text = postDraft.trim();
-    if (!text) {
-      alert('Please write something first.');
+  const handlePostFieldChange = (field, value) => {
+    setPostForm((prev) => ({
+      ...prev,
+      [field]: value
+    }));
+
+    setPostErrors((prev) => {
+      if (!prev[field]) return prev;
+      const next = { ...prev };
+      delete next[field];
+      return next;
+    });
+  };
+
+  const validatePostForm = () => {
+    const title = String(postForm.title || '').trim();
+    const description = String(postForm.description || '').trim();
+    const location = String(postForm.location || '').trim();
+    const contactInfo = String(postForm.contactInfo || '').trim();
+    const category = String(postForm.category || '').trim();
+
+    const errors = {};
+
+    if (!title) {
+      errors.title = 'Post title is required.';
+    } else if (title.length < 3) {
+      errors.title = 'Title must be at least 3 characters.';
+    }
+
+    if (!description) {
+      errors.description = 'Post description is required.';
+    } else if (description.length < 10) {
+      errors.description = 'Description must be at least 10 characters.';
+    }
+
+    if (!category) {
+      errors.category = 'Please select a category.';
+    }
+
+    if (location && location.length < 2) {
+      errors.location = 'Location must be at least 2 characters.';
+    }
+
+    if (contactInfo && contactInfo.length < 5) {
+      errors.contactInfo = 'Contact info looks too short.';
+    }
+
+    setPostErrors(errors);
+    return {
+      isValid: Object.keys(errors).length === 0,
+      payload: {
+        title,
+        description,
+        type: category,
+        category: categoryMap[category] || 'General',
+        tags: String(postForm.tags || '')
+          .split(',')
+          .map((tag) => tag.trim())
+          .filter(Boolean),
+        location,
+        contactInfo
+      }
+    };
+  };
+
+  const handleCreatePost = async (event) => {
+    event.preventDefault();
+    setPostNotice('');
+
+    const validation = validatePostForm();
+    if (!validation.isValid) {
+      setPostNotice('Please fix the highlighted fields before posting.');
       return;
     }
 
     try {
       setPosting(true);
       const formData = new FormData();
-      formData.append('title', text.slice(0, 80));
-      formData.append('description', text);
-      formData.append('type', draftCategory);
+      formData.append('title', validation.payload.title);
+      formData.append('description', validation.payload.description);
+      formData.append('type', validation.payload.type);
+      formData.append('category', validation.payload.category);
+      formData.append('tags', JSON.stringify(validation.payload.tags));
+      formData.append('location', validation.payload.location);
+      formData.append('contactInfo', validation.payload.contactInfo);
       await createPost(formData);
-      setPostDraft('');
+      setPostForm({
+        title: '',
+        description: '',
+        category: 'announcement',
+        tags: '',
+        location: '',
+        contactInfo: ''
+      });
+      setPostErrors({});
+      setPostNotice('Post published successfully.');
       await fetchPosts();
-    } catch {
-      alert('Unable to publish your post right now.');
+    } catch (err) {
+      setPostNotice(err?.message || 'Unable to publish your post right now.');
     } finally {
       setPosting(false);
     }
@@ -273,32 +362,70 @@ const StudentCommunity = () => {
           <section className="community-grid">
             <div className="community-main-column">
               <section className="post-composer-card">
+                <form className="composer-form" onSubmit={handleCreatePost} noValidate>
                 <div className="composer-row">
                   <div className="composer-avatar">{initials[0] || 'S'}</div>
-                  <textarea
-                    value={postDraft}
-                    onChange={(event) => setPostDraft(event.target.value)}
-                    placeholder="What's on your mind?"
-                    rows={2}
-                  />
+                  <div className="composer-fields">
+                    <input
+                      value={postForm.title}
+                      onChange={(event) => handlePostFieldChange('title', event.target.value)}
+                      placeholder="Post title"
+                      aria-invalid={Boolean(postErrors.title)}
+                    />
+                    {postErrors.title && <small className="composer-error">{postErrors.title}</small>}
+                    <textarea
+                      value={postForm.description}
+                      onChange={(event) => handlePostFieldChange('description', event.target.value)}
+                      placeholder="What's on your mind?"
+                      rows={3}
+                      aria-invalid={Boolean(postErrors.description)}
+                    />
+                    {postErrors.description && <small className="composer-error">{postErrors.description}</small>}
+                  </div>
                 </div>
                 <div className="composer-actions">
-                  <select
-                    value={draftCategory}
-                    onChange={(event) => setDraftCategory(event.target.value)}
-                    aria-label="Select post category"
-                  >
-                    <option value="announcement">Announcements</option>
-                    <option value="event">Events</option>
-                    <option value="lost-item">Lost Item</option>
-                    <option value="found-item">Found Item</option>
-                    <option value="help-request">Study Groups</option>
-                    <option value="idea-tip">Tips</option>
-                  </select>
-                  <button type="button" onClick={handleCreatePost} disabled={posting}>
+                  <div className="composer-field-grid">
+                    <select
+                      value={postForm.category}
+                      onChange={(event) => handlePostFieldChange('category', event.target.value)}
+                      aria-label="Select post category"
+                      aria-invalid={Boolean(postErrors.category)}
+                    >
+                      <option value="announcement">Announcements</option>
+                      <option value="event">Events</option>
+                      <option value="lost-item">Lost Item</option>
+                      <option value="found-item">Found Item</option>
+                      <option value="help-request">Study Groups</option>
+                      <option value="idea-tip">Tips</option>
+                    </select>
+                    <input
+                      value={postForm.tags}
+                      onChange={(event) => handlePostFieldChange('tags', event.target.value)}
+                      placeholder="Tags (comma separated, optional)"
+                    />
+                    <input
+                      value={postForm.location}
+                      onChange={(event) => handlePostFieldChange('location', event.target.value)}
+                      placeholder="Location (optional)"
+                      aria-invalid={Boolean(postErrors.location)}
+                    />
+                    <input
+                      value={postForm.contactInfo}
+                      onChange={(event) => handlePostFieldChange('contactInfo', event.target.value)}
+                      placeholder="Contact info (optional)"
+                      aria-invalid={Boolean(postErrors.contactInfo)}
+                    />
+                  </div>
+                  <button type="submit" disabled={posting}>
                     {posting ? 'Posting...' : 'Post'}
                   </button>
                 </div>
+                {postNotice && (
+                  <div className={`composer-notice ${Object.keys(postErrors).length ? 'error' : 'success'}`}>
+                    {postNotice}
+                  </div>
+                )}
+                </form>
               </section>
 
               <section className="student-community-toolbar">
