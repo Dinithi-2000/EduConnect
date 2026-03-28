@@ -90,6 +90,7 @@ const StudentCourses = () => {
   const [workspaceTab, setWorkspaceTab] = useState('discussion');
   const [discussionDraft, setDiscussionDraft] = useState('');
   const [replyDrafts, setReplyDrafts] = useState({});
+  const [replyValidationErrors, setReplyValidationErrors] = useState({});
   const [noteDraft, setNoteDraft] = useState('');
   const [commentNotice, setCommentNotice] = useState(null);
   const [noteNotice, setNoteNotice] = useState(null);
@@ -494,14 +495,34 @@ const StudentCourses = () => {
       ...prev,
       [messageId]: value
     }));
+
+    if (String(value || '').trim()) {
+      setReplyValidationErrors((prev) => {
+        if (!prev[messageId]) return prev;
+        const next = { ...prev };
+        delete next[messageId];
+        return next;
+      });
+    }
   };
 
   const handlePostReply = (messageId) => {
     const text = String(replyDrafts[messageId] || '').trim();
     if (!text) {
+      setReplyValidationErrors((prev) => ({
+        ...prev,
+        [messageId]: 'Reply cannot be empty.'
+      }));
       showCommentNotice('error', 'Please type a reply first.');
       return;
     }
+
+    setReplyValidationErrors((prev) => {
+      if (!prev[messageId]) return prev;
+      const next = { ...prev };
+      delete next[messageId];
+      return next;
+    });
 
     const newReply = {
       id: `reply-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
@@ -899,9 +920,15 @@ const StudentCourses = () => {
                                 value={replyDrafts[item.id] || ''}
                                 onChange={(event) => handleReplyDraftChange(item.id, event.target.value)}
                                 placeholder="Reply to this message..."
+                                aria-invalid={Boolean(replyValidationErrors[item.id])}
                               />
                               <button type="button" onClick={() => handlePostReply(item.id)}>Reply</button>
                             </div>
+                            {replyValidationErrors[item.id] && (
+                              <div className="discussion-reply-validation" role="alert">
+                                {replyValidationErrors[item.id]}
+                              </div>
+                            )}
                           </div>
                         </article>
                       ))}

@@ -952,6 +952,13 @@
   cursor: pointer;
 }
 
+.discussion-reply-validation {
+  margin-top: 6px;
+  color: #b91c1c;
+  font-size: 0.76rem;
+  font-weight: 600;
+}
+
 .discussion-input-row {
   display: grid;
   grid-template-columns: 1fr auto;
