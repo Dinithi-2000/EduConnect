@@ -204,6 +204,10 @@
   font-weight: 500;
 }
 
+.dashboard-layout.admin-shell .nav-label {
+  color: #ffffff;
+}
+
 .nav-utility {
   margin-top: auto;
 }

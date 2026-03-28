@@ -36,6 +36,7 @@
   margin: 0;
   font-size: clamp(1.35rem, 2.7vw, 2rem);
   letter-spacing: -0.03em;
+  color: #ffffff;
 }
 
 .course-head p {

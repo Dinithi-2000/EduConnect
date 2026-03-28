@@ -121,6 +121,7 @@
   margin: 0;
   font-size: 2rem;
   letter-spacing: -0.03em;
+  color: #ffffff;
 }
 
 .reports-intel-head p {
@@ -209,7 +210,7 @@
 
 .admin-module-card h3 {
   margin: 0;
-  color: #9eb6e3;
+  color: #ffffff;
   font-size: 0.66rem;
   text-transform: uppercase;
   letter-spacing: 0.08em;
