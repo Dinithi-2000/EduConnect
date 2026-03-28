@@ -87,7 +87,7 @@ const StudentCourses = () => {
   const [selectedContentId, setSelectedContentId] = useState('');
   const [viewMode, setViewMode] = useState('overview');
   const [moduleOrderMode, setModuleOrderMode] = useState('week');
-  const [workspaceTab, setWorkspaceTab] = useState('discussion');
+  const [workspaceTab, setWorkspaceTab] = useState('');
   const [discussionDraft, setDiscussionDraft] = useState('');
   const [replyDrafts, setReplyDrafts] = useState({});
   const [replyValidationErrors, setReplyValidationErrors] = useState({});
@@ -403,6 +403,7 @@ const StudentCourses = () => {
     setSelectedModuleId(moduleId);
     const firstContent = (course.modules || []).find((module) => module._id === moduleId)?.contents?.[0] || null;
     setSelectedContentId(firstContent?._id || '');
+    setWorkspaceTab('');
     setViewMode('workspace');
   };
 
@@ -891,6 +892,12 @@ const StudentCourses = () => {
                 </div>
 
                 <div className="workspace-tab-panel">
+                  {!workspaceTab && (
+                    <div className="workspace-tab-placeholder">
+                      Select a tab to view module activities.
+                    </div>
+                  )}
+
                   {workspaceTab === 'discussion' && (
                     <>
                       {discussionItems.map((item) => (
