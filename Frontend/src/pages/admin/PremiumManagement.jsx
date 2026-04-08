@@ -170,7 +170,7 @@ const PremiumManagement = () => {
                 <div>
                   <button onClick={() => navigate('/quizzes')}>Manage Quizzes</button>
                   <button onClick={() => navigate('/courses')}>Manage Courses</button>
-                  <button onClick={() => navigate('/kuppi')}>Manage Kuppi Sessions</button>
+                  <button onClick={() => navigate('/sessions')}>Manage Kuppi Sessions</button>
                 </div>
               </article>
             </section>
@@ -219,7 +219,7 @@ const PremiumManagement = () => {
 
                       {item.type === 'quiz' && <button onClick={() => navigate('/quizzes')}>Open Quiz Management</button>}
                       {item.type === 'course' && <button onClick={() => navigate('/courses')}>Open Course Management</button>}
-                      {item.type === 'kuppi' && <button onClick={() => navigate('/kuppi')}>Open Kuppi Management</button>}
+                      {item.type === 'kuppi' && <button onClick={() => navigate('/sessions')}>Open Kuppi Management</button>}
                     </div>
                   </article>
                 ))}

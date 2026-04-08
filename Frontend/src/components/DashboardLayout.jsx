@@ -6,12 +6,13 @@ import './DashboardLayout.css';
 
 const DashboardLayout = ({ children, activeSection = 'Quizzes', theme = 'dark' }) => {
   const [chatOpenSignal, setChatOpenSignal] = useState(0);
-  const [profileMenuOpen, setProfileMenuOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   const { logout, user } = useAuth();
+  const role = String(user?.role || '').toLowerCase();
   const isAdminView = ['admin', 'teacher'].includes(user?.role);
-  const dashboardPath = isAdminView ? '/' : '/student-dashboard';
+  const isTutorOnlyView = user?.role === 'tutor';
+  const dashboardPath = role === 'student' ? '/student-dashboard' : '/';
   const displayName = user?.name || 'User';
   const profileLabel = isAdminView ? 'Administrator' : displayName;
   const avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName)}&background=3b82f6&color=fff`;
@@ -28,16 +29,16 @@ const DashboardLayout = ({ children, activeSection = 'Quizzes', theme = 'dark' }
         { icon: '🧑‍🎓', label: 'Student Management', path: '/student-management' },
         { icon: '📝', label: 'Quiz & Mock Exam Management', path: '/quizzes' },
         { icon: '💳', label: 'Premium & Payment Management', path: '/premium-management' },
-        { icon: '🎥', label: 'Kuppi Session Booking Management', path: '/kuppi' },
+        { icon: '🎥', label: 'Kuppi Session Booking Management', path: '/sessions' },
         { icon: '👥', label: 'Community Management', path: '/community' },
         { icon: '📈', label: 'Reports', path: '/progress' }
       ]
     : [
-        { icon: '📊', label: 'Dashboard', path: '/student-dashboard' },
+      { icon: '📊', label: 'Dashboard', path: dashboardPath },
         { icon: '📚', label: 'My Courses', path: '/student/courses' },
         { icon: '�', label: 'Quizzes', path: '/student/quizzes' },
         { icon: '�', label: 'Premium', path: '/student/premium' },
-        { icon: '🎥', label: 'Kuppi Sessions', path: '/kuppi' },
+        { icon: '🎥', label: 'Kuppi Sessions', path: isTutorOnlyView ? '/my-sessions' : '/sessions' },
         { icon: '�', label: 'Community', path: '/student/community' },
         { icon: '📈', label: 'Progress', path: '/student/progress' }
       ];
@@ -110,14 +111,14 @@ const DashboardLayout = ({ children, activeSection = 'Quizzes', theme = 'dark' }
             <button className="icon-btn">⚙️</button>
             <div className="user-profile-wrap">
             <div
-              className={`user-profile ${profileMenuOpen ? 'open' : ''}`}
-              onClick={() => setProfileMenuOpen((prev) => !prev)}
+              className="user-profile"
+              onClick={() => navigate('/profile')}
               role="button"
               tabIndex={0}
               onKeyDown={(event) => {
                 if (event.key === 'Enter' || event.key === ' ') {
                   event.preventDefault();
-                  setProfileMenuOpen((prev) => !prev);
+                  navigate('/profile');
                 }
               }}
             >
@@ -128,20 +129,6 @@ const DashboardLayout = ({ children, activeSection = 'Quizzes', theme = 'dark' }
               />
               <span className="user-name">{profileLabel}</span>
             </div>
-            {isAdminView && profileMenuOpen && (
-              <div className="profile-menu">
-                <button
-                  className="profile-menu-btn logout"
-                  onClick={(event) => {
-                    event.stopPropagation();
-                    setProfileMenuOpen(false);
-                    handleLogout();
-                  }}
-                >
-                  Logout
-                </button>
-              </div>
-            )}
             </div>
           </div>
         </header>

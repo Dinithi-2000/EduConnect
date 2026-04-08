@@ -1,0 +1,231 @@
+.sessions-page {
+	padding-top: 28px;
+	padding-bottom: 40px;
+}
+
+.sessions-page-header {
+	margin-bottom: 18px;
+}
+
+.session-hero-card {
+	display: flex;
+	justify-content: space-between;
+	align-items: stretch;
+	gap: 16px;
+	border: 1px solid #d6e1f2;
+	border-radius: 18px;
+	padding: 18px;
+	background:
+		radial-gradient(420px 180px at 0% 0%, rgba(37, 99, 235, 0.08), transparent 70%),
+		linear-gradient(145deg, rgba(255, 255, 255, 0.98), rgba(245, 250, 255, 0.98));
+	box-shadow: 0 10px 30px rgba(30, 64, 175, 0.08);
+}
+
+.session-hero-copy {
+	min-width: 0;
+}
+
+.sessions-hero-stats {
+	display: grid;
+	grid-template-columns: repeat(3, minmax(105px, 1fr));
+	gap: 10px;
+	min-width: 340px;
+}
+
+.sessions-hero-stat {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	padding: 10px;
+	border-radius: 12px;
+	border: 1px solid #d7e3f7;
+	background: #ffffff;
+}
+
+.sessions-hero-stat-num {
+	font-size: 1.25rem;
+	font-weight: 800;
+	line-height: 1;
+	color: #0f3a8a;
+}
+
+.sessions-hero-stat-label {
+	margin-top: 6px;
+	font-size: 11px;
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 0.06em;
+	color: #64748b;
+	text-align: center;
+}
+
+.kuppi-page-title {
+	font-size: clamp(1.6rem, 1.3rem + 1.2vw, 2.2rem);
+	color: #0f172a;
+	margin: 0;
+}
+
+.kuppi-page-subtitle {
+	margin-top: 8px;
+	color: #475569;
+}
+
+.sessions-header-actions {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	flex-wrap: wrap;
+	margin-top: 14px;
+}
+
+/* Scoped button system for Kuppi sessions to avoid clashes with global .btn-primary rules */
+.sessions-page .btn {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 6px;
+	min-height: 40px;
+	padding: 10px 14px;
+	border-radius: 10px;
+	border: 1px solid transparent;
+	font-size: 14px;
+	font-weight: 700;
+	line-height: 1;
+	text-decoration: none;
+	cursor: pointer;
+	transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease, color 0.15s ease;
+}
+
+.sessions-page .btn-primary {
+	color: #ffffff;
+	background: linear-gradient(135deg, #2563eb, #1d4ed8);
+	border-color: transparent;
+	box-shadow: 0 6px 16px rgba(37, 99, 235, 0.28);
+}
+
+.sessions-page .btn-primary:hover {
+	transform: translateY(-1px);
+	box-shadow: 0 10px 20px rgba(37, 99, 235, 0.34);
+}
+
+.sessions-page .btn-secondary {
+	color: #0f172a;
+	background: #ffffff;
+	border-color: #cbd5e1;
+}
+
+.sessions-page .btn-secondary:hover {
+	background: #f8fafc;
+}
+
+.sessions-page .btn:focus-visible {
+	outline: 2px solid #1d4ed8;
+	outline-offset: 2px;
+}
+
+.sessions-search-bar {
+	display: grid;
+	grid-template-columns: 2fr 1fr auto;
+	gap: 12px;
+	background: linear-gradient(145deg, rgba(255, 255, 255, 0.98), rgba(248, 251, 255, 0.98));
+	border: 1px solid #d9e4f5;
+	border-radius: 16px;
+	padding: 14px;
+	margin: 12px 0 22px;
+	box-shadow: 0 8px 24px rgba(37, 99, 235, 0.08);
+}
+
+.sessions-search-field {
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+}
+
+.sessions-search-field-lg {
+	min-width: 0;
+}
+
+.sessions-search-label {
+	font-size: 12px;
+	color: #64748b;
+	font-weight: 700;
+}
+
+.sessions-search-actions {
+	display: flex;
+	align-items: end;
+	gap: 8px;
+}
+
+.sessions-search-bar .form-input {
+	border-radius: 12px;
+	min-height: 44px;
+}
+
+.sessions-results-head {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-bottom: 12px;
+}
+
+.sessions-results-count {
+	color: #475569;
+	font-weight: 700;
+}
+
+.sessions-grid {
+	gap: 14px;
+}
+
+.sessions-loading-center {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	min-height: 220px;
+}
+
+.sessions-loading-text {
+	margin-top: 10px;
+	color: #64748b;
+}
+
+.sessions-pagination {
+	margin-top: 18px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 10px;
+}
+
+.sessions-pagination-label {
+	color: #475569;
+	font-weight: 600;
+}
+
+@media (max-width: 900px) {
+	.session-hero-card {
+		flex-direction: column;
+	}
+
+	.sessions-hero-stats {
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+		min-width: 0;
+	}
+
+	.sessions-search-bar {
+		grid-template-columns: 1fr;
+	}
+
+	.sessions-search-actions {
+		align-items: stretch;
+	}
+}
+
+@media (max-width: 640px) {
+	.sessions-hero-stats {
+		grid-template-columns: 1fr;
+	}
+}

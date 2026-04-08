@@ -1,12 +1,11 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
 import { registerUser } from '../services/userService';
+import { getPasswordStrengthError, PASSWORD_POLICY_TEXT } from '../utils/passwordValidation';
 import './Auth.css';
 
 const Register = () => {
   const navigate = useNavigate();
-  const { login } = useAuth();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [formData, setFormData] = useState({
@@ -34,8 +33,9 @@ const Register = () => {
       return;
     }
 
-    if (formData.password.length < 6) {
-      setError('Password must be at least 6 characters');
+    const passwordError = getPasswordStrengthError(formData.password);
+    if (passwordError) {
+      setError(passwordError);
       return;
     }
 
@@ -46,14 +46,12 @@ const Register = () => {
       const result = await registerUser(registerData);
       
       if (result.success) {
-        // Use the login function from Auth context
-        login(result.user, result.token);
-        // Route student to student dashboard
-        if (result.user?.role === 'student' || registerData.role === 'student') {
-          navigate('/student-dashboard');
-        } else {
-          navigate('/');
-        }
+        navigate('/login', {
+          state: {
+            message: result.message || 'Account created successfully. You can now log in.',
+            email: registerData.email,
+          },
+        });
       } else {
         setError(result.message || 'Registration failed');
       }
@@ -144,6 +142,7 @@ const Register = () => {
                       value={formData.password}
                       onChange={handleChange}
                       placeholder="••••••••"
+                      minLength={8}
                       required
                     />
                   </div>
@@ -160,11 +159,14 @@ const Register = () => {
                       value={formData.confirmPassword}
                       onChange={handleChange}
                       placeholder="••••••••"
+                      minLength={8}
                       required
                     />
                   </div>
                 </div>
               </div>
+
+              <p className="auth-helper-text">{PASSWORD_POLICY_TEXT}</p>
 
               <button type="submit" className="auth-btn" disabled={loading}>
                 {loading ? 'Creating account...' : 'Create Account'}

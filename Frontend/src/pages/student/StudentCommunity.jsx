@@ -257,7 +257,7 @@ const StudentCommunity = () => {
     { icon: '🎓', label: 'My Courses', route: '/student/my-courses' },
     { icon: '📚', label: 'Course & Contents', route: '/student/courses' },
     { icon: '📝', label: 'Quiz & Mock Exams', route: '/student/quizzes' },
-    { icon: '🎥', label: 'Kuppi Sessions', route: '/student/courses' },
+    { icon: '🎥', label: 'Kuppi Sessions', route: '/sessions' },
     { icon: '💬', label: 'Community Board', route: '/student/community', active: true },
     { icon: '📈', label: 'Progress Analytics', route: '/student/progress' },
     { icon: '👑', label: 'Premium', route: '/student/premium' },

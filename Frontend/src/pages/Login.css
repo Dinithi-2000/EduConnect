@@ -105,6 +105,16 @@
   font-size: 13px;
 }
 
+.login-success {
+  margin-bottom: 12px;
+  border-radius: 11px;
+  border: 1px solid #bbf7d0;
+  background: #f0fdf4;
+  color: #166534;
+  padding: 10px 12px;
+  font-size: 13px;
+}
+
 .login-form {
   display: grid;
   gap: 14px;
@@ -169,6 +179,13 @@
   outline: none;
   border-color: #b8c4ff;
   box-shadow: 0 0 0 4px rgba(91, 118, 231, 0.14);
+}
+
+.login-helper-text {
+  margin: 8px 2px 0;
+  color: #6d7898;
+  font-size: 12px;
+  line-height: 1.4;
 }
 
 .login-submit {

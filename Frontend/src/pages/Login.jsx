@@ -1,16 +1,19 @@
 import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { loginUser } from '../services/userService';
+import { getPasswordStrengthError, PASSWORD_POLICY_TEXT } from '../utils/passwordValidation';
 import './Login.css';
 
 const Login = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { login } = useAuth();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [message, setMessage] = useState(location.state?.message || '');
   const [formData, setFormData] = useState({
-    email: '',
+    email: location.state?.email || '',
     password: ''
   });
 
@@ -25,6 +28,14 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+    setMessage('');
+
+    const passwordError = getPasswordStrengthError(formData.password);
+    if (passwordError) {
+      setError(passwordError);
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -42,7 +53,8 @@ const Login = () => {
         setError(result.message || 'Login failed');
       }
     } catch (err) {
-      setError(err.response?.data?.message || 'An error occurred during login');
+      const backendMessage = err.response?.data?.message;
+      setError(backendMessage || 'An error occurred during login');
     } finally {
       setLoading(false);
     }
@@ -66,6 +78,7 @@ const Login = () => {
           <h2>Welcome Back</h2>
           <p className="login-subtitle">Access your institutional workspace</p>
 
+          {message && <div className="login-success">{message}</div>}
           {error && <div className="login-error">{error}</div>}
 
           <form onSubmit={handleSubmit} className="login-form">
@@ -99,9 +112,11 @@ const Login = () => {
                   value={formData.password}
                   onChange={handleChange}
                   placeholder="••••••••"
+                  minLength={8}
                   required
                 />
               </div>
+              <p className="login-helper-text">{PASSWORD_POLICY_TEXT}</p>
             </div>
 
             <button type="submit" className="login-submit" disabled={loading}>

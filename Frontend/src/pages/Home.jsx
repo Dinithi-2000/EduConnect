@@ -8,6 +8,7 @@ const Home = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const isAdmin = ['admin', 'teacher'].includes(user?.role);
+  const sessionsPath = user?.role === 'tutor' ? '/my-sessions' : '/sessions';
 
   const kpiCards = [
     {
@@ -170,7 +171,7 @@ const Home = () => {
                   </div>
                 ))}
               </div>
-              <button className="outline-btn" onClick={() => navigate('/kuppi')}>
+              <button className="outline-btn" onClick={() => navigate(sessionsPath)}>
                 Manage All Sessions
               </button>
             </article>

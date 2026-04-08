@@ -25,6 +25,43 @@ const userSchema = new mongoose.Schema({
         enum: ['student', 'teacher', 'admin'],
         default: 'student'
     },
+    bio: {
+        type: String,
+        trim: true,
+        default: ''
+    },
+    subjects: {
+        type: [String],
+        default: []
+    },
+    profilePicture: {
+        type: String,
+        default: ''
+    },
+    isEmailVerified: {
+        type: Boolean,
+        default: true
+    },
+    emailVerificationTokenHash: {
+        type: String,
+        default: null
+    },
+    emailVerificationExpiresAt: {
+        type: Date,
+        default: null
+    },
+    emailVerifiedAt: {
+        type: Date,
+        default: null
+    },
+    passwordResetTokenHash: {
+        type: String,
+        default: null
+    },
+    passwordResetExpiresAt: {
+        type: Date,
+        default: null
+    },
     createdAt: {
         type: Date,
         default: Date.now

@@ -169,6 +169,13 @@
   gap: 14px;
 }
 
+.auth-helper-text {
+  margin: -4px 2px 2px;
+  color: #6d7898;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
 .auth-btn {
   width: 100%;
   min-height: 50px;

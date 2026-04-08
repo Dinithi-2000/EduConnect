@@ -1,6 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation, Navigate } from 'react-router-dom';
 import './App.css';
+import './styles/kuppi.css';
 
 // Import components
 import Navbar from './components/Navbar';
@@ -28,6 +29,14 @@ import PremiumManagement from './pages/admin/PremiumManagement';
 import StudentManagement from './pages/admin/StudentManagement';
 import AdminSettings from './pages/admin/AdminSettings';
 import CommunityBoard from './pages/Community';
+// Kuppi Module Pages
+import SessionList from './pages/SessionList';
+import SessionDetail from './pages/SessionDetail';
+import EditSession from './pages/EditSession';
+import MySessions from './pages/MySessions';
+import Profile from './pages/Profile';
+import CreateSession from './pages/CreateSession';
+import VisionBoard from './pages/VisionBoard';
 import CourseManager from './pages/course/CourseManager';
 import StudentCourses from './pages/student/StudentCourses';
 import StudentMyCourses from './pages/student/StudentMyCourses';
@@ -37,7 +46,7 @@ import StudentCommunity from './pages/student/StudentCommunity';
 import StudentPaymentSuccess from './pages/student/StudentPaymentSuccess';
 import StudentSettings from './pages/student/StudentSettings';
 
-const DASHBOARD_PATHS = ['/', '/student-dashboard', '/courses', '/student/courses', '/student/my-courses', '/student-management', '/quizzes', '/student/quizzes', '/student/premium', '/student/payment-success', '/student/community', '/student/progress', '/progress', '/community', '/premium', '/premium-management', '/settings'];
+const DASHBOARD_PATHS = ['/', '/student-dashboard', '/courses', '/student/courses', '/student/my-courses', '/student-management', '/quizzes', '/student/quizzes', '/student/premium', '/student/payment-success', '/student/community', '/student/progress', '/progress', '/community', '/premium', '/premium-management', '/settings','/sessions', '/my-sessions', '/create-session', '/vision-board', '/profile'];
 
 // Protected Route Wrapper
 const ProtectedRoute = ({ element }) => {
@@ -66,7 +75,22 @@ const DashboardHomeRoute = () => {
 
   return <Home />;
 };
+// Tutor/Teacher/Admin Route Guard
+const TutorRoute = ({ element }) => {
+  const { user } = useAuth();
+  const isTutor = user?.role === 'tutor' || user?.role === 'teacher' || user?.role === 'admin';
+  return isTutor ? element : <Navigate to="/sessions" replace />;
+};
+const SessionsRoute = () => {
+  const { user } = useAuth();
+  const role = String(user?.role || '').toLowerCase();
 
+  if (role === 'tutor') {
+    return <Navigate to="/my-sessions" replace />;
+  }
+
+  return <SessionList />;
+};
 const SettingsRoute = () => {
   const { user } = useAuth();
   const role = String(user?.role || '').toLowerCase();
@@ -121,6 +145,15 @@ function AppContent() {
 
         {/* Community Board */}
         <Route path="/community" element={<ProtectedRoute element={<CommunityBoard />} />} />
+
+        {/* Kuppi Module Routes */}
+<Route path="/sessions" element={<ProtectedRoute element={<SessionsRoute />} />} />
+<Route path="/sessions/:id" element={<ProtectedRoute element={<SessionDetail />} />} />
+<Route path="/sessions/:id/edit" element={<ProtectedRoute element={<TutorRoute element={<EditSession />} />} />} />
+<Route path="/my-sessions" element={<ProtectedRoute element={<MySessions />} />} />
+<Route path="/profile" element={<ProtectedRoute element={<Profile />} />} />
+<Route path="/vision-board" element={<ProtectedRoute element={<VisionBoard />} />} />
+<Route path="/create-session" element={<ProtectedRoute element={<TutorRoute element={<CreateSession />} />} />} />
 
         <Route path="*" element={<NotFound />} />
       </Routes>

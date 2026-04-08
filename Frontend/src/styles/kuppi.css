@@ -1,0 +1,1067 @@
+.kuppi-page {
+  --primary: #2a6bff;
+  --secondary: #6f49ff;
+  --primary-light: #e7efff;
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-muted: #64748b;
+  --radius-sm: 12px;
+  --radius-md: 18px;
+  --line-soft: rgba(86, 111, 176, 0.24);
+
+  position: relative;
+  color: var(--text-primary);
+}
+
+.kuppi-page::before {
+  content: '';
+  position: fixed;
+  inset: 0 0 auto 0;
+  height: 240px;
+  pointer-events: none;
+  z-index: -1;
+  background:
+    radial-gradient(520px 180px at 9% 0%, rgba(46, 106, 255, 0.14), transparent 70%),
+    radial-gradient(500px 190px at 90% 0%, rgba(111, 73, 255, 0.14), transparent 70%);
+}
+
+.kuppi-page .kuppi-page-header {
+  margin-bottom: 20px;
+}
+
+.kuppi-page .kuppi-page-title {
+  margin: 0;
+  color: #0b1a36;
+  letter-spacing: -0.02em;
+}
+
+.kuppi-page .kuppi-page-subtitle {
+  margin-top: 8px;
+  color: var(--text-secondary);
+}
+
+.kuppi-page .card {
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.97), rgba(247, 251, 255, 0.97));
+  border: 1px solid #d7e3f7;
+  border-radius: 20px;
+  box-shadow: 0 14px 34px rgba(31, 60, 120, 0.08);
+}
+
+.kuppi-page .card-body {
+  padding: 18px;
+}
+
+.kuppi-page .btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  border-radius: 12px;
+  border: 1px solid transparent;
+  padding: 10px 14px;
+  font-size: 14px;
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+  transition: transform 0.14s ease, box-shadow 0.14s ease, background-color 0.14s ease;
+}
+
+.kuppi-page .btn:hover {
+  transform: translateY(-1px);
+}
+
+.kuppi-page .btn-primary {
+  color: #ffffff;
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  box-shadow: 0 10px 20px rgba(46, 106, 255, 0.26);
+}
+
+.kuppi-page .btn-secondary {
+  color: #12305f;
+  background: #f3f7ff;
+  border-color: #c8d8f4;
+}
+
+.kuppi-page .btn-outline {
+  color: #21487f;
+  background: #ffffff;
+  border-color: #bfd0ef;
+}
+
+.kuppi-page .btn-danger {
+  color: #ffffff;
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+}
+
+.kuppi-page .btn-sm {
+  padding: 8px 11px;
+  font-size: 13px;
+}
+
+.kuppi-page .btn-lg {
+  padding: 12px 16px;
+}
+
+.kuppi-page .btn-full {
+  width: 100%;
+}
+
+.kuppi-page .form-group {
+  margin-bottom: 14px;
+}
+
+.kuppi-page .form-label {
+  display: block;
+  margin-bottom: 6px;
+  color: #334e7d;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.kuppi-page .form-input,
+.kuppi-page .form-textarea,
+.kuppi-page .form-select {
+  width: 100%;
+  border: 1px solid #cddcf3;
+  border-radius: 12px;
+  background: #ffffff;
+  color: #13294d;
+  padding: 11px 12px;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.kuppi-page .form-input:focus,
+.kuppi-page .form-textarea:focus,
+.kuppi-page .form-select:focus {
+  border-color: #4b7ff0;
+  box-shadow: 0 0 0 3px rgba(75, 127, 240, 0.15);
+}
+
+.kuppi-page .alert {
+  border-radius: 12px;
+  padding: 11px 12px;
+  border: 1px solid transparent;
+  font-size: 14px;
+}
+
+.kuppi-page .alert-error {
+  background: #fff1f2;
+  border-color: #fecdd3;
+  color: #9f1239;
+}
+
+.kuppi-page .alert-success {
+  background: #f0fdf4;
+  border-color: #bbf7d0;
+  color: #166534;
+}
+
+.kuppi-page .badge {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: capitalize;
+}
+
+.kuppi-page .badge-blue {
+  color: #1d4ed8;
+  background: #dbeafe;
+}
+
+.kuppi-page .badge-green {
+  color: #047857;
+  background: #d1fae5;
+}
+
+.kuppi-page .badge-red {
+  color: #b91c1c;
+  background: #fee2e2;
+}
+
+.kuppi-page .badge-yellow {
+  color: #92400e;
+  background: #fef3c7;
+}
+
+.kuppi-page .empty-state {
+  border: 1px dashed #c1d4f2;
+  background: #f8fbff;
+  border-radius: 16px;
+  padding: 22px;
+  text-align: center;
+}
+
+.kuppi-page .empty-icon {
+  font-size: 30px;
+  margin-bottom: 8px;
+}
+
+.kuppi-page .spinner {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.45);
+  border-top-color: #ffffff;
+  border-radius: 50%;
+  animation: kuppi-spin 0.8s linear infinite;
+}
+
+.kuppi-page .spinner-dark {
+  border-color: rgba(45, 82, 150, 0.22);
+  border-top-color: #2a6bff;
+}
+
+@keyframes kuppi-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Session card consistency */
+.kuppi-page .session-card {
+  display: grid;
+  gap: 12px;
+}
+
+.kuppi-page .session-card-title {
+  margin: 0;
+  font-size: 1.06rem;
+  color: #102446;
+}
+
+.kuppi-page .session-card-description {
+  color: #4a6088;
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+.kuppi-page .session-card-meta {
+  display: grid;
+  gap: 6px;
+}
+
+.kuppi-page .session-card-meta-item {
+  color: #40567f;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.kuppi-page .session-card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.kuppi-page .session-card-tutor {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.kuppi-page .session-card-tutor-avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  color: #ffffff;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+}
+
+.kuppi-page .session-card-tutor-name {
+  color: #304a77;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.kuppi-page .session-card-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.kuppi-page .session-card-spots {
+  font-size: 12px;
+  color: #5a7098;
+  font-weight: 700;
+}
+
+.kuppi-page .session-card-spots.is-full {
+  color: #b91c1c;
+}
+
+.kuppi-page .session-card-spots.is-low {
+  color: #b45309;
+}
+
+/* Create session page layout */
+.kuppi-page.create-session-page .create-session-shell {
+  max-width: 920px;
+  margin: 0 auto;
+}
+
+.kuppi-page.create-session-page .create-session-header {
+  max-width: 920px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.kuppi-page .create-session-card {
+  padding: 24px;
+}
+
+.kuppi-page .create-session-card-title {
+  margin: 0 0 18px;
+  font-size: 1.18rem;
+  color: #0f2448;
+}
+
+.kuppi-page .create-session-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.kuppi-page .create-session-help-text,
+.kuppi-page .create-session-material-name {
+  margin-top: 6px;
+  color: var(--text-muted);
+  font-size: 12px;
+}
+
+.kuppi-page .create-session-material-name {
+  font-weight: 600;
+}
+
+.kuppi-page .create-session-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 14px;
+}
+
+/* My sessions page layout */
+.kuppi-page.my-sessions-page .my-sessions-header {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.kuppi-page .my-sessions-stats-row {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.kuppi-page .my-sessions-stat-card {
+  border: 1px solid #d8e3f6;
+  border-radius: 14px;
+  background: #ffffff;
+  padding: 12px;
+}
+
+.kuppi-page .my-sessions-stat-num {
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: #1b3a6f;
+}
+
+.kuppi-page .my-sessions-stat-label {
+  font-size: 12px;
+  color: #60779f;
+  margin-top: 4px;
+}
+
+.kuppi-page .my-sessions-list {
+  display: grid;
+  gap: 10px;
+}
+
+.kuppi-page .my-sessions-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.kuppi-page .my-sessions-item-left {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  min-width: 0;
+}
+
+.kuppi-page .my-sessions-date-box {
+  width: 60px;
+  height: 60px;
+  border-radius: 12px;
+  background: #f3f7ff;
+  border: 1px solid #c9d8f2;
+  display: grid;
+  place-items: center;
+}
+
+.kuppi-page .my-sessions-date-month {
+  font-size: 11px;
+  color: #5f79a6;
+  text-transform: uppercase;
+}
+
+.kuppi-page .my-sessions-date-day {
+  font-size: 18px;
+  font-weight: 800;
+  color: #1e3a6d;
+}
+
+.kuppi-page .my-sessions-item-head {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.kuppi-page .my-sessions-item-title {
+  margin: 0;
+  color: #0f2448;
+  font-size: 1rem;
+}
+
+.kuppi-page .my-sessions-meta {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 6px;
+  color: #5b7198;
+  font-size: 13px;
+}
+
+.kuppi-page .my-sessions-item-actions {
+  display: flex;
+  gap: 8px;
+  margin-left: auto;
+}
+
+.kuppi-page.kuppi-page-space {
+  padding-top: 40px;
+  padding-bottom: 60px;
+}
+
+.kuppi-page.kuppi-page-space-top {
+  padding-top: 40px;
+}
+
+.kuppi-page.kuppi-page-space-compact {
+  padding-top: 32px;
+  padding-bottom: 60px;
+}
+
+/* Session detail page alignment */
+.kuppi-page.session-detail-page .session-detail-layout {
+  display: flex;
+  gap: 18px;
+  align-items: flex-start;
+  flex-wrap: wrap;
+}
+
+.kuppi-page.session-detail-page .session-detail-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.kuppi-page.session-detail-page .session-detail-sidebar {
+  width: 300px;
+  flex-shrink: 0;
+}
+
+.kuppi-page .session-detail-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+}
+
+.kuppi-page .session-detail-loading-spinner {
+  width: 40px;
+  height: 40px;
+}
+
+.kuppi-page .session-back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text-secondary);
+  font-size: 14px;
+  margin-bottom: 24px;
+  text-decoration: none;
+}
+
+.kuppi-page .session-detail-primary-card {
+  margin-bottom: 20px;
+}
+
+.kuppi-page .session-detail-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.kuppi-page .session-subject-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  background: var(--primary-light);
+  color: var(--primary);
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.kuppi-page .session-title {
+  margin: 10px 0 0;
+  font-size: 26px;
+  font-weight: 800;
+}
+
+.kuppi-page .session-status-badge {
+  font-size: 13px;
+}
+
+.kuppi-page .session-description {
+  color: var(--text-secondary);
+  line-height: 1.7;
+  margin-top: 16px;
+}
+
+.kuppi-page .session-details-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-top: 24px;
+}
+
+.kuppi-page .session-detail-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.kuppi-page .session-detail-icon {
+  font-size: 20px;
+  margin-top: 2px;
+}
+
+.kuppi-page .session-detail-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.kuppi-page .session-detail-value {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-primary);
+  margin-top: 2px;
+}
+
+.kuppi-page .session-meeting-box {
+  margin-top: 20px;
+  padding: 14px 18px;
+  background: var(--primary-light);
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.kuppi-page .session-meeting-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--primary);
+  margin-bottom: 2px;
+}
+
+.kuppi-page .session-meeting-link {
+  font-size: 14px;
+  color: var(--primary);
+}
+
+.kuppi-page .session-material-box {
+  margin-top: 14px;
+  padding: 14px 18px;
+  background: #eefbf7;
+  border: 1px solid #c7f2e4;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.kuppi-page .session-material-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: #0f766e;
+  margin-bottom: 2px;
+}
+
+.kuppi-page .session-material-name {
+  font-size: 14px;
+  color: var(--text-primary);
+}
+
+.kuppi-page .session-material-size {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.kuppi-page .session-participants-title {
+  margin-bottom: 16px;
+}
+
+.kuppi-page .session-participants-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.kuppi-page .session-participant-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.kuppi-page .session-participant-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.kuppi-page .session-participant-avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.kuppi-page .session-participant-avatar-fallback {
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.kuppi-page .session-participant-name {
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.kuppi-page .session-participant-email {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.kuppi-page .session-sidebar-card {
+  margin-bottom: 16px;
+}
+
+.kuppi-page .session-tutor-heading {
+  margin-bottom: 14px;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+}
+
+.kuppi-page .session-tutor-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.kuppi-page .session-tutor-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: var(--primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.kuppi-page .session-tutor-avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.kuppi-page .session-tutor-avatar-fallback {
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 18px;
+}
+
+.kuppi-page .session-tutor-name {
+  font-weight: 700;
+}
+
+.kuppi-page .session-tutor-email {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.kuppi-page .session-tutor-bio {
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+.kuppi-page .session-tutor-subjects {
+  margin-top: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.kuppi-page .session-manage-card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Vision board page alignment */
+.kuppi-page.vision-board-page .vision-layout {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 20px;
+  align-items: start;
+}
+
+.kuppi-page .vision-section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+
+.kuppi-page .vision-section-title {
+  font-size: 20px;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.kuppi-page .vision-progress-track {
+  height: 10px;
+  background: #e2e8f0;
+  border-radius: 999px;
+  margin-bottom: 20px;
+  overflow: hidden;
+}
+
+.kuppi-page .vision-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--primary), var(--secondary));
+  border-radius: 999px;
+  transition: width 0.3s ease;
+}
+
+.kuppi-page .vision-goal-form {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 18px;
+  flex-wrap: wrap;
+}
+
+.kuppi-page .vision-goal-input {
+  flex: 1;
+  min-width: 220px;
+}
+
+.kuppi-page .vision-goal-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.kuppi-page .vision-empty-state {
+  padding: 24px 16px;
+}
+
+.kuppi-page .vision-goal-item {
+  padding: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.kuppi-page .vision-goal-label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  flex: 1;
+}
+
+.kuppi-page .vision-goal-text {
+  color: var(--text-primary);
+}
+
+.kuppi-page .vision-goal-text.is-done {
+  text-decoration: line-through;
+  color: var(--text-muted);
+}
+
+.kuppi-page .vision-side {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.kuppi-page .vision-side-title {
+  margin-bottom: 10px;
+  color: var(--text-primary);
+}
+
+.kuppi-page .vision-side-text {
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+.kuppi-page .vision-mood-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.kuppi-page .vision-mood-card {
+  border-radius: 10px;
+  padding: 10px;
+}
+
+.kuppi-page .vision-mood-title {
+  font-weight: 700;
+  margin-bottom: 4px;
+  color: #0f172a;
+}
+
+.kuppi-page .vision-mood-text {
+  font-size: 13px;
+  color: #334155;
+}
+
+/* Profile page alignment */
+.kuppi-page.profile-page .profile-layout {
+  display: flex;
+  gap: 28px;
+  align-items: flex-start;
+  flex-wrap: wrap;
+}
+
+.kuppi-page.profile-page .profile-page-header {
+  margin-bottom: 22px;
+}
+
+.kuppi-page.profile-page .profile-page-header .page-title {
+  font-size: clamp(1.7rem, 1.45rem + 1.2vw, 2.25rem);
+  letter-spacing: -0.03em;
+}
+
+.kuppi-page .profile-sidebar {
+  width: 300px;
+  flex-shrink: 0;
+}
+
+.kuppi-page .profile-info-card {
+  text-align: center;
+  border-radius: 22px;
+  border: 1px solid #d7e3f7;
+  background:
+    radial-gradient(240px 120px at 50% 0%, rgba(86, 136, 255, 0.1), transparent 70%),
+    linear-gradient(145deg, rgba(255, 255, 255, 0.99), rgba(246, 250, 255, 0.98));
+  box-shadow: 0 16px 34px rgba(22, 56, 122, 0.12);
+}
+
+.kuppi-page .profile-avatar-large {
+  width: 108px;
+  height: 108px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto;
+  overflow: hidden;
+  box-shadow: 0 10px 22px rgba(42, 107, 255, 0.32);
+}
+
+.kuppi-page .profile-avatar-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.kuppi-page .profile-avatar-fallback {
+  font-weight: 900;
+  color: #ffffff;
+  font-size: 40px;
+}
+
+.kuppi-page .profile-name {
+  font-size: 22px;
+  font-weight: 800;
+  margin-top: 16px;
+  letter-spacing: -0.02em;
+}
+
+.kuppi-page .profile-email {
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
+.kuppi-page .profile-role-badge {
+  margin-top: 10px;
+  font-size: 13px;
+}
+
+.kuppi-page .profile-vision-btn {
+  margin-top: 14px;
+  width: 100%;
+  border-radius: 12px;
+  min-height: 42px;
+}
+
+.kuppi-page .profile-account-actions {
+  margin-top: 12px;
+  display: grid;
+  gap: 8px;
+}
+
+.kuppi-page .profile-action-btn {
+  width: 100%;
+  min-height: 42px;
+  border-radius: 12px;
+}
+
+.kuppi-page .profile-delete-btn {
+  border: 1px solid #cbd5e1;
+  background: #eef2f7;
+  color: #334155;
+  font-weight: 700;
+}
+
+.kuppi-page .profile-delete-btn:hover:not(:disabled) {
+  background: #e2e8f0;
+}
+
+.kuppi-page .profile-delete-btn:disabled {
+  opacity: 0.75;
+  cursor: not-allowed;
+}
+
+.kuppi-page .profile-action-error {
+  margin-top: 10px;
+}
+
+.kuppi-page .badge-purple {
+  color: #6d28d9;
+  background: #ede9fe;
+}
+
+.kuppi-page .profile-bio {
+  margin-top: 16px;
+  font-size: 14px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  text-align: left;
+  padding: 12px;
+  border: 1px solid #d9e4f5;
+  border-radius: 14px;
+  background: #f8fbff;
+}
+
+.kuppi-page .profile-subjects {
+  margin-top: 14px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  justify-content: center;
+}
+
+.kuppi-page .profile-form-panel {
+  flex: 1;
+  min-width: 320px;
+}
+
+.kuppi-page .profile-form-panel .card {
+  border-radius: 22px;
+  border: 1px solid #d7e3f7;
+  box-shadow: 0 16px 34px rgba(22, 56, 122, 0.1);
+}
+
+.kuppi-page .profile-edit-title {
+  margin-bottom: 18px;
+  font-size: 20px;
+  letter-spacing: -0.02em;
+}
+
+@media (max-width: 992px) {
+  .kuppi-page.create-session-page .create-session-shell {
+    grid-template-columns: 1fr;
+  }
+
+  .kuppi-page .create-session-grid-2 {
+    grid-template-columns: 1fr;
+  }
+
+  .kuppi-page .my-sessions-stats-row {
+    grid-template-columns: 1fr;
+  }
+
+  .kuppi-page.session-detail-page .session-detail-sidebar {
+    width: 100%;
+  }
+
+  .kuppi-page .session-details-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .kuppi-page.vision-board-page .vision-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .kuppi-page .profile-sidebar {
+    width: 100%;
+  }
+}

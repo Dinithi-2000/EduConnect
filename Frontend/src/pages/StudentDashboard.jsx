@@ -168,7 +168,7 @@ const StudentDashboard = () => {
     { icon: '🎓', label: 'My Courses', route: '/student/my-courses' },
     { icon: '📚', label: 'Course & Contents', route: '/student/courses' },
     { icon: '📝', label: 'Quiz & Mock Exams', route: '/student/quizzes' },
-    { icon: '🎥', label: 'Kuppi Sessions', route: '/student/courses' },
+    { icon: '🎥', label: 'Kuppi Sessions', route: '/sessions' },
     { icon: '💬', label: 'Community Board', route: '/student/community' },
     { icon: '📈', label: 'Progress Analytics', route: '/student/progress' },
     { icon: '👑', label: 'Premium', route: '/student/premium' },
@@ -239,13 +239,18 @@ const StudentDashboard = () => {
               <span aria-hidden="true">👑</span>
               Premium
             </button>
-            <div className="student-v2-profile-chip">
+            <button
+              type="button"
+              className="student-v2-profile-chip"
+              onClick={() => navigate('/profile')}
+              aria-label="Open profile"
+            >
               <div className="student-v2-profile-text">
                 <strong>{displayName}</strong>
                 <small>{user?.email || 'Student account'}</small>
               </div>
               <div className="student-v2-profile-avatar">{initials}</div>
-            </div>
+            </button>
           </div>
         </header>
 

@@ -14,7 +14,9 @@ const Navbar = () => {
     navigate('/login');
   };
 
-  const isStudent = String(user?.role || '').toLowerCase() === 'student';
+  const role = String(user?.role || '').toLowerCase();
+  const isStudent = role === 'student';
+  const canCreateSession = role && role !== 'student';
   const dashboardPath = isStudent ? '/student-dashboard' : '/';
   const isActive = (path) => location.pathname === path;
 
@@ -27,36 +29,49 @@ const Navbar = () => {
         </Link>
 
         <div className="navbar-menu">
-          <Link 
+          <Link
             to={dashboardPath}
             className={`navbar-link ${isActive('/') || isActive('/student-dashboard') ? 'active' : ''}`}
           >
             Dashboard
           </Link>
-          <Link 
-            to={isStudent ? '/student/quizzes' : '/quizzes'} 
+          <Link
+            to={isStudent ? '/student/quizzes' : '/quizzes'}
             className={`navbar-link ${isActive('/quizzes') || isActive('/student/quizzes') ? 'active' : ''}`}
           >
             Quizzes
           </Link>
-          <Link 
+          <Link
+            to="/sessions"
+            className={`navbar-link ${isActive('/sessions') ? 'active' : ''}`}
+          >
+            Kuppi Sessions
+          </Link>
+          <Link
+            to="/vision-board"
+            className={`navbar-link ${isActive('/vision-board') ? 'active' : ''}`}
+          >
+            Vision Board
+          </Link>
+
+          <Link
             to={isStudent ? '/student/progress' : '/progress'}
             className={`navbar-link ${isActive('/progress') || isActive('/student/progress') ? 'active' : ''}`}
           >
             Progress
           </Link>
-          <Link 
-            to="/about" 
-            className={`navbar-link ${isActive('/about') ? 'active' : ''}`}
+          <Link
+            to={isStudent ? '/student/community' : '/community'}
+            className={`navbar-link ${isActive('/community') || isActive('/student/community') ? 'active' : ''}`}
           >
-            About
+            Community
           </Link>
         </div>
 
         <div className="navbar-right">
           {isAuthenticated && user ? (
             <div className="user-menu-container">
-              <button 
+              <button
                 className="user-btn"
                 onClick={() => setShowUserMenu(!showUserMenu)}
               >
@@ -64,7 +79,6 @@ const Navbar = () => {
                 <span className="user-name">{user.name}</span>
                 <span className="dropdown-icon">▼</span>
               </button>
-
               {showUserMenu && (
                 <div className="user-dropdown">
                   <div className="dropdown-header">
@@ -72,7 +86,37 @@ const Navbar = () => {
                     <p className="user-role">{user.role}</p>
                   </div>
                   <hr />
-                  <button 
+                  <Link
+                    to="/my-sessions"
+                    className="dropdown-item"
+                    onClick={() => setShowUserMenu(false)}
+                  >
+                    My Sessions
+                  </Link>
+                  <Link
+                    to="/vision-board"
+                    className="dropdown-item"
+                    onClick={() => setShowUserMenu(false)}
+                  >
+                    Vision Board
+                  </Link>
+                  {canCreateSession && (
+                    <Link
+                      to="/create-session"
+                      className="dropdown-item"
+                      onClick={() => setShowUserMenu(false)}
+                    >
+                      Create Session
+                    </Link>
+                  )}
+                  <Link
+                    to="/profile"
+                    className="dropdown-item"
+                    onClick={() => setShowUserMenu(false)}
+                  >
+                    My Profile
+                  </Link>
+                  <button
                     className="dropdown-item logout"
                     onClick={handleLogout}
                   >
@@ -98,4 +142,3 @@ const Navbar = () => {
 };
 
 export default Navbar;
-

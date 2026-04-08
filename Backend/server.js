@@ -20,16 +20,26 @@ mongoose.connect(process.env.MONGODB_URI, {
     useNewUrlParser: true,
     useUnifiedTopology: true
 })
-.then(() => console.log('MongoDB connected successfully'))
+.then(() => {
+    console.log('MongoDB connected successfully');
+    // Start Kuppi cron jobs after DB is connected
+    require('./utils/cronJobs');
+})
 .catch((err) => console.error('MongoDB connection error:', err));
 
-// Routes
+// ── Team's Routes ─────────────────────────────────────
 app.use('/api/users', require('./routes/userRoutes'));
 app.use('/api/ai', require('./routes/aiRoutes'));
 app.use('/api/commerce', require('./routes/commerceRoutes'));
 app.use('/api/quizzes', require('./routes/quizRoutes'));
 app.use('/api/courses', require('./routes/courseRoutes'));
 app.use('/api/community', require('./routes/communityRoutes'));
+
+// ── Kuppi Module Routes ───────────────────────────────
+app.use('/api/auth', require('./routes/authRoutes'));
+app.use('/api/sessions', require('./routes/sessionRoutes'));
+app.use('/api/bookings', require('./routes/bookingRoutes'));
+app.use('/api/notifications', require('./routes/notificationRoutes'));
 
 // Health check endpoint
 app.get('/', (req, res) => {
@@ -43,12 +53,10 @@ app.use((err, req, res, next) => {
 });
 
 const basePort = Number(process.env.PORT) || 5000;
-
 const startServer = (port) => {
     const server = app.listen(port, () => {
         console.log(`Server is running on port ${port}`);
     });
-
     server.on('error', (error) => {
         if (error.code === 'EADDRINUSE') {
             const fallbackPort = port + 1;
@@ -56,9 +64,7 @@ const startServer = (port) => {
             startServer(fallbackPort);
             return;
         }
-
         throw error;
     });
 };
-
 startServer(basePort);
