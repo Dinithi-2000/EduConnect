@@ -1,9 +1,48 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 import './Home.css';
 
 const Home = () => {
+  const navigate = useNavigate();
+  const { user, logout } = useAuth();
   const [darkMode, setDarkMode] = useState(false);
   const [activeNav, setActiveNav] = useState('Dashboard');
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const userMenuRef = useRef(null);
+
+  const displayName =
+    user?.name || user?.fullName || user?.username || user?.email?.split('@')[0] || 'Learner';
+  const firstName = displayName.trim().split(' ')[0] || 'Learner';
+  const avatarName = encodeURIComponent(displayName);
+
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  };
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (userMenuRef.current && !userMenuRef.current.contains(event.target)) {
+        setIsUserMenuOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
+  const handleProfileNavigate = () => {
+    setIsUserMenuOpen(false);
+    navigate('/profile');
+  };
+
+  const handleHeaderLogout = () => {
+    setIsUserMenuOpen(false);
+    handleLogout();
+  };
 
   const statsData = [
     {
@@ -71,12 +110,12 @@ const Home = () => {
   ];
 
   const navItems = [
-    { icon: '📊', label: 'Dashboard' },
-    { icon: '📚', label: 'My Courses' },
-    { icon: '📝', label: 'Quizzes' },
-    { icon: '🎥', label: 'Kuppi Sessions' },
-    { icon: '👥', label: 'Community' },
-    { icon: '📈', label: 'Analytics' }
+    { icon: '📊', label: 'Dashboard', path: '/' },
+    { icon: '📚', label: 'My Courses', path: null },
+    { icon: '📝', label: 'Quizzes', path: '/quizzes' },
+    { icon: '🎥', label: 'Kuppi Sessions', path: '/sessions' },
+    { icon: '👥', label: 'Community', path: null },
+    { icon: '📈', label: 'Analytics', path: '/progress' }
   ];
 
   return (
@@ -95,7 +134,10 @@ const Home = () => {
             <div
               key={item.label}
               className={`nav-item ${activeNav === item.label ? 'active' : ''}`}
-              onClick={() => setActiveNav(item.label)}
+              onClick={() => {
+                setActiveNav(item.label);
+                if (item.path) navigate(item.path);
+              }}
             >
               <span className="nav-icon">{item.icon}</span>
               <span className="nav-label">{item.label}</span>
@@ -115,6 +157,10 @@ const Home = () => {
           <div className="nav-item">
             <span className="nav-icon">⚙️</span>
             <span className="nav-label">Settings</span>
+          </div>
+          <div className="nav-item" onClick={handleLogout}>
+            <span className="nav-icon">🚪</span>
+            <span className="nav-label">Logout</span>
           </div>
         </div>
       </aside>
@@ -142,14 +188,33 @@ const Home = () => {
             >
               {darkMode ? '☀️' : '🌙'}
             </button>
-            <div className="user-profile">
-              <img
-                src="https://ui-avatars.com/api/?name=Dinithi+P&background=3b82f6&color=fff"
-                alt="Dinithi P."
-                className="user-avatar"
-              />
-              <span className="user-name">Dinithi P.</span>
-              <span className="dropdown-icon">▼</span>
+            <div className="user-menu-wrapper" ref={userMenuRef}>
+              <button
+                type="button"
+                className="user-profile"
+                onClick={() => setIsUserMenuOpen((open) => !open)}
+                aria-haspopup="menu"
+                aria-expanded={isUserMenuOpen}
+              >
+                <img
+                  src={`https://ui-avatars.com/api/?name=${avatarName}&background=3b82f6&color=fff`}
+                  alt={displayName}
+                  className="user-avatar"
+                />
+                <span className="user-name">{displayName}</span>
+                <span className={`dropdown-icon ${isUserMenuOpen ? 'open' : ''}`}>▼</span>
+              </button>
+
+              {isUserMenuOpen && (
+                <div className="user-dropdown-menu" role="menu">
+                  <button type="button" className="menu-item-btn" role="menuitem" onClick={handleProfileNavigate}>
+                    Profile
+                  </button>
+                  <button type="button" className="menu-item-btn logout" role="menuitem" onClick={handleHeaderLogout}>
+                    Logout
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         </header>
@@ -159,7 +224,7 @@ const Home = () => {
           {/* Welcome Section */}
           <section className="welcome-section">
             <div className="welcome-text">
-              <h1 className="welcome-title">Welcome back, Dinithi 👋</h1>
+              <h1 className="welcome-title">Welcome back, {firstName} 👋</h1>
               <p className="welcome-subtitle">
                 You've completed 85% of your weekly goals! Keep up the momentum, your
                 next Kuppi session on "Data Structures" starts in 2 hours.
