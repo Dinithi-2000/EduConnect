@@ -22,7 +22,14 @@ router.get('/posts/:id', getPostById);
 router.post('/posts/:id/upvote', upvotePost);
 
 // User routes
-router.post('/posts', uploadCommunityImage.single('image'), createPost);
+router.post(
+  '/posts',
+  uploadCommunityImage.fields([
+    { name: 'images', maxCount: 5 },
+    { name: 'image', maxCount: 1 }
+  ]),
+  createPost
+);
 router.post('/posts/:id/reply', addReply);
 router.put('/posts/:id', updatePost);
 router.delete('/posts/:id', deletePost);

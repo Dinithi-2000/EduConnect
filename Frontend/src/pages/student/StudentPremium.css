@@ -1,3 +1,50 @@
+:root {
+  --page-bg: #f4f6ff;
+  --page-surface: #ffffff;
+  --page-surface-muted: #f7f9ff;
+  --page-border: #dbe5ff;
+  --page-border-strong: #cfdaf8;
+  --page-text-strong: #1d2a4a;
+  --page-text: #334064;
+  --page-text-muted: #5f6b8d;
+  --page-white: #ffffff;
+  --page-accent: #1f56d9;
+  --page-accent-2: #4a78ef;
+  --page-accent-alt: #1d4ed8;
+  --page-success-bg: #f0fdf4;
+  --page-success-border: #86efac;
+  --page-success-text: #166534;
+  --page-warn-bg: #fff7ed;
+  --page-warn-border: #fed7aa;
+  --page-warn-text: #b45309;
+  --page-danger-bg: #fef2f2;
+  --page-danger-border: #fecaca;
+  --page-danger-text: #b91c1c;
+}
+
+:root[data-theme='dark'] {
+  --page-bg: #081225;
+  --page-surface: #0f1b33;
+  --page-surface-muted: #13203b;
+  --page-border: #2f4268;
+  --page-border-strong: #415883;
+  --page-text-strong: #e8f0ff;
+  --page-text: #c3d2ef;
+  --page-text-muted: #9db1d6;
+  --page-white: #f4f7ff;
+  --page-accent: #6f95ff;
+  --page-accent-2: #89acff;
+  --page-accent-alt: #7fa2ff;
+  --page-success-bg: #123326;
+  --page-success-border: #2f7a59;
+  --page-success-text: #9ff0cb;
+  --page-warn-bg: #3b2a12;
+  --page-warn-border: #8f6c32;
+  --page-warn-text: #ffd188;
+  --page-danger-bg: #3a1820;
+  --page-danger-border: #8a3d4d;
+  --page-danger-text: #ffb6c2;
+}
 .student-premium-main {
   padding: 18px 20px 24px;
 }
@@ -12,7 +59,7 @@
   background: linear-gradient(130deg, #0f54d6 0%, #3166e1 46%, #6a32dd 100%);
   border-radius: 32px;
   padding: 30px 28px;
-  color: #ffffff;
+  color: var(--page-surface);
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -64,7 +111,7 @@
   border-radius: 999px;
   height: 40px;
   padding: 0 18px;
-  background: #ffffff;
+  background: var(--page-surface);
   color: #1844b3;
   font-weight: 800;
   cursor: pointer;
@@ -72,7 +119,7 @@
 
 .hero-actions .ghost {
   background: rgba(255, 255, 255, 0.15);
-  color: #ffffff;
+  color: var(--page-surface);
   border: 1px solid rgba(255, 255, 255, 0.25);
 }
 
@@ -105,7 +152,7 @@
 
 .section-head p {
   margin: 4px 0 0;
-  color: #647199;
+  color: var(--page-text-muted);
   font-size: 16px;
 }
 
@@ -133,7 +180,7 @@
 .benefit-card {
   border-radius: 26px;
   border: 1px solid #e5eaf8;
-  background: #f7f9ff;
+  background: var(--page-surface-muted);
   padding: 16px;
   display: grid;
   gap: 10px;
@@ -173,8 +220,8 @@
 
 .library-card {
   border-radius: 22px;
-  border: 1px solid #dce5f7;
-  background: #ffffff;
+  border: 1px solid var(--page-border);
+  background: var(--page-surface);
   padding: 10px;
   display: grid;
   gap: 9px;
@@ -185,7 +232,7 @@
   height: 110px;
   background-size: cover;
   background-position: center;
-  border: 1px solid #dce5f8;
+  border: 1px solid var(--page-border);
 }
 
 .thumb-1 {
@@ -239,7 +286,7 @@
   border-radius: 999px;
   height: 34px;
   background: #1253d8;
-  color: #ffffff;
+  color: var(--page-surface);
   font-weight: 700;
   cursor: pointer;
 }
@@ -256,9 +303,9 @@
 }
 
 .mock-item {
-  border: 1px solid #dce5f7;
+  border: 1px solid var(--page-border);
   border-radius: 20px;
-  background: #f6f8ff;
+  background: var(--page-surface-muted);
   padding: 11px;
   display: grid;
   grid-template-columns: auto 1fr auto;
@@ -312,7 +359,7 @@
 }
 
 .plan-card {
-  border: 1px solid #dce5f8;
+  border: 1px solid var(--page-border);
   border-radius: 24px;
   background: #e7edff;
   padding: 14px;
@@ -335,12 +382,12 @@
 
 .plan.basic {
   border: 1px solid #d3dcf5;
-  background: #ffffff;
+  background: var(--page-surface);
 }
 
 .plan.pro {
   background: linear-gradient(140deg, #1f56d8 0%, #1d42c6 52%, #1340a9 100%);
-  color: #ffffff;
+  color: var(--page-surface);
 }
 
 .plan-row {
@@ -367,7 +414,7 @@
 
 .plan.pro .plan-row span {
   background: rgba(255, 255, 255, 0.16);
-  color: #ffffff;
+  color: var(--page-surface);
 }
 
 .plan p {
@@ -384,7 +431,7 @@
 .plan .price {
   margin-top: 10px;
   font-size: 34px;
-  color: #ffffff;
+  color: var(--page-surface);
   font-weight: 800;
 }
 
@@ -398,7 +445,7 @@
   border: none;
   border-radius: 999px;
   height: 36px;
-  background: #ffffff;
+  background: var(--page-surface);
   color: #1f4cbf;
   font-weight: 700;
   cursor: pointer;
@@ -413,7 +460,7 @@
 .unlock-card {
   border: 1px solid #dde6f8;
   border-radius: 18px;
-  background: #ffffff;
+  background: var(--page-surface);
   padding: 12px;
   display: grid;
   gap: 9px;
@@ -472,7 +519,7 @@
   border-radius: 10px;
   height: 34px;
   background: #1e55d8;
-  color: #ffffff;
+  color: var(--page-surface);
   font-weight: 700;
   cursor: pointer;
 }
@@ -483,17 +530,17 @@
 }
 
 .premium-v2-state {
-  border: 1px dashed #cfdcf8;
+  border: 1px dashed var(--page-border-strong);
   border-radius: 16px;
-  background: #f7f9ff;
+  background: var(--page-surface-muted);
   padding: 14px;
   color: #4f638e;
 }
 
 .premium-v2-state.error {
-  border-color: #f5caca;
-  background: #fff2f2;
-  color: #9a2b2b;
+  border-color: var(--page-danger-border);
+  background: var(--page-danger-bg);
+  color: var(--page-danger-text);
 }
 
 @media (max-width: 1400px) {

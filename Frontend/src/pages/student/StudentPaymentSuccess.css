@@ -1,3 +1,50 @@
+:root {
+  --page-bg: #f4f6ff;
+  --page-surface: #ffffff;
+  --page-surface-muted: #f7f9ff;
+  --page-border: #dbe5ff;
+  --page-border-strong: #cfdaf8;
+  --page-text-strong: #1d2a4a;
+  --page-text: #334064;
+  --page-text-muted: #5f6b8d;
+  --page-white: #ffffff;
+  --page-accent: #1f56d9;
+  --page-accent-2: #4a78ef;
+  --page-accent-alt: #1d4ed8;
+  --page-success-bg: #f0fdf4;
+  --page-success-border: #86efac;
+  --page-success-text: #166534;
+  --page-warn-bg: #fff7ed;
+  --page-warn-border: #fed7aa;
+  --page-warn-text: #b45309;
+  --page-danger-bg: #fef2f2;
+  --page-danger-border: #fecaca;
+  --page-danger-text: #b91c1c;
+}
+
+:root[data-theme='dark'] {
+  --page-bg: #081225;
+  --page-surface: #0f1b33;
+  --page-surface-muted: #13203b;
+  --page-border: #2f4268;
+  --page-border-strong: #415883;
+  --page-text-strong: #e8f0ff;
+  --page-text: #c3d2ef;
+  --page-text-muted: #9db1d6;
+  --page-white: #f4f7ff;
+  --page-accent: #6f95ff;
+  --page-accent-2: #89acff;
+  --page-accent-alt: #7fa2ff;
+  --page-success-bg: #123326;
+  --page-success-border: #2f7a59;
+  --page-success-text: #9ff0cb;
+  --page-warn-bg: #3b2a12;
+  --page-warn-border: #8f6c32;
+  --page-warn-text: #ffd188;
+  --page-danger-bg: #3a1820;
+  --page-danger-border: #8a3d4d;
+  --page-danger-text: #ffb6c2;
+}
 .student-payment-page {
   min-height: 72vh;
   display: flex;
@@ -8,8 +55,8 @@
 
 .payment-card {
   width: min(680px, 100%);
-  background: #ffffff;
-  border: 1px solid #dbe5ff;
+  background: var(--page-surface);
+  border: 1px solid var(--page-border);
   border-radius: 20px;
   box-shadow: 0 24px 60px rgba(20, 37, 79, 0.12);
   padding: 26px;
@@ -52,18 +99,18 @@
 }
 
 .payment-card.success {
-  border-color: #86efac;
-  background: #f0fdf4;
+  border-color: var(--page-success-border);
+  background: var(--page-success-bg);
 }
 
 .payment-card.success .payment-icon {
   background: #dcfce7;
-  color: #166534;
+  color: var(--page-success-text);
 }
 
 .payment-card.cancelled {
-  border-color: #fde68a;
-  background: #fffbeb;
+  border-color: var(--page-warn-border);
+  background: var(--page-warn-bg);
 }
 
 .payment-card.cancelled .payment-icon {
@@ -72,13 +119,13 @@
 }
 
 .payment-card.failed {
-  border-color: #fecaca;
-  background: #fff1f1;
+  border-color: var(--page-danger-border);
+  background: var(--page-danger-bg);
 }
 
 .payment-card.failed .payment-icon {
   background: #fee2e2;
-  color: #b91c1c;
+  color: var(--page-danger-text);
 }
 
 .payment-actions {
@@ -94,15 +141,15 @@
   border-radius: 10px;
   min-height: 38px;
   padding: 0 16px;
-  background: linear-gradient(135deg, #1f56d9 0%, #4a78ef 100%);
-  color: #fff;
+  background: linear-gradient(135deg, var(--page-accent) 0%, var(--page-accent-2) 100%);
+  color: var(--page-white);
   font-weight: 700;
   cursor: pointer;
 }
 
 .payment-actions button.ghost {
-  border: 1px solid #d0dcf6;
-  background: #f7f9ff;
+  border: 1px solid var(--page-border-strong);
+  background: var(--page-surface-muted);
   color: #37507d;
 }
 

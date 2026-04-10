@@ -1,3 +1,50 @@
+:root {
+  --page-bg: #f4f6ff;
+  --page-surface: #ffffff;
+  --page-surface-muted: #f7f9ff;
+  --page-border: #dbe5ff;
+  --page-border-strong: #cfdaf8;
+  --page-text-strong: #1d2a4a;
+  --page-text: #334064;
+  --page-text-muted: #5f6b8d;
+  --page-white: #ffffff;
+  --page-accent: #1f56d9;
+  --page-accent-2: #4a78ef;
+  --page-accent-alt: #1d4ed8;
+  --page-success-bg: #f0fdf4;
+  --page-success-border: #86efac;
+  --page-success-text: #166534;
+  --page-warn-bg: #fff7ed;
+  --page-warn-border: #fed7aa;
+  --page-warn-text: #b45309;
+  --page-danger-bg: #fef2f2;
+  --page-danger-border: #fecaca;
+  --page-danger-text: #b91c1c;
+}
+
+:root[data-theme='dark'] {
+  --page-bg: #081225;
+  --page-surface: #0f1b33;
+  --page-surface-muted: #13203b;
+  --page-border: #2f4268;
+  --page-border-strong: #415883;
+  --page-text-strong: #e8f0ff;
+  --page-text: #c3d2ef;
+  --page-text-muted: #9db1d6;
+  --page-white: #f4f7ff;
+  --page-accent: #6f95ff;
+  --page-accent-2: #89acff;
+  --page-accent-alt: #7fa2ff;
+  --page-success-bg: #123326;
+  --page-success-border: #2f7a59;
+  --page-success-text: #9ff0cb;
+  --page-warn-bg: #3b2a12;
+  --page-warn-border: #8f6c32;
+  --page-warn-text: #ffd188;
+  --page-danger-bg: #3a1820;
+  --page-danger-border: #8a3d4d;
+  --page-danger-text: #ffb6c2;
+}
 .my-courses-main {
   padding: 18px 20px 24px;
 }
@@ -23,7 +70,7 @@
 
 .my-courses-head p {
   margin: 8px 0 0;
-  color: #5d6a8c;
+  color: var(--page-text-muted);
   font-size: 16px;
 }
 
@@ -34,10 +81,10 @@
 }
 
 .my-courses-filters select {
-  border: 1px solid #dbe5ff;
+  border: 1px solid var(--page-border);
   border-radius: 10px;
-  background: #ffffff;
-  color: #334064;
+  background: var(--page-surface);
+  color: var(--page-text);
   height: 38px;
   padding: 0 12px;
   font-family: inherit;
@@ -51,14 +98,14 @@
 }
 
 .my-stat-card {
-  border: 1px solid #e3e7f4;
-  background: #ffffff;
+  border: 1px solid var(--page-border);
+  background: var(--page-surface);
   border-radius: 20px;
   padding: 14px;
 }
 
 .my-stat-card small {
-  color: #6f7a99;
+  color: var(--page-text-muted);
   text-transform: uppercase;
   letter-spacing: 0.08em;
   font-size: 11px;
@@ -69,18 +116,18 @@
   display: block;
   margin-top: 6px;
   font-size: 34px;
-  color: #1d2a4a;
+  color: var(--page-text-strong);
   line-height: 1;
 }
 
 .my-stat-card p {
   margin: 6px 0 0;
-  color: #6f7a99;
+  color: var(--page-text-muted);
   font-size: 12px;
 }
 
 .my-stat-card.enrolled {
-  border-left: 3px solid #1f56d9;
+  border-left: 3px solid var(--page-accent);
 }
 
 .my-stat-card.progress {
@@ -115,8 +162,8 @@
 }
 
 .my-course-card {
-  border: 1px solid #e3e7f4;
-  background: #ffffff;
+  border: 1px solid var(--page-border);
+  background: var(--page-surface);
   border-radius: 24px;
   overflow: hidden;
   display: flex;
@@ -152,7 +199,7 @@
 .my-course-done {
   right: 10px;
   background: #dcfce7;
-  color: #15803d;
+  color: var(--page-success-text);
 }
 
 .my-course-body {
@@ -164,13 +211,13 @@
 .my-course-body h3 {
   margin: 0;
   font-size: 30px;
-  color: #1f2845;
+  color: var(--page-text-strong);
   line-height: 1.25;
 }
 
 .my-course-instructor {
   margin: 0;
-  color: #6f7a99;
+  color: var(--page-text-muted);
   font-size: 12px;
 }
 
@@ -181,7 +228,7 @@
 }
 
 .my-course-progress-row small {
-  color: #6f7a99;
+  color: var(--page-text-muted);
   font-size: 11px;
   text-transform: uppercase;
   letter-spacing: 0.08em;
@@ -189,7 +236,7 @@
 }
 
 .my-course-progress-row strong {
-  color: #1f56d9;
+  color: var(--page-accent);
   font-size: 14px;
 }
 
@@ -202,7 +249,7 @@
 
 .my-course-fill {
   height: 100%;
-  background: linear-gradient(90deg, #1f56d9 0%, #4a78ef 100%);
+  background: linear-gradient(90deg, var(--page-accent) 0%, var(--page-accent-2) 100%);
 }
 
 .my-course-actions {
@@ -223,25 +270,25 @@
 }
 
 .blue-btn {
-  background: linear-gradient(135deg, #1f56d9 0%, #4a78ef 100%);
-  color: #ffffff;
+  background: linear-gradient(135deg, var(--page-accent) 0%, var(--page-accent-2) 100%);
+  color: var(--page-surface);
 }
 
 .green-btn {
   background: #16a34a;
-  color: #ffffff;
+  color: var(--page-surface);
 }
 
 .ghost-btn {
   background: #f3f6ff;
-  border: 1px solid #dbe5ff;
-  color: #344572;
+  border: 1px solid var(--page-border);
+  color: var(--page-text);
 }
 
 .my-course-add {
   border: 2px dashed #d6def2;
   border-radius: 24px;
-  background: #f9fbff;
+  background: var(--page-surface-muted);
   color: #51648f;
   min-height: 220px;
   display: grid;
@@ -267,7 +314,7 @@
 }
 
 .my-course-add strong {
-  color: #1f2845;
+  color: var(--page-text-strong);
   font-size: 22px;
 }
 

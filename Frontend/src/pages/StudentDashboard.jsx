@@ -1,17 +1,50 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useTheme } from '../context/ThemeContext';
 import AIChatWidget from '../components/AIChatWidget';
 import { getMyProgress } from '../services/quizService';
 import './StudentDashboard.css';
 
+const useCountUp = (target, duration = 900, enabled = true) => {
+  const [value, setValue] = useState(enabled ? 0 : target);
+
+  useEffect(() => {
+    if (!enabled) {
+      setValue(target);
+      return;
+    }
+
+    let animationFrame;
+    const startTime = performance.now();
+
+    const animate = (timestamp) => {
+      const progress = Math.min((timestamp - startTime) / duration, 1);
+      const easedProgress = 1 - Math.pow(1 - progress, 3);
+      setValue(Math.round(target * easedProgress));
+
+      if (progress < 1) {
+        animationFrame = requestAnimationFrame(animate);
+      }
+    };
+
+    animationFrame = requestAnimationFrame(animate);
+    return () => cancelAnimationFrame(animationFrame);
+  }, [target, duration, enabled]);
+
+  return value;
+};
+
 const StudentDashboard = () => {
   const { user, logout } = useAuth();
+  const { isDarkMode, toggleTheme } = useTheme();
   const navigate = useNavigate();
   const [chatOpenSignal, setChatOpenSignal] = useState(0);
   const [weeklyAttempts, setWeeklyAttempts] = useState([]);
   const [weeklyLoading, setWeeklyLoading] = useState(true);
   const [weeklyError, setWeeklyError] = useState('');
+  const [chartTooltip, setChartTooltip] = useState(null);
+  const chartWrapRef = useRef(null);
 
   const upcomingClasses = [
     {
@@ -163,6 +196,39 @@ const StudentDashboard = () => {
     );
   }, [weeklyChartData]);
 
+  const enrolledCoursesAnimated = useCountUp(18, 950);
+  const upcomingKuppiAnimated = useCountUp(upcomingClasses.length, 1050);
+  const completedQuizzesAnimated = useCountUp(42, 1150);
+  const overallProgressAnimated = useCountUp(78, 1250);
+  const weeklyAverageAnimated = useCountUp(
+    weeklyAverage,
+    850,
+    !weeklyLoading && !weeklyError && hasWeeklyData
+  );
+
+  const showChartTooltip = (point, xPercent, yPercent, event) => {
+    const chartElement = chartWrapRef.current;
+    if (!chartElement) return;
+
+    const rect = chartElement.getBoundingClientRect();
+    const fallbackLeft = (xPercent / 100) * rect.width;
+    const fallbackTop = (yPercent / 100) * rect.height;
+
+    const rawLeft = event?.clientX ? event.clientX - rect.left : fallbackLeft;
+    const rawTop = event?.clientY ? event.clientY - rect.top : fallbackTop;
+
+    const left = Math.max(70, Math.min(rawLeft, rect.width - 70));
+    const top = Math.max(26, Math.min(rawTop - 14, rect.height - 10));
+
+    setChartTooltip({
+      left,
+      top,
+      label: point.label,
+      score: point.score,
+      attempts: point.attempts
+    });
+  };
+
   const sidebarItems = [
     { icon: '▦', label: 'Dashboard', route: '/student-dashboard', active: true },
     { icon: '🎓', label: 'My Courses', route: '/student/my-courses' },
@@ -206,6 +272,7 @@ const StudentDashboard = () => {
               key={item.label}
               type="button"
               className={`student-v2-nav-item ${item.active ? 'active' : ''}`}
+              aria-current={item.active ? 'page' : undefined}
               onClick={() => handleSidebarAction(item)}
             >
               <span className="icon" aria-hidden="true">{item.icon}</span>
@@ -233,7 +300,14 @@ const StudentDashboard = () => {
           </div>
 
           <div className="student-v2-tools">
-            <button type="button" className="ghost-icon" aria-label="Theme">◐</button>
+            <button
+              type="button"
+              className="ghost-icon"
+              aria-label={`Switch to ${isDarkMode ? 'light' : 'dark'} mode`}
+              onClick={toggleTheme}
+            >
+              {isDarkMode ? '☀️' : '◐'}
+            </button>
             <button type="button" className="ghost-icon" aria-label="Notifications">🔔</button>
             <button type="button" className="premium-pill" onClick={() => navigate('/student/premium')}>
               <span aria-hidden="true">👑</span>
@@ -249,7 +323,7 @@ const StudentDashboard = () => {
           </div>
         </header>
 
-        <section className="student-v2-welcome-row">
+        <section className="student-v2-welcome-row enter-rise" style={{ '--enter-delay': '20ms' }}>
           <div>
             <h2>Welcome back, {firstName} 👋</h2>
             <p>
@@ -264,35 +338,35 @@ const StudentDashboard = () => {
         </section>
 
         <section className="student-v2-metrics-grid">
-          <article className="v2-metric-card">
+          <article className="v2-metric-card enter-rise" style={{ '--enter-delay': '80ms' }}>
             <span className="metric-icon" aria-hidden="true">📘</span>
             <small>Enrolled Courses</small>
-            <strong>18</strong>
+            <strong>{enrolledCoursesAnimated}</strong>
             <p>+2 since last month</p>
           </article>
-          <article className="v2-metric-card">
+          <article className="v2-metric-card enter-rise" style={{ '--enter-delay': '140ms' }}>
             <span className="metric-icon" aria-hidden="true">👥</span>
             <small>Upcoming Kuppi</small>
-            <strong>3</strong>
+            <strong>{upcomingKuppiAnimated}</strong>
             <p>Next at 4:30 PM</p>
           </article>
-          <article className="v2-metric-card">
+          <article className="v2-metric-card enter-rise" style={{ '--enter-delay': '200ms' }}>
             <span className="metric-icon" aria-hidden="true">☑</span>
             <small>Completed Quizzes</small>
-            <strong>42</strong>
+            <strong>{completedQuizzesAnimated}</strong>
             <p>Top 5% in faculty</p>
           </article>
-          <article className="v2-metric-card progress-card">
+          <article className="v2-metric-card progress-card enter-rise" style={{ '--enter-delay': '260ms' }}>
             <span className="metric-icon" aria-hidden="true">🧭</span>
             <small>Overall Progress</small>
-            <strong>78%</strong>
+            <strong>{overallProgressAnimated}%</strong>
             <div className="mini-progress-track">
-              <div className="mini-progress-fill" style={{ width: '78%' }}></div>
+              <div className="mini-progress-fill" style={{ width: `${overallProgressAnimated}%` }}></div>
             </div>
           </article>
         </section>
 
-        <section className="student-v2-content-grid">
+        <section className="student-v2-content-grid enter-rise" style={{ '--enter-delay': '320ms' }}>
           <section className="student-v2-analytics">
             <div className="student-v2-panel-title-row">
               <div>
@@ -308,7 +382,7 @@ const StudentDashboard = () => {
                 <div className="chart-state error">{weeklyError}</div>
               ) : (
                 <>
-                  <div className="weekly-chart-wrap">
+                  <div className="weekly-chart-wrap" ref={chartWrapRef}>
                     <svg viewBox="0 0 100 100" className="weekly-chart-svg" aria-label="Weekly performance chart">
                       <defs>
                         <linearGradient id="weeklyAreaGradient" x1="0" x2="0" y1="0" y2="1">
@@ -336,11 +410,29 @@ const StudentDashboard = () => {
                             cx={x}
                             cy={y}
                             r="1.8"
+                            tabIndex="0"
                             className={point.attempts ? 'weekly-point' : 'weekly-point muted'}
+                            aria-label={`${point.label}: ${point.score}% average score across ${point.attempts} attempt${point.attempts === 1 ? '' : 's'}`}
+                            onMouseEnter={(event) => showChartTooltip(point, x, y, event)}
+                            onMouseMove={(event) => showChartTooltip(point, x, y, event)}
+                            onMouseLeave={() => setChartTooltip(null)}
+                            onFocus={() => showChartTooltip(point, x, y)}
+                            onBlur={() => setChartTooltip(null)}
                           />
                         );
                       })}
                     </svg>
+
+                    {chartTooltip && (
+                      <div
+                        className="weekly-tooltip"
+                        style={{ left: `${chartTooltip.left}px`, top: `${chartTooltip.top}px` }}
+                      >
+                        <strong>{chartTooltip.label}</strong>
+                        <span>{chartTooltip.score}% avg score</span>
+                        <small>{chartTooltip.attempts} attempt{chartTooltip.attempts === 1 ? '' : 's'}</small>
+                      </div>
+                    )}
                   </div>
 
                   <div className="chart-axis">
@@ -351,7 +443,7 @@ const StudentDashboard = () => {
 
                   <p className="weekly-summary">
                     {hasWeeklyData
-                      ? `Weekly average score: ${weeklyAverage}%`
+                      ? `Weekly average score: ${weeklyAverageAnimated}%`
                       : 'No quiz attempts recorded in the last 7 days.'}
                   </p>
                 </>
@@ -389,7 +481,7 @@ const StudentDashboard = () => {
                   <span>{upcomingClasses[0].time}</span>
                   <span>{upcomingClasses[0].duration}</span>
                 </div>
-                <button type="button" onClick={() => navigate('/student/courses')}>Join Session</button>
+                <button type="button" onClick={() => navigate('/student/courses')}>Join Live Session</button>
               </article>
 
               <div className="student-v2-session-list">
@@ -397,7 +489,7 @@ const StudentDashboard = () => {
                   <article key={item.id} className="session-mini-card">
                     <h4>{item.course}</h4>
                     <p>{item.time}</p>
-                    <button type="button">Remind Me</button>
+                    <button type="button" onClick={() => navigate('/student/courses')}>Set Reminder</button>
                   </article>
                 ))}
               </div>
@@ -417,7 +509,7 @@ const StudentDashboard = () => {
             </section>
 
             <button type="button" className="student-v2-logout" onClick={handleLogout}>
-              Logout
+              Sign Out
             </button>
           </aside>
         </section>

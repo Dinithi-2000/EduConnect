@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import { useTheme } from '../../context/ThemeContext';
 import AIChatWidget from '../../components/AIChatWidget';
 import { API_URL } from '../../services/api';
 import { getCourses } from '../../services/courseService';
@@ -12,6 +13,7 @@ const apiOrigin = API_URL.replace(/\/api\/?$/, '');
 const StudentMyCourses = () => {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
+  const { isDarkMode, toggleTheme } = useTheme();
   const [chatOpenSignal, setChatOpenSignal] = useState(0);
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -231,7 +233,14 @@ const StudentMyCourses = () => {
           </div>
 
           <div className="student-v2-tools">
-            <button type="button" className="ghost-icon" aria-label="Theme">◐</button>
+            <button
+              type="button"
+              className="ghost-icon"
+              aria-label={`Switch to ${isDarkMode ? 'light' : 'dark'} mode`}
+              onClick={toggleTheme}
+            >
+              {isDarkMode ? '☀️' : '◐'}
+            </button>
             <button type="button" className="ghost-icon" aria-label="Notifications">🔔</button>
             <button type="button" className="premium-pill" onClick={() => navigate('/student/premium')}>
               <span aria-hidden="true">👑</span>

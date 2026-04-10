@@ -1,3 +1,50 @@
+:root {
+  --page-bg: #f4f6ff;
+  --page-surface: #ffffff;
+  --page-surface-muted: #f7f9ff;
+  --page-border: #dbe5ff;
+  --page-border-strong: #cfdaf8;
+  --page-text-strong: #1d2a4a;
+  --page-text: #334064;
+  --page-text-muted: #5f6b8d;
+  --page-white: #ffffff;
+  --page-accent: #1f56d9;
+  --page-accent-2: #4a78ef;
+  --page-accent-alt: #1d4ed8;
+  --page-success-bg: #f0fdf4;
+  --page-success-border: #86efac;
+  --page-success-text: #166534;
+  --page-warn-bg: #fff7ed;
+  --page-warn-border: #fed7aa;
+  --page-warn-text: #b45309;
+  --page-danger-bg: #fef2f2;
+  --page-danger-border: #fecaca;
+  --page-danger-text: #b91c1c;
+}
+
+:root[data-theme='dark'] {
+  --page-bg: #081225;
+  --page-surface: #0f1b33;
+  --page-surface-muted: #13203b;
+  --page-border: #2f4268;
+  --page-border-strong: #415883;
+  --page-text-strong: #e8f0ff;
+  --page-text: #c3d2ef;
+  --page-text-muted: #9db1d6;
+  --page-white: #f4f7ff;
+  --page-accent: #6f95ff;
+  --page-accent-2: #89acff;
+  --page-accent-alt: #7fa2ff;
+  --page-success-bg: #123326;
+  --page-success-border: #2f7a59;
+  --page-success-text: #9ff0cb;
+  --page-warn-bg: #3b2a12;
+  --page-warn-border: #8f6c32;
+  --page-warn-text: #ffd188;
+  --page-danger-bg: #3a1820;
+  --page-danger-border: #8a3d4d;
+  --page-danger-text: #ffb6c2;
+}
 .student-community-main {
   padding: 18px 20px 24px;
 }
@@ -12,12 +59,12 @@
   margin: 0;
   font-size: 46px;
   letter-spacing: -0.03em;
-  color: #1f2947;
+  color: var(--page-text-strong);
 }
 
 .student-community-head p {
   margin: 6px 0 0;
-  color: #5f6b8d;
+  color: var(--page-text-muted);
   font-size: 18px;
 }
 
@@ -28,8 +75,8 @@
 }
 
 .community-stat-card {
-  background: #ffffff;
-  border: 1px solid #e3e7f4;
+  background: var(--page-surface);
+  border: 1px solid var(--page-border);
   border-radius: 22px;
   padding: 14px 16px;
   display: grid;
@@ -37,7 +84,7 @@
 }
 
 .community-stat-card span {
-  color: #7a84a4;
+  color: var(--page-text-muted);
   font-size: 12px;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -45,7 +92,7 @@
 }
 
 .community-stat-card strong {
-  color: #1d2a4a;
+  color: var(--page-text-strong);
   font-size: 36px;
   line-height: 1;
 }
@@ -68,8 +115,8 @@
 .post-card,
 .side-card,
 .state-box {
-  background: #ffffff;
-  border: 1px solid #e3e7f4;
+  background: var(--page-surface);
+  border: 1px solid var(--page-border);
   border-radius: 22px;
 }
 
@@ -97,12 +144,12 @@
 }
 
 .composer-fields input {
-  border: 1px solid #dbe5ff;
+  border: 1px solid var(--page-border);
   border-radius: 12px;
   height: 42px;
   padding: 0 12px;
-  background: #f8faff;
-  color: #314060;
+  background: var(--page-surface-muted);
+  color: var(--page-text);
   font-family: inherit;
 }
 
@@ -111,11 +158,11 @@
 .composer-field-grid input[aria-invalid='true'],
 .composer-field-grid select[aria-invalid='true'] {
   border-color: #fda4af;
-  background: #fff7f7;
+  background: var(--page-danger-bg);
 }
 
 .composer-error {
-  color: #b91c1c;
+  color: var(--page-danger-text);
   font-size: 12px;
   font-weight: 600;
   margin-top: -2px;
@@ -134,12 +181,12 @@
 }
 
 .composer-row textarea {
-  border: 1px solid #dbe5ff;
+  border: 1px solid var(--page-border);
   border-radius: 16px;
   min-height: 76px;
   padding: 14px 16px;
-  background: #f8faff;
-  color: #314060;
+  background: var(--page-surface-muted);
+  color: var(--page-text);
   font-family: inherit;
   resize: vertical;
 }
@@ -158,23 +205,23 @@
 
 .composer-field-grid input,
 .composer-field-grid select {
-  border: 1px solid #dbe5ff;
+  border: 1px solid var(--page-border);
   border-radius: 10px;
   height: 36px;
   padding: 0 10px;
-  background: #f8faff;
-  color: #324163;
+  background: var(--page-surface-muted);
+  color: var(--page-text);
   font-family: inherit;
   font-weight: 600;
 }
 
 .composer-actions select {
-  border: 1px solid #dbe5ff;
+  border: 1px solid var(--page-border);
   border-radius: 10px;
   height: 36px;
   padding: 0 10px;
-  background: #f8faff;
-  color: #324163;
+  background: var(--page-surface-muted);
+  color: var(--page-text);
   font-family: inherit;
   font-weight: 600;
 }
@@ -184,10 +231,52 @@
   border-radius: 999px;
   height: 36px;
   padding: 0 24px;
-  background: linear-gradient(135deg, #1f56d9 0%, #4a78ef 100%);
-  color: #fff;
+  background: linear-gradient(135deg, var(--page-accent) 0%, var(--page-accent-2) 100%);
+  color: var(--page-white);
   font-weight: 700;
   cursor: pointer;
+}
+
+.composer-upload-row {
+  display: grid;
+  gap: 8px;
+}
+
+.composer-upload-label {
+  color: var(--page-text-muted);
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.composer-upload-row input[type='file'] {
+  border: 1px solid var(--page-border);
+  border-radius: 10px;
+  padding: 8px 10px;
+  background: var(--page-surface-muted);
+  color: var(--page-text);
+}
+
+.composer-image-preview-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(92px, 1fr));
+  gap: 8px;
+}
+
+.composer-image-preview-item {
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid var(--page-border);
+  background: var(--page-surface);
+  aspect-ratio: 1;
+}
+
+.composer-image-preview-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
 }
 
 .composer-notice {
@@ -198,15 +287,15 @@
 }
 
 .composer-notice.success {
-  border: 1px solid #86efac;
-  background: #f0fdf4;
-  color: #166534;
+  border: 1px solid var(--page-success-border);
+  background: var(--page-success-bg);
+  color: var(--page-success-text);
 }
 
 .composer-notice.error {
-  border: 1px solid #fecaca;
-  background: #fef2f2;
-  color: #991b1b;
+  border: 1px solid var(--page-danger-border);
+  background: var(--page-danger-bg);
+  color: var(--page-danger-text);
 }
 
 .student-community-toolbar {
@@ -220,19 +309,19 @@
 }
 
 .type-tabs button {
-  border: 1px solid #dbe5ff;
+  border: 1px solid var(--page-border);
   border-radius: 999px;
   background: #f4f7ff;
-  color: #40557f;
+  color: var(--page-text);
   padding: 8px 12px;
   font-weight: 700;
   cursor: pointer;
 }
 
 .type-tabs button.active {
-  border-color: #1d4ed8;
-  background: #1d4ed8;
-  color: #fff;
+  border-color: var(--page-accent-alt);
+  background: var(--page-accent-alt);
+  color: var(--page-white);
 }
 
 .student-community-feed {
@@ -257,7 +346,7 @@
   width: 34px;
   height: 34px;
   border-radius: 50%;
-  background: #dce7ff;
+  background: var(--page-border);
   color: #2e59c8;
   font-weight: 800;
   display: inline-flex;
@@ -266,19 +355,19 @@
 }
 
 .post-author-row strong {
-  color: #1f2947;
+  color: var(--page-text-strong);
 }
 
 .post-author-row small {
   display: block;
-  color: #7d88a8;
+  color: var(--page-text-muted);
   font-size: 12px;
 }
 
 .post-chip {
   border-radius: 999px;
   background: #edf2ff;
-  color: #34539f;
+  color: var(--page-text);
   padding: 4px 10px;
   font-size: 11px;
   text-transform: uppercase;
@@ -288,12 +377,27 @@
 
 .post-card h3 {
   margin: 0;
-  color: #1f2947;
+  color: var(--page-text-strong);
 }
 
 .post-card p {
   margin: 0;
-  color: #4e5d82;
+  color: var(--page-text);
+}
+
+.post-image-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 8px;
+}
+
+.post-image {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  border-radius: 12px;
+  border: 1px solid var(--page-border);
+  background: var(--page-surface-muted);
 }
 
 .post-meta {
@@ -314,7 +418,7 @@
 }
 
 .post-meta span {
-  color: #627297;
+  color: var(--page-text-muted);
   font-size: 13px;
 }
 
@@ -326,13 +430,13 @@
 
 .side-card h3 {
   margin: 0;
-  color: #1f2947;
+  color: var(--page-text-strong);
   font-size: 18px;
 }
 
 .side-card p {
   margin: 0;
-  color: #5f6b8d;
+  color: var(--page-text-muted);
 }
 
 .side-card ul {
@@ -347,11 +451,11 @@
   display: flex;
   justify-content: space-between;
   gap: 8px;
-  color: #40557f;
+  color: var(--page-text);
 }
 
 .side-card li small {
-  color: #7a84a4;
+  color: var(--page-text-muted);
   font-size: 12px;
 }
 
@@ -361,9 +465,9 @@
 }
 
 .state-box.error {
-  border-color: #fecaca;
-  background: #fff1f1;
-  color: #9b1c1c;
+  border-color: var(--page-danger-border);
+  background: var(--page-danger-bg);
+  color: var(--page-danger-text);
 }
 
 @media (max-width: 1200px) {

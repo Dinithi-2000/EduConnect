@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import AIChatWidget from '../../components/AIChatWidget';
 import { createPost, getPosts, upvotePost } from '../../services/communityService';
 import { useAuth } from '../../context/AuthContext';
+import { useTheme } from '../../context/ThemeContext';
 import '../StudentDashboard.css';
 import './StudentCommunity.css';
 
@@ -18,6 +19,7 @@ const categoryMap = {
 const StudentCommunity = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { isDarkMode, toggleTheme } = useTheme();
   const userId = user?._id || user?.id;
 
   const [posts, setPosts] = useState([]);
@@ -37,6 +39,8 @@ const StudentCommunity = () => {
   const [postErrors, setPostErrors] = useState({});
   const [postNotice, setPostNotice] = useState('');
   const [posting, setPosting] = useState(false);
+  const [postImages, setPostImages] = useState([]);
+  const [postImagePreviews, setPostImagePreviews] = useState([]);
 
   const fetchPosts = useCallback(async () => {
     try {
@@ -57,6 +61,15 @@ const StudentCommunity = () => {
   useEffect(() => {
     fetchPosts();
   }, [fetchPosts]);
+
+  useEffect(() => {
+    const previewUrls = postImages.map((file) => URL.createObjectURL(file));
+    setPostImagePreviews(previewUrls);
+
+    return () => {
+      previewUrls.forEach((url) => URL.revokeObjectURL(url));
+    };
+  }, [postImages]);
 
   const visiblePosts = useMemo(() => {
     const bySearch = posts.filter((post) => {
@@ -154,6 +167,23 @@ const StudentCommunity = () => {
     });
   };
 
+  const handlePostImagesChange = (files) => {
+    const selected = Array.from(files || []).filter((file) => file.type.startsWith('image/'));
+    const limited = selected.slice(0, 5);
+
+    setPostImages(limited);
+    setPostErrors((prev) => {
+      if (!prev.images) return prev;
+      const next = { ...prev };
+      delete next.images;
+      return next;
+    });
+
+    if (selected.length !== (files || []).length) {
+      setPostNotice('Only image files are allowed.');
+    }
+  };
+
   const validatePostForm = () => {
     const title = String(postForm.title || '').trim();
     const description = String(postForm.description || '').trim();
@@ -185,6 +215,10 @@ const StudentCommunity = () => {
 
     if (contactInfo && contactInfo.length < 5) {
       errors.contactInfo = 'Contact info looks too short.';
+    }
+
+    if (postImages.length > 5) {
+      errors.images = 'You can upload up to 5 images per post.';
     }
 
     setPostErrors(errors);
@@ -225,6 +259,9 @@ const StudentCommunity = () => {
       formData.append('tags', JSON.stringify(validation.payload.tags));
       formData.append('location', validation.payload.location);
       formData.append('contactInfo', validation.payload.contactInfo);
+      postImages.forEach((imageFile) => {
+        formData.append('images', imageFile);
+      });
       await createPost(formData);
       setPostForm({
         title: '',
@@ -235,6 +272,7 @@ const StudentCommunity = () => {
         contactInfo: ''
       });
       setPostErrors({});
+      setPostImages([]);
       setPostNotice('Post published successfully.');
       await fetchPosts();
     } catch (err) {
@@ -318,7 +356,14 @@ const StudentCommunity = () => {
           </div>
 
           <div className="student-v2-tools">
-            <button type="button" className="ghost-icon" aria-label="Theme">◐</button>
+            <button
+              type="button"
+              className="ghost-icon"
+              aria-label={`Switch to ${isDarkMode ? 'light' : 'dark'} mode`}
+              onClick={toggleTheme}
+            >
+              {isDarkMode ? '☀️' : '◐'}
+            </button>
             <button type="button" className="ghost-icon" aria-label="Notifications">🔔</button>
             <button type="button" className="premium-pill" onClick={() => navigate('/student/premium')}>
               <span aria-hidden="true">👑</span>
@@ -420,6 +465,32 @@ const StudentCommunity = () => {
                     {posting ? 'Posting...' : 'Post'}
                   </button>
                 </div>
+
+                <div className="composer-upload-row">
+                  <label htmlFor="post-images" className="composer-upload-label">
+                    Add images (up to 5)
+                  </label>
+                  <input
+                    id="post-images"
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    onChange={(event) => handlePostImagesChange(event.target.files)}
+                    aria-invalid={Boolean(postErrors.images)}
+                  />
+                  {postErrors.images && <small className="composer-error">{postErrors.images}</small>}
+
+                  {postImagePreviews.length > 0 && (
+                    <div className="composer-image-preview-grid">
+                      {postImagePreviews.map((previewUrl, index) => (
+                        <div key={previewUrl} className="composer-image-preview-item">
+                          <img src={previewUrl} alt={`Selected post upload ${index + 1}`} />
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
                 {postNotice && (
                   <div className={`composer-notice ${Object.keys(postErrors).length ? 'error' : 'success'}`}>
                     {postNotice}
@@ -467,6 +538,25 @@ const StudentCommunity = () => {
 
                       <h3>{post.title}</h3>
                       <p>{post.description}</p>
+
+                      {(Array.isArray(post.imageUrls) && post.imageUrls.length > 0) || post.imageUrl ? (
+                        <div className="post-image-grid">
+                          {(Array.isArray(post.imageUrls) && post.imageUrls.length > 0
+                            ? post.imageUrls
+                            : [post.imageUrl]
+                          )
+                            .filter(Boolean)
+                            .map((imageSrc, index) => (
+                              <img
+                                key={`${post._id}-image-${index}`}
+                                src={imageSrc}
+                                alt={`Post attachment ${index + 1}`}
+                                className="post-image"
+                                loading="lazy"
+                              />
+                            ))}
+                        </div>
+                      ) : null}
 
                       <div className="post-meta">
                         <button type="button" onClick={() => handleUpvote(post._id)}>

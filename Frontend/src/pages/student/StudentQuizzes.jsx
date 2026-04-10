@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import { useTheme } from '../../context/ThemeContext';
 import AIChatWidget from '../../components/AIChatWidget';
 import {
   completeStripeCheckout,
@@ -16,6 +17,7 @@ const StudentQuizzes = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { user, logout } = useAuth();
+  const { isDarkMode, toggleTheme } = useTheme();
   const [quizzes, setQuizzes] = useState([]);
   const [progress, setProgress] = useState({ summary: { totalAttempts: 0, averageScore: 0, bestScore: 0 }, attempts: [] });
   const [loading, setLoading] = useState(true);
@@ -281,7 +283,14 @@ const StudentQuizzes = () => {
           </div>
 
           <div className="student-v2-tools">
-            <button type="button" className="ghost-icon" aria-label="Theme">◐</button>
+            <button
+              type="button"
+              className="ghost-icon"
+              aria-label={`Switch to ${isDarkMode ? 'light' : 'dark'} mode`}
+              onClick={toggleTheme}
+            >
+              {isDarkMode ? '☀️' : '◐'}
+            </button>
             <button type="button" className="ghost-icon" aria-label="Notifications">🔔</button>
             <button type="button" className="premium-pill" onClick={() => navigate('/student/premium')}>
               <span aria-hidden="true">👑</span>

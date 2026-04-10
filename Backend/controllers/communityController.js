@@ -25,9 +25,23 @@ exports.createPost = async (req, res) => {
 
     const normalizedTags = parsedTags.filter(Boolean);
 
-    const imageUrl = req.file
-      ? `${req.protocol}://${req.get('host')}/uploads/community/${req.file.filename}`
-      : undefined;
+    const uploadedImages = [];
+
+    if (Array.isArray(req.files)) {
+      uploadedImages.push(...req.files);
+    } else if (req.files && typeof req.files === 'object') {
+      if (Array.isArray(req.files.images)) uploadedImages.push(...req.files.images);
+      if (Array.isArray(req.files.image)) uploadedImages.push(...req.files.image);
+    }
+
+    if (req.file) {
+      uploadedImages.push(req.file);
+    }
+
+    const imageUrls = uploadedImages.map(
+      (file) => `${req.protocol}://${req.get('host')}/uploads/community/${file.filename}`
+    );
+    const imageUrl = imageUrls[0];
 
     if (!title || !description || !type || !userId) {
       return res.status(400).json({
@@ -46,6 +60,7 @@ exports.createPost = async (req, res) => {
       category,
       tags: normalizedTags,
       imageUrl,
+      imageUrls,
       location,
       contactInfo
     });

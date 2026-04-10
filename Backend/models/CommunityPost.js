@@ -38,6 +38,10 @@ const communityPostSchema = new mongoose.Schema({
   imageUrl: {
     type: String
   },
+  imageUrls: {
+    type: [String],
+    default: []
+  },
   location: {
     type: String,
     trim: true

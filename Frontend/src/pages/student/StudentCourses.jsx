@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { FaHeart, FaLightbulb, FaThumbsUp } from 'react-icons/fa';
 import { useAuth } from '../../context/AuthContext';
+import { useTheme } from '../../context/ThemeContext';
 import AIChatWidget from '../../components/AIChatWidget';
 import { API_URL } from '../../services/api';
 import { getCourses } from '../../services/courseService';
@@ -74,6 +75,7 @@ const StudentCourses = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { user, logout } = useAuth();
+  const { isDarkMode, toggleTheme } = useTheme();
   const studentId = user?._id || user?.id || 'guest';
   const [chatOpenSignal, setChatOpenSignal] = useState(0);
 
@@ -293,6 +295,8 @@ const StudentCourses = () => {
     const courseFaqs = normalize(selectedCourse?.faqs || [], 'course');
     return [...moduleFaqs, ...courseFaqs];
   }, [activeModule?.faqs, selectedCourse?.faqs]);
+
+  const loadingSkeletonItems = useMemo(() => Array.from({ length: 3 }, (_, index) => index), []);
 
   useEffect(() => {
     return () => {
@@ -653,6 +657,7 @@ const StudentCourses = () => {
               key={item.label}
               type="button"
               className={`student-v2-nav-item ${item.active ? 'active' : ''}`}
+              aria-current={item.active ? 'page' : undefined}
               onClick={() => handleSidebarAction(item)}
             >
               <span className="icon" aria-hidden="true">{item.icon}</span>
@@ -682,7 +687,14 @@ const StudentCourses = () => {
           </div>
 
           <div className="student-v2-tools">
-            <button type="button" className="ghost-icon" aria-label="Theme">◐</button>
+            <button
+              type="button"
+              className="ghost-icon"
+              aria-label={`Switch to ${isDarkMode ? 'light' : 'dark'} mode`}
+              onClick={toggleTheme}
+            >
+              {isDarkMode ? '☀️' : '◐'}
+            </button>
             <button type="button" className="ghost-icon" aria-label="Notifications">🔔</button>
             <button type="button" className="premium-pill" onClick={() => navigate('/student/premium')}>
               <span aria-hidden="true">👑</span>
@@ -743,15 +755,41 @@ const StudentCourses = () => {
           </div>
 
           {loading ? (
-            <div className="state-box">Loading courses...</div>
+            <div className="courses-loading-skeleton" aria-label="Loading course contents">
+              <div className="skeleton-header-row">
+                <div className="skeleton-pill"></div>
+                <div className="skeleton-pill short"></div>
+                <div className="skeleton-pill tiny"></div>
+              </div>
+
+              <div className="courses-overview-grid skeleton-overview-grid">
+                {loadingSkeletonItems.map((item) => (
+                  <article key={item} className="overview-course-card skeleton-card" aria-hidden="true">
+                    <div className="skeleton-line long"></div>
+                    <div className="skeleton-line medium"></div>
+                    <div className="skeleton-line short"></div>
+
+                    <div className="skeleton-module-list">
+                      <div className="skeleton-module"></div>
+                      <div className="skeleton-module"></div>
+                      <div className="skeleton-module"></div>
+                    </div>
+                  </article>
+                ))}
+              </div>
+            </div>
           ) : error ? (
             <div className="state-box error">{error}</div>
           ) : courses.length === 0 ? (
             <div className="state-box">No courses found. Please check back later.</div>
           ) : viewMode === 'overview' ? (
             <div className="courses-overview-grid">
-              {courses.map((course) => (
-                <article key={course._id} className="overview-course-card">
+              {courses.map((course, courseIndex) => (
+                <article
+                  key={course._id}
+                  className="overview-course-card enter-rise"
+                  style={{ '--course-delay': `${courseIndex * 55}ms` }}
+                >
                   {(() => {
                     const isEnrolled = enrolledCourseIds.includes(course._id);
                     return (

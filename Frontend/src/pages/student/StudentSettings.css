@@ -1,3 +1,50 @@
+:root {
+  --page-bg: #f4f6ff;
+  --page-surface: #ffffff;
+  --page-surface-muted: #f7f9ff;
+  --page-border: #dbe5ff;
+  --page-border-strong: #cfdaf8;
+  --page-text-strong: #1d2a4a;
+  --page-text: #334064;
+  --page-text-muted: #5f6b8d;
+  --page-white: #ffffff;
+  --page-accent: #1f56d9;
+  --page-accent-2: #4a78ef;
+  --page-accent-alt: #1d4ed8;
+  --page-success-bg: #f0fdf4;
+  --page-success-border: #86efac;
+  --page-success-text: #166534;
+  --page-warn-bg: #fff7ed;
+  --page-warn-border: #fed7aa;
+  --page-warn-text: #b45309;
+  --page-danger-bg: #fef2f2;
+  --page-danger-border: #fecaca;
+  --page-danger-text: #b91c1c;
+}
+
+:root[data-theme='dark'] {
+  --page-bg: #081225;
+  --page-surface: #0f1b33;
+  --page-surface-muted: #13203b;
+  --page-border: #2f4268;
+  --page-border-strong: #415883;
+  --page-text-strong: #e8f0ff;
+  --page-text: #c3d2ef;
+  --page-text-muted: #9db1d6;
+  --page-white: #f4f7ff;
+  --page-accent: #6f95ff;
+  --page-accent-2: #89acff;
+  --page-accent-alt: #7fa2ff;
+  --page-success-bg: #123326;
+  --page-success-border: #2f7a59;
+  --page-success-text: #9ff0cb;
+  --page-warn-bg: #3b2a12;
+  --page-warn-border: #8f6c32;
+  --page-warn-text: #ffd188;
+  --page-danger-bg: #3a1820;
+  --page-danger-border: #8a3d4d;
+  --page-danger-text: #ffb6c2;
+}
 .student-settings-main {
   padding: 18px 20px 24px;
 }
@@ -10,8 +57,8 @@
 
 .settings-hero-card,
 .settings-card {
-  background: #ffffff;
-  border: 1px solid #e3e7f4;
+  background: var(--page-surface);
+  border: 1px solid var(--page-border);
   border-radius: 20px;
 }
 
@@ -27,20 +74,20 @@
   margin: 0;
   font-size: 42px;
   letter-spacing: -0.03em;
-  color: #1d2a4a;
+  color: var(--page-text-strong);
 }
 
 .settings-hero-card p {
   margin: 8px 0 0;
-  color: #5f6b8d;
+  color: var(--page-text-muted);
   font-size: 16px;
 }
 
 .settings-hero-card button {
   border: none;
   border-radius: 999px;
-  background: linear-gradient(135deg, #1f56d9 0%, #4a78ef 100%);
-  color: #fff;
+  background: linear-gradient(135deg, var(--page-accent) 0%, var(--page-accent-2) 100%);
+  color: var(--page-white);
   font-weight: 700;
   height: 38px;
   padding: 0 16px;
@@ -65,15 +112,15 @@
 
 .settings-card h2 {
   margin: 0;
-  color: #1d2a4a;
+  color: var(--page-text-strong);
   font-size: 24px;
   letter-spacing: -0.02em;
 }
 
 .account-row {
-  border: 1px solid #e6ebf8;
+  border: 1px solid var(--page-border);
   border-radius: 12px;
-  background: #f9fbff;
+  background: var(--page-surface-muted);
   padding: 10px 12px;
   display: flex;
   justify-content: space-between;
@@ -87,7 +134,7 @@
 }
 
 .account-row strong {
-  color: #1e2d4e;
+  color: var(--page-text-strong);
   font-size: 14px;
 }
 
@@ -99,7 +146,7 @@
 .toggle-item-student {
   border: 1px solid #e5eaf8;
   border-radius: 14px;
-  background: #f8faff;
+  background: var(--page-surface-muted);
   padding: 10px;
   display: flex;
   justify-content: space-between;
@@ -109,7 +156,7 @@
 
 .toggle-item-student strong {
   display: block;
-  color: #1d2a4a;
+  color: var(--page-text-strong);
   font-size: 14px;
 }
 
@@ -121,9 +168,9 @@
 }
 
 .security-item {
-  border: 1px solid #e6ebf8;
+  border: 1px solid var(--page-border);
   border-radius: 12px;
-  background: #f9fbff;
+  background: var(--page-surface-muted);
   padding: 12px;
   display: flex;
   justify-content: space-between;
@@ -133,7 +180,7 @@
 
 .security-item strong {
   display: block;
-  color: #1d2a4a;
+  color: var(--page-text-strong);
   font-size: 14px;
 }
 
@@ -148,8 +195,8 @@
 .summary-card button {
   border: none;
   border-radius: 10px;
-  background: #1f56d9;
-  color: #fff;
+  background: var(--page-accent);
+  color: var(--page-white);
   font-weight: 700;
   min-height: 34px;
   padding: 0 12px;
@@ -158,19 +205,19 @@
 
 .summary-card p {
   margin: 0;
-  color: #5f6b8d;
+  color: var(--page-text-muted);
 }
 
 .summary-track {
   height: 8px;
   border-radius: 999px;
-  background: #dbe4f7;
+  background: var(--page-border);
   overflow: hidden;
 }
 
 .summary-fill {
   height: 100%;
-  background: linear-gradient(90deg, #1f56d9 0%, #4a78ef 100%);
+  background: linear-gradient(90deg, var(--page-accent) 0%, var(--page-accent-2) 100%);
 }
 
 @media (max-width: 1100px) {
