@@ -23,7 +23,17 @@ const StudentMyCourses = () => {
 
   const studentId = user?._id || user?.id || 'guest';
   const progressStorageKey = `student-course-progress-${studentId}`;
-  const enrollmentStorageKey = `student-course-enrollments-${studentId}`;
+  const enrollmentStorageKeys = useMemo(() => {
+    const candidates = [user?._id, user?.id]
+      .map((value) => String(value || '').trim())
+      .filter(Boolean);
+
+    if (!candidates.length) {
+      return ['student-course-enrollments-guest'];
+    }
+
+    return Array.from(new Set(candidates.map((value) => `student-course-enrollments-${value}`)));
+  }, [user?._id, user?.id]);
 
   useEffect(() => {
     try {
@@ -36,12 +46,24 @@ const StudentMyCourses = () => {
 
   useEffect(() => {
     try {
-      const savedEnrollments = localStorage.getItem(enrollmentStorageKey);
-      setEnrolledCourseIds(savedEnrollments ? JSON.parse(savedEnrollments) : []);
+      const keysToCheck = Array.from(new Set([...enrollmentStorageKeys, 'student-course-enrollments-guest']));
+      const merged = new Set();
+
+      keysToCheck.forEach((key) => {
+        const raw = localStorage.getItem(key);
+        if (!raw) return;
+        const parsed = JSON.parse(raw);
+        if (!Array.isArray(parsed)) return;
+        parsed.forEach((courseId) => {
+          if (courseId) merged.add(courseId);
+        });
+      });
+
+      setEnrolledCourseIds(Array.from(merged));
     } catch {
       setEnrolledCourseIds([]);
     }
-  }, [enrollmentStorageKey]);
+  }, [enrollmentStorageKeys]);
 
   useEffect(() => {
     const loadCourses = async () => {

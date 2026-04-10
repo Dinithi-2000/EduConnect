@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { loginUser } from '../services/userService';
-import { getPasswordStrengthError, PASSWORD_POLICY_TEXT } from '../utils/passwordValidation';
 import './Login.css';
 
 const Login = () => {
@@ -30,12 +29,6 @@ const Login = () => {
     setError('');
     setMessage('');
 
-    const passwordError = getPasswordStrengthError(formData.password);
-    if (passwordError) {
-      setError(passwordError);
-      return;
-    }
-
     setLoading(true);
 
     try {
@@ -44,7 +37,8 @@ const Login = () => {
         // Use the login function from Auth context
         login(result.user, result.token);
         // Route student to student dashboard
-        if (result.user?.role === 'student') {
+        const role = String(result.user?.role || '').toLowerCase();
+        if (role === 'student') {
           navigate('/student-dashboard');
         } else {
           navigate('/');
@@ -116,7 +110,6 @@ const Login = () => {
                   required
                 />
               </div>
-              <p className="login-helper-text">{PASSWORD_POLICY_TEXT}</p>
             </div>
 
             <button type="submit" className="login-submit" disabled={loading}>

@@ -9,6 +9,26 @@ import { trackStudyActivity } from '../../services/notificationService';
 import './StudentCourses.css';
 
 const apiOrigin = API_URL.replace(/\/api\/?$/, '');
+const SETTINGS_STORAGE_KEY = 'student-settings-preferences';
+const THEME_STORAGE_KEY = 'student-theme-mode';
+
+const COURSE_BANNERS = [
+  'https://images.unsplash.com/photo-1513258496099-48168024aec0?auto=format&fit=crop&w=1600&q=80',
+  'https://images.unsplash.com/photo-1516321497487-e288fb19713f?auto=format&fit=crop&w=1600&q=80',
+  'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=1600&q=80',
+  'https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=1600&q=80',
+  'https://images.unsplash.com/photo-1529070538774-1843cb3265df?auto=format&fit=crop&w=1600&q=80',
+  'https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=1600&q=80',
+];
+
+const WORKSPACE_HERO_IMAGES = [
+  'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=1600&q=80',
+  'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=1600&q=80',
+  'https://images.unsplash.com/photo-1513258496099-48168024aec0?auto=format&fit=crop&w=1600&q=80',
+  'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=1600&q=80',
+  'https://images.unsplash.com/photo-1503676260728-1c00da094a0b?auto=format&fit=crop&w=1600&q=80',
+  'https://images.unsplash.com/photo-1584697964358-3e14ca57658b?auto=format&fit=crop&w=1600&q=80',
+];
 
 const extractWeekNumber = (module, fallbackIndex = 0) => {
   const title = String(module?.title || '');
@@ -71,6 +91,32 @@ const normalizeSavedNotesMap = (raw) => {
   return normalized;
 };
 
+const getCourseBanner = (course, index) => {
+  const seed = String(course?._id || course?.title || index || '0');
+  const hash = seed.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+  return COURSE_BANNERS[hash % COURSE_BANNERS.length];
+};
+
+const getWorkspaceHeroImage = ({ course, module, content }) => {
+  const url = String(content?.url || '').trim();
+  if (/\.(jpg|jpeg|png|webp|gif)$/i.test(url)) {
+    if (/^https?:\/\//i.test(url)) return url;
+    if (url.startsWith('/')) return `${apiOrigin}${url}`;
+    return `${apiOrigin}/${url}`;
+  }
+
+  const seed = String(
+    module?.title
+      || content?.title
+      || course?.title
+      || course?.subject
+      || course?._id
+      || 'workspace'
+  );
+  const hash = seed.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+  return WORKSPACE_HERO_IMAGES[hash % WORKSPACE_HERO_IMAGES.length];
+};
+
 const StudentCourses = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -86,6 +132,22 @@ const StudentCourses = () => {
   const [completionMap, setCompletionMap] = useState({});
   const [selectedModuleId, setSelectedModuleId] = useState('');
   const [selectedContentId, setSelectedContentId] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [themeMode, setThemeMode] = useState(() => {
+    try {
+      const storedTheme = localStorage.getItem(THEME_STORAGE_KEY);
+      if (storedTheme === 'dark' || storedTheme === 'light') return storedTheme;
+
+      const rawSettings = localStorage.getItem(SETTINGS_STORAGE_KEY);
+      const parsed = rawSettings ? JSON.parse(rawSettings) : null;
+      if (parsed && typeof parsed.darkMode === 'boolean') {
+        return parsed.darkMode ? 'dark' : 'light';
+      }
+    } catch {
+      // Ignore malformed local storage values.
+    }
+    return 'light';
+  });
   const [viewMode, setViewMode] = useState('overview');
   const [moduleOrderMode, setModuleOrderMode] = useState('week');
   const [workspaceTab, setWorkspaceTab] = useState('');
@@ -120,9 +182,31 @@ const StudentCourses = () => {
   const lastActivityPingRef = useRef('');
 
   const progressStorageKey = `student-course-progress-${studentId}`;
-  const enrollmentStorageKey = `student-course-enrollments-${studentId}`;
+  const enrollmentStorageKeys = useMemo(() => {
+    const candidates = [user?._id, user?.id]
+      .map((value) => String(value || '').trim())
+      .filter(Boolean);
+
+    if (!candidates.length) {
+      return ['student-course-enrollments-guest'];
+    }
+
+    return Array.from(new Set(candidates.map((value) => `student-course-enrollments-${value}`)));
+  }, [user?._id, user?.id]);
+
+  const enrollmentStorageKey = enrollmentStorageKeys[0];
   const notesStorageKey = `student-course-notes-${studentId}`;
   const noteReactionsStorageKey = `student-note-reactions-${studentId}`;
+
+  const isDarkMode = themeMode === 'dark';
+
+  useEffect(() => {
+    localStorage.setItem(THEME_STORAGE_KEY, themeMode);
+  }, [themeMode]);
+
+  const handleToggleTheme = () => {
+    setThemeMode((prev) => (prev === 'dark' ? 'light' : 'dark'));
+  };
 
   useEffect(() => {
     try {
@@ -135,12 +219,24 @@ const StudentCourses = () => {
 
   useEffect(() => {
     try {
-      const savedEnrollments = localStorage.getItem(enrollmentStorageKey);
-      setEnrolledCourseIds(savedEnrollments ? JSON.parse(savedEnrollments) : []);
+      const keysToCheck = Array.from(new Set([...enrollmentStorageKeys, 'student-course-enrollments-guest']));
+      const merged = new Set();
+
+      keysToCheck.forEach((key) => {
+        const raw = localStorage.getItem(key);
+        if (!raw) return;
+        const parsed = JSON.parse(raw);
+        if (!Array.isArray(parsed)) return;
+        parsed.forEach((courseId) => {
+          if (courseId) merged.add(courseId);
+        });
+      });
+
+      setEnrolledCourseIds(Array.from(merged));
     } catch {
       setEnrolledCourseIds([]);
     }
-  }, [enrollmentStorageKey]);
+  }, [enrollmentStorageKeys]);
 
   useEffect(() => {
     try {
@@ -166,8 +262,14 @@ const StudentCourses = () => {
   }, [completionMap, progressStorageKey]);
 
   useEffect(() => {
-    localStorage.setItem(enrollmentStorageKey, JSON.stringify(enrolledCourseIds));
-  }, [enrolledCourseIds, enrollmentStorageKey]);
+    const payload = JSON.stringify(enrolledCourseIds);
+    enrollmentStorageKeys.forEach((key) => {
+      localStorage.setItem(key, payload);
+    });
+
+    // Keep guest key synced for backward compatibility across prior sessions.
+    localStorage.setItem('student-course-enrollments-guest', payload);
+  }, [enrolledCourseIds, enrollmentStorageKeys]);
 
   useEffect(() => {
     localStorage.setItem(notesStorageKey, JSON.stringify(savedNotesMap));
@@ -212,6 +314,42 @@ const StudentCourses = () => {
   const selectedCourse = useMemo(() => {
     return courses.find((course) => course._id === selectedCourseId) || null;
   }, [courses, selectedCourseId]);
+
+  const filteredCourses = useMemo(() => {
+    const query = String(searchQuery || '').trim().toLowerCase();
+    if (!query) return courses;
+
+    return courses.filter((course) => {
+      const baseText = [
+        course.title,
+        course.subject,
+        course.level,
+        course.description,
+      ]
+        .filter(Boolean)
+        .join(' ')
+        .toLowerCase();
+
+      if (baseText.includes(query)) return true;
+
+      return (course.modules || []).some((module) => {
+        const moduleText = [module.title, module.description]
+          .filter(Boolean)
+          .join(' ')
+          .toLowerCase();
+
+        if (moduleText.includes(query)) return true;
+
+        return (module.contents || []).some((content) => {
+          const contentText = [content.title, content.contentType, content.textContent]
+            .filter(Boolean)
+            .join(' ')
+            .toLowerCase();
+          return contentText.includes(query);
+        });
+      });
+    });
+  }, [courses, searchQuery]);
 
   const displayName = user?.name || 'Student';
   const initials = displayName
@@ -442,13 +580,39 @@ const StudentCourses = () => {
     setViewMode('workspace');
   };
 
-  const handleToggleEnrollment = (courseId) => {
-    setEnrolledCourseIds((prev) => {
-      if (prev.includes(courseId)) {
-        return prev.filter((id) => id !== courseId);
-      }
-      return [...prev, courseId];
-    });
+  const handleOpenCourseWorkspace = (course) => {
+    if (!course?._id) return;
+
+    const orderedModules = sortModulesByMode(course.modules || [], moduleOrderMode);
+    const firstModule = orderedModules[0] || null;
+
+    setSelectedCourseId(course._id);
+    if (firstModule?._id) {
+      setSelectedModuleId(firstModule._id);
+      setSelectedContentId(firstModule?.contents?.[0]?._id || '');
+    }
+    setWorkspaceTab('');
+    setViewMode('workspace');
+  };
+
+  const handleEnrollOrOpen = (course) => {
+    const isEnrolled = enrolledCourseIds.includes(course._id);
+
+    if (!isEnrolled) {
+      setEnrolledCourseIds((prev) => {
+        if (prev.includes(course._id)) return prev;
+        const next = [...prev, course._id];
+        const payload = JSON.stringify(next);
+        enrollmentStorageKeys.forEach((key) => {
+          localStorage.setItem(key, payload);
+        });
+        localStorage.setItem('student-course-enrollments-guest', payload);
+        return next;
+      });
+      return;
+    }
+
+    handleOpenCourseWorkspace(course);
   };
 
   useEffect(() => {
@@ -672,7 +836,7 @@ const StudentCourses = () => {
   };
 
   return (
-    <div className="student-v2-shell student-courses-shell">
+    <div className={`student-v2-shell student-courses-shell ${isDarkMode ? 'theme-dark' : ''}`}>
       <aside className="student-v2-sidebar">
         <div className="student-v2-brand">
           <span className="brand-mark">E</span>
@@ -713,11 +877,21 @@ const StudentCourses = () => {
               type="text"
               placeholder="Search courses, sessions, materials..."
               aria-label="Search courses, sessions, materials"
+              value={searchQuery}
+              onChange={(event) => setSearchQuery(event.target.value)}
             />
           </div>
 
           <div className="student-v2-tools">
-            <button type="button" className="ghost-icon" aria-label="Theme">◐</button>
+            <button
+              type="button"
+              className="ghost-icon"
+              aria-label="Theme"
+              title={isDarkMode ? 'Switch to light mode' : 'Switch to dark mode'}
+              onClick={handleToggleTheme}
+            >
+              {isDarkMode ? '☀' : '◐'}
+            </button>
             <button type="button" className="ghost-icon" aria-label="Notifications">🔔</button>
             <button type="button" className="premium-pill" onClick={() => navigate('/student/premium')}>
               <span aria-hidden="true">👑</span>
@@ -784,9 +958,20 @@ const StudentCourses = () => {
           ) : courses.length === 0 ? (
             <div className="state-box">No courses found. Please check back later.</div>
           ) : viewMode === 'overview' ? (
+            filteredCourses.length === 0 ? (
+              <div className="state-box">
+                No results found for "{searchQuery}". Try a course title, subject, or module name.
+              </div>
+            ) : (
             <div className="courses-overview-grid">
-              {courses.map((course) => (
+              {filteredCourses.map((course, courseIndex) => (
                 <article key={course._id} className="overview-course-card">
+                  <div
+                    className="overview-course-banner"
+                    style={{ backgroundImage: `linear-gradient(135deg, rgba(24, 61, 156, 0.28), rgba(40, 131, 185, 0.2)), url(${getCourseBanner(course, courseIndex)})` }}
+                  >
+                    <span className="overview-course-badge">{(course.modules || []).length} modules</span>
+                  </div>
                   {(() => {
                     const isEnrolled = enrolledCourseIds.includes(course._id);
                     return (
@@ -796,13 +981,12 @@ const StudentCourses = () => {
                       <p>{course.subject} • {course.level}</p>
                     </div>
                     <div className="overview-course-actions">
-                      <span>{(course.modules || []).length} modules</span>
                       <button
                         type="button"
-                        className={`enroll-btn ${isEnrolled ? 'enrolled' : ''}`}
-                        onClick={() => handleToggleEnrollment(course._id)}
+                        className={`enroll-btn ${isEnrolled ? 'enrolled open' : ''}`}
+                        onClick={() => handleEnrollOrOpen(course)}
                       >
-                        {isEnrolled ? 'Enrolled' : 'Enroll'}
+                        {isEnrolled ? 'Open' : 'Enroll'}
                       </button>
                     </div>
                   </div>
@@ -812,7 +996,7 @@ const StudentCourses = () => {
                   <p className="overview-course-description">{course.description || 'No description available.'}</p>
 
                   <div className="overview-module-list">
-                    {sortModulesByMode(course.modules || [], moduleOrderMode).map((module, moduleIndex) => {
+                    {sortModulesByMode(course.modules || [], moduleOrderMode).slice(0, 1).map((module, moduleIndex) => {
                       const isEnrolled = enrolledCourseIds.includes(course._id);
                       return (
                         <button
@@ -832,6 +1016,12 @@ const StudentCourses = () => {
                       );
                     })}
 
+                    {(course.modules || []).length > 1 && (
+                      <div className="overview-more-modules">
+                        +{(course.modules || []).length - 1} more modules
+                      </div>
+                    )}
+
                     {(course.modules || []).length === 0 && (
                       <div className="empty-inline">No modules in this course yet.</div>
                     )}
@@ -839,6 +1029,7 @@ const StudentCourses = () => {
                 </article>
               ))}
             </div>
+            )
           ) : !selectedCourse ? (
             <div className="state-box">Select a course to open the workspace.</div>
           ) : (
@@ -866,7 +1057,16 @@ const StudentCourses = () => {
             <div className="course-content-workspace">
               <section className="course-workspace-main">
                 <div className="lesson-hero">
-                  <div className="lesson-preview">
+                  <div
+                    className="lesson-preview"
+                    style={{
+                      backgroundImage: `linear-gradient(135deg, rgba(11, 34, 87, 0.54), rgba(10, 48, 118, 0.46)), url(${getWorkspaceHeroImage({
+                        course: selectedCourse,
+                        module: activeModule,
+                        content: activeContent,
+                      })})`,
+                    }}
+                  >
                     <div className="lesson-preview-overlay">
                       <button type="button" className="play-btn" onClick={handleOpenCurrentResource}>▶</button>
                     </div>

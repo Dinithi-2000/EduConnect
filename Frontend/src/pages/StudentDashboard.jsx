@@ -5,10 +5,29 @@ import AIChatWidget from '../components/AIChatWidget';
 import { getMyProgress } from '../services/quizService';
 import './StudentDashboard.css';
 
+const SETTINGS_STORAGE_KEY = 'student-settings-preferences';
+const THEME_STORAGE_KEY = 'student-theme-mode';
+const DASHBOARD_HERO_IMAGE = 'https://img.freepik.com/free-photo/learning-education-ideas-insight-intelligence-study-concept_53876-120116.jpg';
+
 const StudentDashboard = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [chatOpenSignal, setChatOpenSignal] = useState(0);
+  const [themeMode, setThemeMode] = useState(() => {
+    try {
+      const storedTheme = localStorage.getItem(THEME_STORAGE_KEY);
+      if (storedTheme === 'dark' || storedTheme === 'light') return storedTheme;
+
+      const rawSettings = localStorage.getItem(SETTINGS_STORAGE_KEY);
+      const parsed = rawSettings ? JSON.parse(rawSettings) : null;
+      if (parsed && typeof parsed.darkMode === 'boolean') {
+        return parsed.darkMode ? 'dark' : 'light';
+      }
+    } catch {
+      // Ignore malformed local storage values.
+    }
+    return 'light';
+  });
   const [weeklyAttempts, setWeeklyAttempts] = useState([]);
   const [weeklyLoading, setWeeklyLoading] = useState(true);
   const [weeklyError, setWeeklyError] = useState('');
@@ -137,6 +156,15 @@ const StudentDashboard = () => {
   }, [weeklyAttempts]);
 
   const hasWeeklyData = weeklyChartData.some((point) => point.attempts > 0);
+  const isDarkMode = themeMode === 'dark';
+
+  useEffect(() => {
+    localStorage.setItem(THEME_STORAGE_KEY, themeMode);
+  }, [themeMode]);
+
+  const handleToggleTheme = () => {
+    setThemeMode((prev) => (prev === 'dark' ? 'light' : 'dark'));
+  };
 
   const weeklyLinePoints = useMemo(() => {
     if (!weeklyChartData.length) return '';
@@ -190,7 +218,7 @@ const StudentDashboard = () => {
   };
 
   return (
-    <div className="student-v2-shell">
+    <div className={`student-v2-shell ${isDarkMode ? 'theme-dark' : ''}`}>
       <aside className="student-v2-sidebar">
         <div className="student-v2-brand">
           <span className="brand-mark">E</span>
@@ -219,6 +247,10 @@ const StudentDashboard = () => {
           <h3>Upgrade to Pro</h3>
           <button type="button" onClick={() => navigate('/student/premium')}>Upgrade Now</button>
         </div>
+
+        <button type="button" className="student-v2-logout" onClick={handleLogout}>
+          Logout
+        </button>
       </aside>
 
       <main className="student-v2-main">
@@ -233,7 +265,15 @@ const StudentDashboard = () => {
           </div>
 
           <div className="student-v2-tools">
-            <button type="button" className="ghost-icon" aria-label="Theme">◐</button>
+            <button
+              type="button"
+              className="ghost-icon"
+              aria-label="Theme"
+              title={isDarkMode ? 'Switch to light mode' : 'Switch to dark mode'}
+              onClick={handleToggleTheme}
+            >
+              {isDarkMode ? '☀' : '◐'}
+            </button>
             <button type="button" className="ghost-icon" aria-label="Notifications">🔔</button>
             <button type="button" className="premium-pill" onClick={() => navigate('/student/premium')}>
               <span aria-hidden="true">👑</span>
@@ -253,6 +293,23 @@ const StudentDashboard = () => {
             </button>
           </div>
         </header>
+
+        <section className="student-v2-hero" aria-label="Learning spotlight">
+          <div className="student-v2-hero-copy">
+            <p className="hero-kicker">Learning Spotlight</p>
+            <h2>Education creates a better future for {firstName}</h2>
+            <p>
+              Stay consistent with your courses, collaborate with classmates, and build momentum with focused daily study.
+            </p>
+            <div className="student-v2-hero-actions">
+              <button type="button" onClick={() => navigate('/student/courses')}>Explore Courses</button>
+              <span>12,000+ students actively learning</span>
+            </div>
+          </div>
+          <div className="student-v2-hero-media">
+            <img src={DASHBOARD_HERO_IMAGE} alt="Student learning on a laptop" />
+          </div>
+        </section>
 
         <section className="student-v2-welcome-row">
           <div>
@@ -420,10 +477,6 @@ const StudentDashboard = () => {
                 ))}
               </div>
             </section>
-
-            <button type="button" className="student-v2-logout" onClick={handleLogout}>
-              Logout
-            </button>
           </aside>
         </section>
 
