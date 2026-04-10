@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" role="img" aria-label="Course premium">
+  <defs>
+    <linearGradient id="bg2" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0%" stop-color="#101029" />
+      <stop offset="100%" stop-color="#274f9d" />
+    </linearGradient>
+    <radialGradient id="glow2" cx="25%" cy="25%" r="75%">
+      <stop offset="0%" stop-color="#7c8cff" stop-opacity="0.85" />
+      <stop offset="100%" stop-color="#7c8cff" stop-opacity="0" />
+    </radialGradient>
+  </defs>
+  <rect width="640" height="360" fill="url(#bg2)" />
+  <rect width="640" height="360" fill="url(#glow2)" />
+  <g fill="none" stroke="#c0c9ff" stroke-opacity="0.35" stroke-width="2">
+    <rect x="58" y="86" width="180" height="132" rx="14" />
+    <rect x="272" y="66" width="310" height="160" rx="16" />
+    <path d="M58 246 H582" />
+  </g>
+  <text x="58" y="70" fill="#f2f4ff" font-size="34" font-family="Segoe UI, Arial, sans-serif" font-weight="700">COURSE</text>
+  <text x="58" y="292" fill="#c2ceff" font-size="22" font-family="Segoe UI, Arial, sans-serif">Premium Learning Path</text>
+</svg>

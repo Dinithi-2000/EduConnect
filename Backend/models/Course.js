@@ -102,6 +102,20 @@ const courseSchema = new mongoose.Schema({
     trim: true,
     default: ''
   },
+  isPremium: {
+    type: Boolean,
+    default: false
+  },
+  premiumPrice: {
+    type: Number,
+    min: [0, 'Premium price cannot be negative'],
+    default: 0
+  },
+  premiumCurrency: {
+    type: String,
+    trim: true,
+    default: 'USD'
+  },
   isPublished: {
     type: Boolean,
     default: false

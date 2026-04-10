@@ -5,29 +5,57 @@ const {
   queueReceiptEmail
 } = require('../utils/platformStore');
 const Quiz = require('../models/Quiz');
+const Course = require('../models/Course');
+const Session = require('../models/Session');
+const PaymentTransaction = require('../models/PaymentTransaction');
 const Stripe = require('stripe');
 
-const premiumCatalog = [
-  { id: 'quiz-premium-001', type: 'quiz', title: 'Advanced OOP Quiz Pack', amount: 9.99, currency: 'USD' },
-  { id: 'course-premium-001', type: 'course', title: 'Data Structures Masterclass', amount: 19.99, currency: 'USD' },
-  { id: 'kuppi-premium-001', type: 'kuppi', title: 'Kuppi Live: Exam Sprint', amount: 14.99, currency: 'USD' }
-];
-
 const findCatalogItem = async (itemId) => {
-  const staticItem = premiumCatalog.find((item) => item.id === itemId);
-  if (staticItem) return staticItem;
-
   if (String(itemId).startsWith('quiz-premium-')) {
     const quizId = String(itemId).replace('quiz-premium-', '');
-    const quiz = await Quiz.findById(quizId).select('title isPremium premiumPrice premiumCurrency isActive');
+    const quiz = await Quiz.findById(quizId).select('title subject isPremium premiumPrice premiumCurrency isActive');
     if (!quiz || !quiz.isActive || !quiz.isPremium) return null;
 
     return {
       id: itemId,
       type: 'quiz',
       title: quiz.title,
+      subtitle: quiz.subject || '',
       amount: Number(quiz.premiumPrice || 0),
-      currency: quiz.premiumCurrency || 'USD'
+      currency: quiz.premiumCurrency || 'USD',
+      imageUrl: ''
+    };
+  }
+
+  if (String(itemId).startsWith('course-premium-')) {
+    const courseId = String(itemId).replace('course-premium-', '');
+    const course = await Course.findById(courseId).select('title subject description thumbnailUrl isPremium premiumPrice premiumCurrency isPublished');
+    if (!course || !course.isPublished || !course.isPremium) return null;
+
+    return {
+      id: itemId,
+      type: 'course',
+      title: course.title,
+      subtitle: course.subject || course.description || '',
+      amount: Number(course.premiumPrice || 0),
+      currency: course.premiumCurrency || 'USD',
+      imageUrl: course.thumbnailUrl || ''
+    };
+  }
+
+  if (String(itemId).startsWith('kuppi-premium-')) {
+    const sessionId = String(itemId).replace('kuppi-premium-', '');
+    const session = await Session.findById(sessionId).select('title subject description isPremium premiumPrice premiumCurrency status');
+    if (!session || !session.isPremium || session.status === 'cancelled') return null;
+
+    return {
+      id: itemId,
+      type: 'kuppi',
+      title: session.title,
+      subtitle: session.subject || session.description || '',
+      amount: Number(session.premiumPrice || 0),
+      currency: session.premiumCurrency || 'USD',
+      imageUrl: ''
     };
   }
 
@@ -162,18 +190,48 @@ const completePurchase = async (req, res) => {
 const getPremiumCatalog = async (req, res) => {
   try {
     const premiumQuizzes = await Quiz.find({ isActive: true, isPremium: true })
-      .select('_id title premiumPrice premiumCurrency')
+      .select('_id title subject premiumPrice premiumCurrency')
+      .sort({ createdAt: -1 });
+
+    const premiumCourses = await Course.find({ isPublished: true, isPremium: true })
+      .select('_id title subject description thumbnailUrl premiumPrice premiumCurrency')
+      .sort({ createdAt: -1 });
+
+    const premiumKuppiSessions = await Session.find({ isPremium: true, status: { $ne: 'cancelled' } })
+      .select('_id title subject description premiumPrice premiumCurrency')
       .sort({ createdAt: -1 });
 
     const quizItems = premiumQuizzes.map((quiz) => ({
       id: `quiz-premium-${quiz._id.toString()}`,
       type: 'quiz',
       title: quiz.title,
+      subtitle: quiz.subject || '',
       amount: Number(quiz.premiumPrice || 0),
-      currency: quiz.premiumCurrency || 'USD'
+      currency: quiz.premiumCurrency || 'USD',
+      imageUrl: ''
     }));
 
-    const allItems = [...quizItems, ...premiumCatalog];
+    const courseItems = premiumCourses.map((course) => ({
+      id: `course-premium-${course._id.toString()}`,
+      type: 'course',
+      title: course.title,
+      subtitle: course.subject || course.description || '',
+      amount: Number(course.premiumPrice || 0),
+      currency: course.premiumCurrency || 'USD',
+      imageUrl: course.thumbnailUrl || ''
+    }));
+
+    const kuppiItems = premiumKuppiSessions.map((session) => ({
+      id: `kuppi-premium-${session._id.toString()}`,
+      type: 'kuppi',
+      title: session.title,
+      subtitle: session.subject || session.description || '',
+      amount: Number(session.premiumPrice || 0),
+      currency: session.premiumCurrency || 'USD',
+      imageUrl: ''
+    }));
+
+    const allItems = [...quizItems, ...courseItems, ...kuppiItems];
     const studentId = req.user?._id ? req.user._id.toString() : null;
 
     const data = await Promise.all(
@@ -198,6 +256,31 @@ const getPremiumCatalog = async (req, res) => {
     return res.status(500).json({
       success: false,
       message: 'Failed to load premium catalog',
+      error: error.message
+    });
+  }
+};
+
+const getRecentTransactions = async (req, res) => {
+  try {
+    const isPrivileged = ['admin', 'teacher'].includes(req.user?.role);
+    const query = isPrivileged ? {} : { studentId: req.user?._id?.toString() || '' };
+
+    const transactions = await PaymentTransaction.find(query)
+      .select('id itemTitle email createdAt amount currency status paymentGateway')
+      .sort({ createdAt: -1 })
+      .limit(12)
+      .lean();
+
+    return res.json({
+      success: true,
+      count: transactions.length,
+      data: transactions
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to load recent transactions',
       error: error.message
     });
   }
@@ -381,6 +464,7 @@ module.exports = {
   completePurchase,
   getPremiumCatalog,
   getPaymentGatewayStatus,
+  getRecentTransactions,
   createStripeCheckoutSession,
   completeStripeCheckout
 };

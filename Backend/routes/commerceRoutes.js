@@ -3,6 +3,7 @@ const {
 	completePurchase,
 	getPremiumCatalog,
 	getPaymentGatewayStatus,
+	getRecentTransactions,
 	createStripeCheckoutSession,
 	completeStripeCheckout
 } = require('../controllers/commerceController');
@@ -12,6 +13,7 @@ const router = express.Router();
 
 router.get('/premium-catalog', protect, getPremiumCatalog);
 router.get('/payment-gateways', protect, getPaymentGatewayStatus);
+router.get('/recent-transactions', protect, getRecentTransactions);
 router.post('/complete-purchase', protect, completePurchase);
 router.post('/stripe/create-checkout-session', protect, createStripeCheckoutSession);
 router.post('/stripe/complete-checkout', protect, completeStripeCheckout);

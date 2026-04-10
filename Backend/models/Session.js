@@ -55,6 +55,20 @@ const sessionSchema = new mongoose.Schema(
       mimeType: { type: String, default: '' },
       size: { type: Number, default: 0 },
     },
+    isPremium: {
+      type: Boolean,
+      default: false,
+    },
+    premiumPrice: {
+      type: Number,
+      min: [0, 'Premium price cannot be negative'],
+      default: 0,
+    },
+    premiumCurrency: {
+      type: String,
+      trim: true,
+      default: 'USD',
+    },
     status: {
       type: String,
       enum: ['upcoming', 'ongoing', 'completed', 'cancelled'],

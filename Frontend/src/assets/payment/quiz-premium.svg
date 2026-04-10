@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" role="img" aria-label="Quiz premium">
+  <defs>
+    <linearGradient id="bg" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0%" stop-color="#071330" />
+      <stop offset="100%" stop-color="#0d3a8a" />
+    </linearGradient>
+    <radialGradient id="glow" cx="70%" cy="30%" r="60%">
+      <stop offset="0%" stop-color="#34d6ff" stop-opacity="0.75" />
+      <stop offset="100%" stop-color="#34d6ff" stop-opacity="0" />
+    </radialGradient>
+  </defs>
+  <rect width="640" height="360" fill="url(#bg)" />
+  <rect width="640" height="360" fill="url(#glow)" />
+  <g fill="none" stroke="#9be8ff" stroke-opacity="0.4" stroke-width="2">
+    <path d="M40 300 C160 220, 260 340, 380 250 S560 210, 610 280" />
+    <circle cx="140" cy="120" r="48" />
+    <circle cx="430" cy="170" r="70" />
+  </g>
+  <text x="36" y="70" fill="#e8f8ff" font-size="36" font-family="Segoe UI, Arial, sans-serif" font-weight="700">QUIZ</text>
+  <text x="36" y="108" fill="#8bc6ff" font-size="22" font-family="Segoe UI, Arial, sans-serif">Premium Assessment</text>
+</svg>

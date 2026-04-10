@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" role="img" aria-label="Kuppi premium">
+  <defs>
+    <linearGradient id="bg3" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0%" stop-color="#131428" />
+      <stop offset="100%" stop-color="#305089" />
+    </linearGradient>
+    <radialGradient id="glow3" cx="80%" cy="20%" r="65%">
+      <stop offset="0%" stop-color="#b38dff" stop-opacity="0.75" />
+      <stop offset="100%" stop-color="#b38dff" stop-opacity="0" />
+    </radialGradient>
+  </defs>
+  <rect width="640" height="360" fill="url(#bg3)" />
+  <rect width="640" height="360" fill="url(#glow3)" />
+  <g fill="none" stroke="#d5c4ff" stroke-opacity="0.35" stroke-width="2">
+    <path d="M100 250 C160 170, 260 170, 320 250 C380 170, 480 170, 540 250" />
+    <rect x="120" y="86" width="400" height="122" rx="20" />
+    <circle cx="320" cy="146" r="24" />
+  </g>
+  <text x="110" y="74" fill="#f4efff" font-size="34" font-family="Segoe UI, Arial, sans-serif" font-weight="700">SESSION</text>
+  <text x="110" y="295" fill="#d8cbff" font-size="22" font-family="Segoe UI, Arial, sans-serif">Premium Kuppi Live</text>
+</svg>

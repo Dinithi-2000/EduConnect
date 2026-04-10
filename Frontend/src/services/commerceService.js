@@ -10,6 +10,11 @@ export const getPaymentGatewayStatus = async () => {
   return response.data;
 };
 
+export const getRecentTransactions = async () => {
+  const response = await api.get('/commerce/recent-transactions');
+  return response.data;
+};
+
 export const createStripeCheckoutSession = async (payload) => {
   const response = await api.post('/commerce/stripe/create-checkout-session', payload);
   return response.data;
