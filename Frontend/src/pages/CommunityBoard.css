@@ -261,6 +261,63 @@
   gap: 10px;
 }
 
+.advertisement-panel {
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  background: linear-gradient(145deg, rgba(10, 21, 55, 0.95), rgba(8, 18, 44, 0.95));
+  padding: 14px;
+}
+
+.ad-panel-head {
+  margin-bottom: 10px;
+}
+
+.ad-panel-head small {
+  color: var(--text-soft);
+  font-size: 0.66rem;
+}
+
+.ad-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(180px, 1fr));
+  gap: 10px;
+}
+
+.ad-card {
+  border: 1px solid rgba(90, 116, 186, 0.36);
+  border-radius: 14px;
+  overflow: hidden;
+  background: linear-gradient(150deg, rgba(13, 29, 70, 0.92), rgba(10, 23, 55, 0.92));
+  display: grid;
+}
+
+.ad-image {
+  height: 138px;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  border-bottom: 1px solid rgba(90, 116, 186, 0.36);
+}
+
+.ad-body {
+  padding: 10px;
+  display: grid;
+  gap: 6px;
+}
+
+.ad-body h3 {
+  margin: 0;
+  font-size: 0.86rem;
+  color: #e9f1ff;
+}
+
+.ad-body p {
+  margin: 0;
+  color: var(--text-mid);
+  font-size: 0.69rem;
+  line-height: 1.45;
+}
+
 .hub-card {
   padding: 12px;
   display: grid;
@@ -622,12 +679,41 @@ tbody td small {
   margin-top: 8px;
 }
 
+.image-preview-grid {
+  margin-top: 8px;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(120px, 1fr));
+  gap: 8px;
+}
+
+.image-preview-tile {
+  border: 1px solid rgba(90, 116, 186, 0.36);
+  border-radius: 10px;
+  background: rgba(16, 36, 81, 0.54);
+  padding: 6px;
+  display: grid;
+  gap: 6px;
+}
+
 .image-preview {
   width: 100%;
-  max-height: 210px;
+  max-height: 130px;
   object-fit: cover;
   border-radius: 10px;
   border: 1px solid rgba(90, 116, 186, 0.36);
+}
+
+.image-remove-btn {
+  width: 100%;
+  padding: 6px 8px;
+  font-size: 0.66rem;
+}
+
+.image-selection-note {
+  display: block;
+  margin-top: 6px;
+  color: var(--text-soft);
+  font-size: 0.64rem;
 }
 
 .form-actions {
@@ -643,7 +729,8 @@ tbody td small {
 .btn-create-post,
 .btn-approve,
 .btn-remove,
-.btn-flag-admin {
+.btn-flag-admin,
+.btn-remove-confirm {
   border: none;
   border-radius: 10px;
   padding: 9px 12px;
@@ -667,6 +754,37 @@ tbody td small {
   color: #f1f6ff;
 }
 
+.btn-remove-confirm {
+  background: linear-gradient(135deg, #f25266, #d93d54);
+  color: #fef2f4;
+}
+
+.remove-confirm-modal {
+  width: min(460px, 100%);
+}
+
+.remove-confirm-modal h2 {
+  margin: 0;
+  font-size: 1.2rem;
+}
+
+.remove-confirm-modal p {
+  margin: 8px 0 12px;
+  color: var(--text-mid);
+  font-size: 0.76rem;
+}
+
+.remove-confirm-highlight {
+  border: 1px solid rgba(255, 114, 132, 0.34);
+  border-radius: 10px;
+  background: rgba(255, 114, 132, 0.12);
+  color: #ffd3da;
+  padding: 10px;
+  margin-bottom: 10px;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
 .error-message {
   border: 1px solid rgba(255, 114, 132, 0.38);
   background: rgba(255, 114, 132, 0.14);
@@ -680,6 +798,10 @@ tbody td small {
 @media (max-width: 1100px) {
   .hub-grid {
     grid-template-columns: repeat(2, minmax(140px, 1fr));
+  }
+
+  .ad-grid {
+    grid-template-columns: repeat(2, minmax(160px, 1fr));
   }
 
   .moderation-grid {
@@ -717,7 +839,15 @@ tbody td small {
     grid-template-columns: 1fr;
   }
 
+  .ad-grid {
+    grid-template-columns: 1fr;
+  }
+
   .type-specific-grid {
     grid-template-columns: 1fr;
+  }
+
+  .image-preview-grid {
+    grid-template-columns: 1fr 1fr;
   }
 }

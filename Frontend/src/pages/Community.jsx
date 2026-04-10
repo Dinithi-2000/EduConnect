@@ -11,6 +11,7 @@ import {
   updatePost
 } from '../services/communityService';
 import { useAuth } from '../context/AuthContext';
+import { API_URL } from '../services/api';
 
 const categoryMap = {
   'lost-item': 'Lost & Found',
@@ -20,6 +21,8 @@ const categoryMap = {
   'help-request': 'Support',
   'idea-tip': 'Academic Tips'
 };
+
+const API_ORIGIN = API_URL.replace(/\/api\/?$/, '');
 
 const CommunityBoard = () => {
   const { user } = useAuth();
@@ -33,6 +36,8 @@ const CommunityBoard = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [windowDays, setWindowDays] = useState(30);
   const [moderationFilter, setModerationFilter] = useState('all');
+  const [removeConfirmPost, setRemoveConfirmPost] = useState(null);
+  const [removeSubmitting, setRemoveSubmitting] = useState(false);
   const [editingPost, setEditingPost] = useState(null);
   const [editSaving, setEditSaving] = useState(false);
   const [editError, setEditError] = useState('');
@@ -146,6 +151,22 @@ const CommunityBoard = () => {
     ];
   }, [visiblePosts]);
 
+  const advertisementPosts = useMemo(() => {
+    return visiblePosts
+      .filter((post) => ['announcement', 'event'].includes(String(post.type || '').toLowerCase()))
+      .filter((post) => String((post.imageUrl || post.imageUrls?.[0] || '')).trim())
+      .slice(0, 6);
+  }, [visiblePosts]);
+
+  const getPostImageUrl = (value) => {
+    const input = String(value || '').trim();
+    if (!input) return '';
+    if (input.startsWith('data:image/')) return input;
+    if (/^https?:\/\//i.test(input)) return input;
+    if (input.startsWith('/')) return `${API_ORIGIN}${input}`;
+    return `${API_ORIGIN}/${input}`;
+  };
+
   const moderationRows = useMemo(() => {
     let list = [...visiblePosts];
     if (moderationFilter === 'flagged') list = list.filter((post) => post.flagged);
@@ -175,11 +196,27 @@ const CommunityBoard = () => {
       } else if (action === 'approve') {
         await approveFlaggedPost(post._id);
       } else if (action === 'remove') {
-        await removePost(post._id);
+        setRemoveConfirmPost(post);
+        return;
       }
       await fetchAll();
     } catch {
       alert('Unable to process moderation action right now.');
+    }
+  };
+
+  const handleConfirmRemove = async () => {
+    if (!removeConfirmPost?._id) return;
+
+    try {
+      setRemoveSubmitting(true);
+      await removePost(removeConfirmPost._id, { userId: user?._id || user?.id, userRole: user?.role });
+      setRemoveConfirmPost(null);
+      await fetchAll();
+    } catch {
+      alert('Unable to remove this post right now.');
+    } finally {
+      setRemoveSubmitting(false);
     }
   };
 
@@ -353,6 +390,35 @@ const CommunityBoard = () => {
           ))}
         </section>
 
+        <section className="advertisement-panel">
+          <div className="panel-head ad-panel-head">
+            <h2>Advertisement Spotlight</h2>
+            <small>Visual campaign posts from announcements and events</small>
+          </div>
+
+          {advertisementPosts.length === 0 ? (
+            <div className="state-box">No advertisement images available yet.</div>
+          ) : (
+            <div className="ad-grid">
+              {advertisementPosts.map((post) => (
+                <article key={post._id} className="ad-card">
+                  <div
+                    className="ad-image"
+                    style={{ backgroundImage: `url(${getPostImageUrl(post.imageUrl || post.imageUrls?.[0])})` }}
+                    role="img"
+                    aria-label={post.title || 'Community advertisement'}
+                  />
+                  <div className="ad-body">
+                    <span className={`cat-chip ${post.type || 'announcement'}`}>{categoryMap[post.type] || 'General'}</span>
+                    <h3>{post.title}</h3>
+                    <p>{String(post.description || '').slice(0, 110)}{String(post.description || '').length > 110 ? '...' : ''}</p>
+                  </div>
+                </article>
+              ))}
+            </div>
+          )}
+        </section>
+
         <section className="moderation-grid">
           <article className="moderation-panel">
             <div className="panel-head">
@@ -445,6 +511,36 @@ const CommunityBoard = () => {
               fetchAll();
             }}
           />
+        )}
+
+        {removeConfirmPost && (
+          <div className="modal-overlay" onClick={() => (!removeSubmitting ? setRemoveConfirmPost(null) : null)}>
+            <div className="modal-content remove-confirm-modal" onClick={(event) => event.stopPropagation()}>
+              <h2>Remove Post</h2>
+              <p>
+                Remove this post from the active community feed?
+              </p>
+              <div className="remove-confirm-highlight">{removeConfirmPost.title}</div>
+              <div className="form-actions">
+                <button
+                  className="btn-cancel"
+                  type="button"
+                  onClick={() => setRemoveConfirmPost(null)}
+                  disabled={removeSubmitting}
+                >
+                  Cancel
+                </button>
+                <button
+                  className="btn-remove-confirm"
+                  type="button"
+                  onClick={handleConfirmRemove}
+                  disabled={removeSubmitting}
+                >
+                  {removeSubmitting ? 'Removing...' : 'Remove Post'}
+                </button>
+              </div>
+            </div>
+          </div>
         )}
 
         {editingPost && (

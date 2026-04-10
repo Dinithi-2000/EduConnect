@@ -15,6 +15,7 @@ const CommunityPostCard = ({ post, isAdmin, onPostUpdated, emoji }) => {
   const hasUserVoted = Array.isArray(post.upvotedBy)
     ? post.upvotedBy.some((voterId) => String(voterId) === String(currentUserId))
     : false;
+  const primaryImage = post.imageUrl || (Array.isArray(post.imageUrls) ? post.imageUrls[0] : '');
 
   const handleFlag = async () => {
     if (!flagReason.trim()) {
@@ -43,7 +44,7 @@ const CommunityPostCard = ({ post, isAdmin, onPostUpdated, emoji }) => {
   const handleRemove = async () => {
     if (window.confirm('Are you sure you want to remove this post?')) {
       try {
-        await removePost(post._id);
+        await removePost(post._id, { userId: currentUserId, userRole: user?.role });
         onPostUpdated();
       } catch (error) {
         console.error('Error removing post:', error);
@@ -54,7 +55,7 @@ const CommunityPostCard = ({ post, isAdmin, onPostUpdated, emoji }) => {
   const handleDelete = async () => {
     if (window.confirm('Are you sure you want to delete this post?')) {
       try {
-        await deletePost(post._id);
+        await deletePost(post._id, { userId: currentUserId, userRole: user?.role });
         onPostUpdated();
       } catch (error) {
         console.error('Error deleting post:', error);
@@ -121,8 +122,8 @@ const CommunityPostCard = ({ post, isAdmin, onPostUpdated, emoji }) => {
 
       <div className="post-body">
         <p className="post-description">{post.description}</p>
-        {post.imageUrl && (
-          <img src={post.imageUrl} alt="post" className="post-image" />
+        {primaryImage && (
+          <img src={primaryImage} alt="post" className="post-image" />
         )}
       </div>
 

@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { createPost } from '../../../services/communityService';
 import { useAuth } from '../../../context/AuthContext';
 import '../../CommunityBoard.css';
@@ -41,6 +41,7 @@ const isValidHttpUrl = (value) => {
 
 const CreatePostModal = ({ onClose, onPostCreated }) => {
   const { user } = useAuth();
+  const isAdmin = ['admin', 'teacher'].includes(String(user?.role || '').toLowerCase());
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -50,13 +51,15 @@ const CreatePostModal = ({ onClose, onPostCreated }) => {
     location: '',
     contactInfo: ''
   });
-  const [selectedImage, setSelectedImage] = useState(null);
-  const [previewUrl, setPreviewUrl] = useState('');
+  const [selectedImages, setSelectedImages] = useState([]);
+  const [previewUrls, setPreviewUrls] = useState([]);
   const [isDragging, setIsDragging] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
   const [typeFields, setTypeFields] = useState(typeSpecificDefaults['lost-item']);
   const fileInputRef = useRef(null);
+
+  const maxImageCount = isAdmin ? 5 : 1;
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -84,6 +87,22 @@ const CreatePostModal = ({ onClose, onPostCreated }) => {
       [name]: value
     }));
   };
+
+  useEffect(() => {
+    const objectUrls = selectedImages.map((file) => URL.createObjectURL(file));
+    setPreviewUrls(objectUrls);
+
+    return () => {
+      objectUrls.forEach((url) => URL.revokeObjectURL(url));
+    };
+  }, [selectedImages]);
+
+  useEffect(() => {
+    setSelectedImages((prev) => prev.slice(0, maxImageCount));
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  }, [maxImageCount]);
 
   const validateTypeSpecificFields = () => {
     if (formData.type === 'event') {
@@ -155,22 +174,43 @@ const CreatePostModal = ({ onClose, onPostCreated }) => {
     return '';
   };
 
-  const handleImageSelection = (file) => {
-    if (!file) return;
+  const handleImageSelection = (filesInput) => {
+    const incomingFiles = Array.from(filesInput || []).filter(Boolean);
+    if (incomingFiles.length === 0) return;
 
-    if (!file.type.startsWith('image/')) {
-      setError('Only image files are allowed');
-      return;
-    }
+    const validFiles = [];
+    for (const file of incomingFiles) {
+      if (!file.type.startsWith('image/')) {
+        setError('Only image files are allowed');
+        return;
+      }
 
-    if (file.size > 5 * 1024 * 1024) {
-      setError('Image size must be less than 5MB');
-      return;
+      if (file.size > 5 * 1024 * 1024) {
+        setError('Each image must be less than 5MB');
+        return;
+      }
+
+      validFiles.push(file);
     }
 
     setError('');
-    setSelectedImage(file);
-    setPreviewUrl(URL.createObjectURL(file));
+    setSelectedImages((prev) => {
+      const dedupeMap = new Map();
+      [...prev, ...validFiles].forEach((file) => {
+        const key = `${file.name}-${file.size}-${file.lastModified}`;
+        dedupeMap.set(key, file);
+      });
+
+      const merged = Array.from(dedupeMap.values());
+      if (merged.length > maxImageCount) {
+        setError(`You can upload up to ${maxImageCount} image${maxImageCount > 1 ? 's' : ''} for this post type`);
+      }
+      return merged.slice(0, maxImageCount);
+    });
+
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
   };
 
   const handleDragOver = (event) => {
@@ -186,13 +226,11 @@ const CreatePostModal = ({ onClose, onPostCreated }) => {
   const handleDrop = (event) => {
     event.preventDefault();
     setIsDragging(false);
-    const file = event.dataTransfer.files?.[0];
-    handleImageSelection(file);
+    handleImageSelection(event.dataTransfer.files);
   };
 
-  const removeSelectedImage = () => {
-    setSelectedImage(null);
-    setPreviewUrl('');
+  const removeSelectedImage = (index) => {
+    setSelectedImages((prev) => prev.filter((_, itemIndex) => itemIndex !== index));
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
@@ -275,10 +313,11 @@ const CreatePostModal = ({ onClose, onPostCreated }) => {
       postPayload.append('userId', user._id);
       postPayload.append('userName', user.name);
       postPayload.append('userEmail', user.email);
+      postPayload.append('userRole', user.role || '');
 
-      if (selectedImage) {
-        postPayload.append('image', selectedImage);
-      }
+      selectedImages.forEach((file) => {
+        postPayload.append('images', file);
+      });
 
       await createPost(postPayload);
       onPostCreated();
@@ -620,8 +659,9 @@ const CreatePostModal = ({ onClose, onPostCreated }) => {
               ref={fileInputRef}
               type="file"
               accept="image/*"
+              multiple={maxImageCount > 1}
               className="file-input-hidden"
-              onChange={(event) => handleImageSelection(event.target.files?.[0])}
+              onChange={(event) => handleImageSelection(event.target.files)}
             />
             <div
               className={`image-dropzone ${isDragging ? 'dragging' : ''}`}
@@ -630,30 +670,49 @@ const CreatePostModal = ({ onClose, onPostCreated }) => {
               onDrop={handleDrop}
               onClick={() => fileInputRef.current?.click()}
             >
-              <p>Drag and drop an image here, or click to browse</p>
-              <small>PNG, JPG, GIF, WEBP up to 5MB</small>
+              <p>
+                {maxImageCount > 1
+                  ? `Drag and drop up to ${maxImageCount} images, or click to browse`
+                  : 'Drag and drop an image here, or click to browse'}
+              </p>
+              <small>PNG, JPG, GIF, WEBP up to 5MB each</small>
             </div>
 
-            {previewUrl && (
-              <div className="image-preview-wrap">
-                <img src={previewUrl} alt="Preview" className="image-preview" />
-                <button
-                  type="button"
-                  className="btn-cancel image-remove-btn"
-                  onClick={removeSelectedImage}
-                >
-                  Remove image
-                </button>
-              </div>
+            {previewUrls.length > 0 && (
+              <>
+                <div className="image-preview-grid">
+                  {previewUrls.map((url, index) => (
+                    <div key={url} className="image-preview-tile">
+                      <img src={url} alt={`Preview ${index + 1}`} className="image-preview" />
+                      <button
+                        type="button"
+                        className="btn-cancel image-remove-btn"
+                        onClick={() => removeSelectedImage(index)}
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  ))}
+                </div>
+                <small className="image-selection-note">
+                  {selectedImages.length} / {maxImageCount} image{maxImageCount > 1 ? 's' : ''} selected
+                </small>
+              </>
             )}
 
-            {!previewUrl && (
-            <input
-              type="text"
-              value="No image selected"
-              readOnly
-              className="form-control"
-            />
+            {previewUrls.length === 0 && (
+              <input
+                type="text"
+                value="No image selected"
+                readOnly
+                className="form-control"
+              />
+            )}
+
+            {isAdmin && (
+              <small className="image-selection-note">
+                Admin posts support up to 5 images.
+              </small>
             )}
           </div>
 

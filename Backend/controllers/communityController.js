@@ -24,10 +24,27 @@ exports.createPost = async (req, res) => {
     }
 
     const normalizedTags = parsedTags.filter(Boolean);
+    const requestRole = String(req.user?.role || req.body.userRole || '').toLowerCase();
+    const canUploadGallery = requestRole === 'admin' || requestRole === 'teacher';
 
-    const imageUrl = req.file
-      ? `${req.protocol}://${req.get('host')}/uploads/community/${req.file.filename}`
-      : undefined;
+    const uploadedFiles = [
+      ...(req.file ? [req.file] : []),
+      ...(Array.isArray(req.files)
+        ? req.files
+        : [
+            ...((req.files && Array.isArray(req.files.image)) ? req.files.image : []),
+            ...((req.files && Array.isArray(req.files.images)) ? req.files.images : [])
+          ])
+    ];
+
+    const uploadedImageUrls = uploadedFiles.map(
+      (file) => `${req.protocol}://${req.get('host')}/uploads/community/${file.filename}`
+    );
+
+    const maxAllowedImages = canUploadGallery ? 5 : 1;
+    const imageUrls = uploadedImageUrls.slice(0, maxAllowedImages);
+
+    const imageUrl = imageUrls[0];
 
     if (!title || !description || !type || !userId) {
       return res.status(400).json({
@@ -46,6 +63,7 @@ exports.createPost = async (req, res) => {
       category,
       tags: normalizedTags,
       imageUrl,
+      imageUrls,
       location,
       contactInfo
     });
@@ -73,7 +91,12 @@ exports.getPosts = async (req, res) => {
     const filter = {};
 
     if (type) filter.type = type;
-    if (status) filter.status = status;
+    if (status) {
+      filter.status = status;
+    } else {
+      // Hide removed posts unless a status is explicitly requested.
+      filter.status = { $ne: 'removed' };
+    }
 
     if (search) {
       filter.$or = [
@@ -196,7 +219,9 @@ exports.updatePost = async (req, res) => {
 exports.deletePost = async (req, res) => {
   try {
     const { id } = req.params;
-    const userId = req.user?._id || req.body.userId;
+    const userId = req.user?._id || req.body?.userId || req.query?.userId;
+    const requestRole = String(req.user?.role || req.body?.userRole || req.query?.userRole || '').toLowerCase();
+    const isAdminRole = requestRole === 'admin' || requestRole === 'teacher';
 
     const post = await CommunityPost.findById(id);
     if (!post) {
@@ -206,7 +231,9 @@ exports.deletePost = async (req, res) => {
       });
     }
 
-    if (post.author.toString() !== userId.toString() && req.user?.role !== 'admin') {
+    const isAuthor = userId ? post.author.toString() === String(userId) : false;
+
+    if (!isAuthor && !isAdminRole) {
       return res.status(403).json({
         success: false,
         message: 'Not authorized to delete this post'

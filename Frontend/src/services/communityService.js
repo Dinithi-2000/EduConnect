@@ -45,9 +45,9 @@ export const updatePost = async (id, postData) => {
 };
 
 // Delete post
-export const deletePost = async (id) => {
+export const deletePost = async (id, userContext = {}) => {
   try {
-    const response = await api.delete(`/community/posts/${id}`);
+    const response = await api.delete(`/community/posts/${id}`, { data: userContext });
     return response.data;
   } catch (error) {
     throw error.response?.data || error;
@@ -85,9 +85,9 @@ export const approveFlaggedPost = async (id) => {
 };
 
 // Remove post
-export const removePost = async (id) => {
+export const removePost = async (id, userContext = {}) => {
   try {
-    const response = await api.post(`/community/posts/${id}/remove`);
+    const response = await api.post(`/community/posts/${id}/remove`, userContext);
     return response.data;
   } catch (error) {
     throw error.response?.data || error;
