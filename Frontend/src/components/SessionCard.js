@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../services/api';
+import { createStripeCheckoutSession } from '../services/commerceService';
 import './SessionCard.css';
 
 const subjectColors = {
@@ -34,6 +35,23 @@ export default function SessionCard({ session, isBooked = false, userRole, onBoo
     setBookingLoading(true);
     setBookingError('');
     try {
+      if (session.isPremium && !session.hasPremiumAccess) {
+        const payload = {
+          premiumItemId: `kuppi-premium-${session._id}`,
+          successUrl: `${window.location.origin}/sessions`,
+          cancelUrl: `${window.location.origin}/sessions?payment=cancelled`,
+        };
+
+        const checkoutSession = await createStripeCheckoutSession(payload);
+        const checkoutUrl = checkoutSession?.data?.checkoutUrl;
+        if (!checkoutUrl) {
+          throw new Error('Unable to start payment. Please try again.');
+        }
+
+        window.location.href = checkoutUrl;
+        return;
+      }
+
       await api.post(`/bookings/${session._id}`);
       if (onBookStatusChange) onBookStatusChange(session._id, true);
     } catch (err) {
@@ -49,6 +67,11 @@ export default function SessionCard({ session, isBooked = false, userRole, onBoo
         <span className="session-subject-badge" style={{ background: subStyle.bg, color: subStyle.color }}>
           {session.subject}
         </span>
+        {session.isPremium && (
+          <span className="badge badge-yellow session-premium-badge">
+            Premium {`${(session.premiumCurrency || 'USD').toUpperCase()} ${Number(session.premiumPrice || 0).toFixed(2)}`}
+          </span>
+        )}
         {isBooked && <span className="badge badge-green">✓ Booked</span>}
         {isFull && !isBooked && <span className="badge badge-red">Full</span>}
       </div>
@@ -96,7 +119,13 @@ export default function SessionCard({ session, isBooked = false, userRole, onBoo
               onClick={handleBookNow}
               disabled={bookingLoading || isBooked || isFull || isPast}
             >
-              {isBooked ? 'Booked' : bookingLoading ? 'Booking...' : isPast ? 'Ended' : 'Book the session'}
+              {isBooked
+                ? 'Booked'
+                : bookingLoading
+                  ? (session.isPremium && !session.hasPremiumAccess ? 'Redirecting...' : 'Booking...')
+                  : isPast
+                    ? 'Ended'
+                    : (session.isPremium && !session.hasPremiumAccess ? 'Pay & Book' : 'Book the session')}
             </button>
           )}
           <Link to={`/sessions/${session._id}`} className="btn btn-primary btn-sm">View</Link>

@@ -2,6 +2,7 @@ const Booking = require('../models/Booking');
 const Session = require('../models/Session');
 const Notification = require('../models/Notification');
 const { sendBookingConfirmationEmail } = require('../utils/emailService');
+const { hasUnlockedContent } = require('../utils/platformStore');
 
 /**
  * @desc    Book a session (student only)
@@ -18,6 +19,22 @@ const bookSession = async (req, res) => {
     }
     if (new Date(session.date) <= new Date()) {
       return res.status(400).json({ success: false, message: 'Cannot book a session that has already started.' });
+    }
+
+    if (session.isPremium) {
+      const hasAccess = await hasUnlockedContent({
+        studentId: req.user.id,
+        itemId: `kuppi-premium-${session._id.toString()}`,
+      });
+
+      if (!hasAccess) {
+        return res.status(402).json({
+          success: false,
+          message: 'This is a premium Kuppi session. Complete payment to unlock booking.',
+          requiresPayment: true,
+          premiumItemId: `kuppi-premium-${session._id.toString()}`,
+        });
+      }
     }
 
     // Check for duplicate booking

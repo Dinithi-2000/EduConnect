@@ -2,6 +2,14 @@ const Session = require('../models/Session');
 const Booking = require('../models/Booking');
 const fs = require('fs');
 const path = require('path');
+const { hasUnlockedContent } = require('../utils/platformStore');
+
+const ALLOWED_PREMIUM_CURRENCIES = ['USD', 'LKR', 'EUR', 'GBP'];
+
+const normalizePremiumCurrency = (currency) => {
+  const normalized = String(currency || 'USD').toUpperCase();
+  return ALLOWED_PREMIUM_CURRENCIES.includes(normalized) ? normalized : null;
+};
 
 /**
  * @desc    Create a new Kuppi session (Tutor only)
@@ -10,7 +18,18 @@ const path = require('path');
  */
 const createSession = async (req, res) => {
   try {
-    const { title, subject, description, date, duration, maxParticipants, meetingLink } = req.body;
+    const {
+      title,
+      subject,
+      description,
+      date,
+      duration,
+      maxParticipants,
+      meetingLink,
+      isPremium,
+      premiumPrice,
+      premiumCurrency,
+    } = req.body;
     let lectureMaterial = undefined;
 
     if (req.file) {
@@ -28,6 +47,24 @@ const createSession = async (req, res) => {
       return res.status(400).json({ success: false, message: 'Session date must be in the future.' });
     }
 
+    const normalizedIsPremium = String(isPremium).toLowerCase() === 'true' || isPremium === true;
+    const normalizedPremiumPrice = Number(premiumPrice ?? 0);
+    const normalizedPremiumCurrency = normalizePremiumCurrency(premiumCurrency);
+
+    if (!normalizedPremiumCurrency) {
+      return res.status(400).json({
+        success: false,
+        message: `Invalid premium currency. Allowed values: ${ALLOWED_PREMIUM_CURRENCIES.join(', ')}.`,
+      });
+    }
+
+    if (normalizedIsPremium && (!Number.isFinite(normalizedPremiumPrice) || normalizedPremiumPrice <= 0)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Premium sessions must have a valid price greater than 0.',
+      });
+    }
+
     const session = await Session.create({
       title,
       subject,
@@ -37,6 +74,9 @@ const createSession = async (req, res) => {
       maxParticipants,
       meetingLink,
       lectureMaterial,
+      isPremium: normalizedIsPremium,
+      premiumPrice: normalizedIsPremium ? normalizedPremiumPrice : 0,
+      premiumCurrency: normalizedPremiumCurrency,
       tutor: req.user.id,
     });
 
@@ -73,13 +113,31 @@ const getSessions = async (req, res) => {
       Session.countDocuments(query),
     ]);
 
+    let serializedSessions = sessions.map((session) => session.toObject());
+    if (req.user?.role === 'student') {
+      serializedSessions = await Promise.all(
+        serializedSessions.map(async (session) => {
+          if (!session.isPremium) {
+            return { ...session, hasPremiumAccess: true };
+          }
+
+          const hasAccess = await hasUnlockedContent({
+            studentId: req.user.id,
+            itemId: `kuppi-premium-${session._id.toString()}`,
+          });
+
+          return { ...session, hasPremiumAccess: hasAccess };
+        })
+      );
+    }
+
     res.json({
       success: true,
-      count: sessions.length,
+      count: serializedSessions.length,
       total,
       page: parseInt(page),
       pages: Math.ceil(total / parseInt(limit)),
-      sessions,
+      sessions: serializedSessions,
     });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
@@ -103,12 +161,24 @@ const getSessionById = async (req, res) => {
 
     // Check if current user has booked this session
     let isBooked = false;
+    let hasPremiumAccess = !session.isPremium;
     if (req.user.role === 'student') {
       const booking = await Booking.findOne({ student: req.user.id, session: session._id, status: 'confirmed' });
       isBooked = !!booking;
+      if (session.isPremium) {
+        hasPremiumAccess = await hasUnlockedContent({
+          studentId: req.user.id,
+          itemId: `kuppi-premium-${session._id.toString()}`,
+        });
+      }
     }
 
-    res.json({ success: true, session, isBooked });
+    const sessionPayload = session.toObject();
+    if (req.user.role === 'student') {
+      sessionPayload.hasPremiumAccess = hasPremiumAccess;
+    }
+
+    res.json({ success: true, session: sessionPayload, isBooked, hasPremiumAccess });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
@@ -145,8 +215,56 @@ const updateSession = async (req, res) => {
       return res.status(403).json({ success: false, message: 'Not authorized to update this session.' });
     }
 
-    const { title, subject, description, date, duration, maxParticipants, meetingLink, status } = req.body;
-    const updatePayload = { title, subject, description, date, duration, maxParticipants, meetingLink, status };
+    const {
+      title,
+      subject,
+      description,
+      date,
+      duration,
+      maxParticipants,
+      meetingLink,
+      status,
+      isPremium,
+      premiumPrice,
+      premiumCurrency,
+    } = req.body;
+    const updatePayload = {
+      title,
+      subject,
+      description,
+      date,
+      duration,
+      maxParticipants,
+      meetingLink,
+      status,
+    };
+
+    const hasPremiumFlags = typeof isPremium !== 'undefined' || typeof premiumPrice !== 'undefined' || typeof premiumCurrency !== 'undefined';
+    if (hasPremiumFlags) {
+      const nextIsPremium = typeof isPremium === 'undefined'
+        ? session.isPremium
+        : String(isPremium).toLowerCase() === 'true' || isPremium === true;
+      const nextPremiumPrice = typeof premiumPrice === 'undefined' ? Number(session.premiumPrice || 0) : Number(premiumPrice);
+      const nextPremiumCurrency = normalizePremiumCurrency(premiumCurrency || session.premiumCurrency || 'USD');
+
+      if (!nextPremiumCurrency) {
+        return res.status(400).json({
+          success: false,
+          message: `Invalid premium currency. Allowed values: ${ALLOWED_PREMIUM_CURRENCIES.join(', ')}.`,
+        });
+      }
+
+      if (nextIsPremium && (!Number.isFinite(nextPremiumPrice) || nextPremiumPrice <= 0)) {
+        return res.status(400).json({
+          success: false,
+          message: 'Premium sessions must have a valid price greater than 0.',
+        });
+      }
+
+      updatePayload.isPremium = nextIsPremium;
+      updatePayload.premiumPrice = nextIsPremium ? nextPremiumPrice : 0;
+      updatePayload.premiumCurrency = nextPremiumCurrency;
+    }
 
     if (req.file) {
       const previousFilename = session.lectureMaterial?.filename;
@@ -176,7 +294,7 @@ const updateSession = async (req, res) => {
     }
 
     // Cannot reduce maxParticipants below current participant count
-    if (maxParticipants && maxParticipants < session.participants.length) {
+    if (maxParticipants && Number(maxParticipants) < session.participants.length) {
       return res.status(400).json({
         success: false,
         message: `Cannot reduce max participants below current bookings (${session.participants.length}).`,

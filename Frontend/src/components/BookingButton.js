@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import api from '../services/api';
+import { createStripeCheckoutSession } from '../services/commerceService';
 
 export default function BookingButton({ session, isBooked: initialBooked, onBookingChange }) {
   const [isBooked, setIsBooked] = useState(initialBooked);
@@ -16,6 +17,23 @@ export default function BookingButton({ session, isBooked: initialBooked, onBook
     setError('');
     setSuccess('');
     try {
+      if (session.isPremium && !session.hasPremiumAccess) {
+        const payload = {
+          premiumItemId: `kuppi-premium-${session._id}`,
+          successUrl: `${window.location.origin}/sessions/${session._id}`,
+          cancelUrl: `${window.location.origin}/sessions/${session._id}?payment=cancelled`,
+        };
+
+        const checkoutSession = await createStripeCheckoutSession(payload);
+        const checkoutUrl = checkoutSession?.data?.checkoutUrl;
+        if (!checkoutUrl) {
+          throw new Error('Unable to start payment. Please try again.');
+        }
+
+        window.location.href = checkoutUrl;
+        return;
+      }
+
       await api.post(`/bookings/${session._id}`);
       setIsBooked(true);
       setSuccess('Session booked successfully! Check your email for confirmation.');
@@ -61,7 +79,11 @@ export default function BookingButton({ session, isBooked: initialBooked, onBook
         <button className="btn btn-secondary btn-lg btn-full" disabled>Session Full</button>
       ) : (
         <button className="btn btn-primary btn-lg btn-full" onClick={handleBook} disabled={loading}>
-          {loading ? <><span className="spinner" />Booking…</> : '🎓 Book This Session'}
+          {loading
+            ? <><span className="spinner" />{session.isPremium && !session.hasPremiumAccess ? 'Redirecting…' : 'Booking…'}</>
+            : session.isPremium && !session.hasPremiumAccess
+              ? '💳 Pay & Book This Session'
+              : '🎓 Book This Session'}
         </button>
       )}
     </div>

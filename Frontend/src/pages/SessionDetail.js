@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useParams, useNavigate, useLocation, Link } from 'react-router-dom';
 import api from '../services/api';
+import { completeStripeCheckout } from '../services/commerceService';
 import { useAuth } from '../context/AuthContext';
 import BookingButton from '../components/BookingButton';
 import DashboardLayout from '../components/DashboardLayout';
@@ -10,6 +11,7 @@ const API_BASE_URL = 'http://localhost:5000';
 export default function SessionDetail() {
   const { id } = useParams();
   const { user } = useAuth();
+  const location = useLocation();
   const role = String(user?.role || '').toLowerCase();
   const isAdminView = ['admin', 'teacher'].includes(role);
   const currentUserId = user?.id || user?._id;
@@ -34,6 +36,32 @@ export default function SessionDetail() {
     };
     fetchSession();
   }, [id]);
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const payment = params.get('payment');
+    const sessionId = params.get('session_id');
+
+    if (payment !== 'success' || !sessionId) {
+      return;
+    }
+
+    const finalizeStripeCheckout = async () => {
+      try {
+        await completeStripeCheckout({ sessionId });
+        const { data } = await api.get(`/sessions/${id}`);
+        setSession(data.session);
+        setIsBooked(data.isBooked);
+        alert('Payment verified. Premium Kuppi session unlocked. You can now book it.');
+      } catch (err) {
+        alert(err.response?.data?.message || 'Payment verification failed. Contact support if you were charged.');
+      } finally {
+        navigate(`/sessions/${id}`, { replace: true });
+      }
+    };
+
+    finalizeStripeCheckout();
+  }, [location.search, id, navigate]);
 
   const handleBookingChange = (booked) => {
     setIsBooked(booked);
@@ -81,7 +109,12 @@ export default function SessionDetail() {
   const canManageSession = user?.role === 'tutor' || user?.role === 'teacher' || user?.role === 'admin';
   const isTutor = canManageSession && session.tutor?._id === currentUserId;
   const material = session.lectureMaterial;
-  const materialUrl = material?.path ? `${API_BASE_URL}${material.path}` : '';
+  const materialRelativePath = material?.path
+    || (material?.filename ? `/uploads/materials/${material.filename}` : '');
+  const materialUrl = materialRelativePath
+    ? `${API_BASE_URL}${materialRelativePath.startsWith('/') ? materialRelativePath : `/${materialRelativePath}`}`
+    : '';
+  const hasMaterial = Boolean(material?.path || material?.filename || material?.originalName);
 
   const formatFileSize = (bytes) => {
     if (!bytes) return '';
@@ -119,6 +152,13 @@ export default function SessionDetail() {
                 { icon: '📅', label: 'Date', value: sessionDate.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) },
                 { icon: '🕐', label: 'Time', value: sessionDate.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) },
                 { icon: '⏱', label: 'Duration', value: `${session.duration} minutes` },
+                {
+                  icon: session.isPremium ? '💎' : '🆓',
+                  label: 'Kuppi Type',
+                  value: session.isPremium
+                    ? `Premium (${(session.premiumCurrency || 'USD').toUpperCase()} ${Number(session.premiumPrice || 0).toFixed(2)})`
+                    : 'Free',
+                },
                 { icon: '👥', label: 'Capacity', value: `${session.participants?.length || 0} / ${session.maxParticipants} enrolled` },
                 { icon: '🎯', label: 'Spots Left', value: spotsLeft > 0 ? `${spotsLeft} available` : 'Fully booked' },
               ].map(({ icon, label, value }) => (
@@ -142,7 +182,7 @@ export default function SessionDetail() {
               </div>
             )}
 
-            {material?.path && (
+            {hasMaterial && (
               <div className="session-material-box">
                 <div>
                   <div className="session-material-label">Lecture Material</div>
@@ -151,9 +191,13 @@ export default function SessionDetail() {
                     <div className="session-material-size">{formatFileSize(material.size)}</div>
                   )}
                 </div>
-                <a href={materialUrl} download={material.originalName || material.filename} className="btn btn-secondary">
-                  Download Material
-                </a>
+                {materialUrl ? (
+                  <a href={materialUrl} download={material.originalName || material.filename} className="btn btn-secondary">
+                    Download Material
+                  </a>
+                ) : (
+                  <span className="session-material-size">File is available but download URL is missing.</span>
+                )}
               </div>
             )}
           </div>

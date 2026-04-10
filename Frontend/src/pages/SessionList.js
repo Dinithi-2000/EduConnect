@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import api from '../services/api';
+import { completeStripeCheckout } from '../services/commerceService';
 import SessionCard from '../components/SessionCard';
 import DashboardLayout from '../components/DashboardLayout';
 import { useAuth } from '../context/AuthContext';
@@ -8,6 +9,8 @@ import './SessionList.css';
 
 export default function SessionList() {
   const { user } = useAuth();
+  const location = useLocation();
+  const navigate = useNavigate();
   const role = String(user?.role || '').toLowerCase();
   const isAdminView = ['admin', 'teacher'].includes(role);
   const isStudent = role === 'student';
@@ -50,6 +53,30 @@ export default function SessionList() {
   }, [user]);
 
   useEffect(() => { fetchSessions(); }, [fetchSessions]);
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const payment = params.get('payment');
+    const sessionId = params.get('session_id');
+
+    if (payment !== 'success' || !sessionId) {
+      return;
+    }
+
+    const finalizeStripeCheckout = async () => {
+      try {
+        await completeStripeCheckout({ sessionId });
+        await fetchSessions();
+        alert('Payment verified. Premium Kuppi session unlocked. You can book it now.');
+      } catch (err) {
+        alert(err.response?.data?.message || 'Payment verification failed. Contact support if you were charged.');
+      } finally {
+        navigate('/sessions', { replace: true });
+      }
+    };
+
+    finalizeStripeCheckout();
+  }, [location.search, fetchSessions, navigate]);
 
   const handleSearch = (e) => { e.preventDefault(); setPage(1); fetchSessions(); };
   const handleBookStatusChange = (sessionId, booked) => {

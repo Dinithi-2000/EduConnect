@@ -35,6 +35,9 @@ export default function EditSession() {
     time: '',
     duration: 60,
     maxParticipants: 10,
+    sessionType: 'free',
+    premiumPrice: '',
+    premiumCurrency: 'USD',
     meetingLink: '',
   });
 
@@ -56,6 +59,9 @@ export default function EditSession() {
           time: toTimeInputValue(session.date),
           duration: session.duration || 60,
           maxParticipants: session.maxParticipants || 10,
+          sessionType: session.isPremium ? 'premium' : 'free',
+          premiumPrice: session.isPremium ? String(session.premiumPrice ?? '') : '',
+          premiumCurrency: session.premiumCurrency || 'USD',
           meetingLink: session.meetingLink || '',
         });
 
@@ -106,8 +112,17 @@ export default function EditSession() {
       return;
     }
 
+    if (form.sessionType === 'premium') {
+      const parsedPrice = Number(form.premiumPrice);
+      if (!Number.isFinite(parsedPrice) || parsedPrice <= 0) {
+        setError('Please enter a valid premium price greater than 0.');
+        return;
+      }
+    }
+
     setSaving(true);
     try {
+      const isPremium = form.sessionType === 'premium';
       const payload = new FormData();
       payload.append('title', form.title);
       payload.append('subject', form.subject);
@@ -116,6 +131,9 @@ export default function EditSession() {
       payload.append('duration', parseInt(form.duration, 10));
       payload.append('maxParticipants', parseInt(form.maxParticipants, 10));
       payload.append('meetingLink', form.meetingLink);
+      payload.append('isPremium', isPremium);
+      payload.append('premiumPrice', isPremium ? Number(form.premiumPrice) : 0);
+      payload.append('premiumCurrency', form.premiumCurrency || 'USD');
 
       if (lectureMaterial) {
         payload.append('lectureMaterial', lectureMaterial);
@@ -239,6 +257,49 @@ export default function EditSession() {
                     required
                   />
                 </div>
+              </div>
+
+              <div className="create-session-grid-2">
+                <div className="form-group">
+                  <label className="form-label">Kuppi Type *</label>
+                  <select name="sessionType" className="form-select" value={form.sessionType} onChange={handleChange}>
+                    <option value="free">Free</option>
+                    <option value="premium">Premium</option>
+                  </select>
+                </div>
+                {form.sessionType === 'premium' && (
+                  <div className="create-session-grid-2">
+                    <div className="form-group">
+                      <label className="form-label">Premium Price *</label>
+                      <input
+                        name="premiumPrice"
+                        type="number"
+                        className="form-input"
+                        value={form.premiumPrice}
+                        onChange={handleChange}
+                        min={0.01}
+                        step={0.01}
+                        placeholder="e.g. 9.99"
+                        required
+                      />
+                    </div>
+                    <div className="form-group">
+                      <label className="form-label">Currency *</label>
+                      <select
+                        name="premiumCurrency"
+                        className="form-select"
+                        value={form.premiumCurrency}
+                        onChange={handleChange}
+                        required
+                      >
+                        <option value="USD">USD</option>
+                        <option value="LKR">LKR</option>
+                        <option value="EUR">EUR</option>
+                        <option value="GBP">GBP</option>
+                      </select>
+                    </div>
+                  </div>
+                )}
               </div>
 
               <div className="form-group">
