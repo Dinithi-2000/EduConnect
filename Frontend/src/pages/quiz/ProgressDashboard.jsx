@@ -6,8 +6,9 @@ import AIChatWidget from '../../components/AIChatWidget';
 import { getMyProgress, getQuizAnalytics, getQuizzes } from '../../services/quizService';
 import { getCourses } from '../../services/courseService';
 import { getAdminStats, getPosts } from '../../services/communityService';
-import { getPremiumCatalog, getPaymentGatewayStatus } from '../../services/commerceService';
+import { getPremiumCatalog, getPaymentGatewayStatus, getRecentTransactions } from '../../services/commerceService';
 import { getUsers } from '../../services/userService';
+import api from '../../services/api';
 import '../StudentDashboard.css';
 import './ProgressDashboard.css';
 
@@ -168,14 +169,16 @@ const ProgressDashboard = () => {
         setError('');
 
         if (isAdminView) {
-          const [quizzesRes, coursesRes, communityStatsRes, postsRes, premiumCatalogRes, gatewayRes, usersRes] = await Promise.allSettled([
+          const [quizzesRes, coursesRes, communityStatsRes, postsRes, premiumCatalogRes, gatewayRes, usersRes, sessionsRes, transactionsRes] = await Promise.allSettled([
             getQuizzes(),
             getCourses(),
             getAdminStats(),
             getPosts({ limit: 250 }),
             getPremiumCatalog(),
             getPaymentGatewayStatus(),
-            getUsers()
+            getUsers(),
+            api.get('/sessions?limit=250&page=1'),
+            getRecentTransactions()
           ]);
 
           const quizzes = getResultData(quizzesRes)?.data || [];
@@ -185,6 +188,9 @@ const ProgressDashboard = () => {
           const premiumCatalog = getResultData(premiumCatalogRes)?.data || [];
           const gateway = getResultData(gatewayRes)?.data || {};
           const users = getResultData(usersRes)?.data || [];
+          const sessionsPayload = getResultData(sessionsRes)?.data || {};
+          const sessions = sessionsPayload?.sessions || [];
+          const transactions = getResultData(transactionsRes)?.data || [];
 
           const analyticsResults = quizzes.length > 0
             ? await Promise.allSettled(quizzes.slice(0, 40).map((quiz) => getQuizAnalytics(quiz._id)))
@@ -259,23 +265,32 @@ const ProgressDashboard = () => {
             percentage: Math.round((item.value / Math.max(donutTotal || 6, 1)) * 100)
           }));
 
-          const totalRevenue = Math.round(quizRows.reduce((sum, row) => sum + row.revenue, 0) + premiumCatalog.reduce((sum, item) => sum + Number(item.amount || 0), 0));
+          const transactionRevenue = transactions.reduce((sum, tx) => sum + Number(tx.amount || 0), 0);
+          const totalRevenue = Math.round(
+            transactionRevenue > 0
+              ? transactionRevenue
+              : (quizRows.reduce((sum, row) => sum + row.revenue, 0) + premiumCatalog.reduce((sum, item) => sum + Number(item.amount || 0), 0))
+          );
           const successRate = Math.round((allAttempts.filter((item) => Number(item.percentage || 0) >= 50).length / Math.max(allAttempts.length, 1)) * 100);
-          const premiumSubs = users.filter((entry) => String(entry.role || '').toLowerCase() === 'student').length + premiumCatalog.length * 3;
+          const premiumSubs = Math.max(
+            users.filter((entry) => String(entry.role || '').toLowerCase() === 'student').length,
+            transactions.length
+          );
           const engagementScore = Math.min(99, Math.max(45, Math.round((successRate * 0.45) + (communityStats.activePosts || 0) * 4 + quizzes.length * 1.8)));
 
           const publishedCourses = courses.filter((course) => Boolean(course.isPublished)).length;
           const totalModules = courses.reduce((sum, course) => sum + (course.modules || []).length, 0);
           const totalContents = courses.reduce((sum, course) => sum + (course.modules || []).reduce((sub, module) => sub + (module.contents || []).length, 0), 0);
-          const kuppiItems = premiumCatalog.filter((item) => item.type === 'kuppi').length;
+          const kuppiItems = Number(sessionsPayload?.total || sessions.length || 0);
+          const totalKuppiBookings = sessions.reduce((sum, session) => sum + (session.participants || []).length, 0);
 
           const moduleCards = [
             { key: 'users', title: 'Student Management', value: users.length, detail: 'Registered users', tone: 'blue' },
             { key: 'courses', title: 'Course & Content', value: `${courses.length} / ${publishedCourses}`, detail: `${totalModules} modules • ${totalContents} contents`, tone: 'green' },
             { key: 'quizzes', title: 'Quiz & Mock Exams', value: quizzes.length, detail: `${allAttempts.length} attempts tracked`, tone: 'violet' },
             { key: 'community', title: 'Community', value: communityStats.totalPosts || posts.length, detail: `${communityStats.flaggedPosts || 0} flagged posts`, tone: 'amber' },
-            { key: 'premium', title: 'Premium & Payments', value: premiumCatalog.length, detail: `Stripe ${gateway?.stripe?.configured ? gateway.stripe.mode : 'not configured'}`, tone: 'cyan' },
-            { key: 'kuppi', title: 'Kuppi Sessions', value: kuppiItems, detail: 'Premium catalog session items', tone: 'rose' }
+            { key: 'premium', title: 'Premium & Payments', value: premiumCatalog.length, detail: `${transactions.length} payment transactions • Stripe ${gateway?.stripe?.configured ? gateway.stripe.mode : 'not configured'}`, tone: 'cyan' },
+            { key: 'kuppi', title: 'Kuppi Sessions', value: kuppiItems, detail: `${totalKuppiBookings} total participant bookings`, tone: 'rose' }
           ];
 
           setAdminData({
