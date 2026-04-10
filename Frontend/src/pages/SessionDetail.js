@@ -10,6 +10,8 @@ const API_BASE_URL = 'http://localhost:5000';
 export default function SessionDetail() {
   const { id } = useParams();
   const { user } = useAuth();
+  const role = String(user?.role || '').toLowerCase();
+  const isAdminView = ['admin', 'teacher'].includes(role);
   const currentUserId = user?.id || user?._id;
   const navigate = useNavigate();
   const [session, setSession] = useState(null);
@@ -56,16 +58,18 @@ export default function SessionDetail() {
   };
 
   if (loading) return (
-    <DashboardLayout activeSection="Kuppi Sessions" theme="light">
-      <div className="session-detail-loading">
+    <DashboardLayout activeSection="Kuppi Sessions" theme={isAdminView ? 'dark' : 'light'}>
+      <div className={`container kuppi-page kuppi-page-space-top session-detail-page ${isAdminView ? 'admin-session-detail-theme' : ''}`}>
+        <div className="session-detail-loading">
         <div className="spinner spinner-dark session-detail-loading-spinner" />
+        </div>
       </div>
     </DashboardLayout>
   );
 
   if (error) return (
-    <DashboardLayout activeSection="Kuppi Sessions" theme="light">
-      <div className="container kuppi-page kuppi-page-space-top session-detail-page">
+    <DashboardLayout activeSection="Kuppi Sessions" theme={isAdminView ? 'dark' : 'light'}>
+      <div className={`container kuppi-page kuppi-page-space-top session-detail-page ${isAdminView ? 'admin-session-detail-theme' : ''}`}>
         <div className="alert alert-error">{error}</div>
         <Link to="/sessions" className="btn btn-secondary">← Back to Sessions</Link>
       </div>
@@ -87,8 +91,8 @@ export default function SessionDetail() {
   };
 
   return (
-    <DashboardLayout activeSection="Kuppi Sessions" theme="light">
-      <div className="container kuppi-page kuppi-page-space session-detail-page">
+    <DashboardLayout activeSection="Kuppi Sessions" theme={isAdminView ? 'dark' : 'light'}>
+      <div className={`container kuppi-page kuppi-page-space session-detail-page ${isAdminView ? 'admin-session-detail-theme' : ''}`}>
         <Link to="/sessions" className="session-back-link">
           ← Back to Sessions
         </Link>

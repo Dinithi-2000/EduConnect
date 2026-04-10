@@ -758,6 +758,119 @@
   gap: 10px;
 }
 
+/* Admin dark theme alignment for session detail page */
+.dashboard-layout.admin-shell .kuppi-page.session-detail-page.admin-session-detail-theme {
+  --detail-line: rgba(89, 114, 182, 0.33);
+  --detail-surface: linear-gradient(145deg, rgba(10, 21, 55, 0.95), rgba(8, 17, 44, 0.95));
+  --detail-surface-soft: #0f224f;
+  --detail-text-strong: #edf3ff;
+  --detail-text-mid: #a8bde8;
+  --detail-text-soft: #7f97ca;
+  --detail-brand: #2c66ff;
+  --detail-brand-2: #6a4bff;
+  color: var(--detail-text-strong);
+}
+
+.dashboard-layout.admin-shell .kuppi-page.session-detail-page.admin-session-detail-theme::before {
+  display: none;
+}
+
+.dashboard-layout.admin-shell .kuppi-page.session-detail-page.admin-session-detail-theme .session-back-link,
+.dashboard-layout.admin-shell .kuppi-page.session-detail-page.admin-session-detail-theme .session-description,
+.dashboard-layout.admin-shell .kuppi-page.session-detail-page.admin-session-detail-theme .session-participant-email,
+.dashboard-layout.admin-shell .kuppi-page.session-detail-page.admin-session-detail-theme .session-tutor-email,
+.dashboard-layout.admin-shell .kuppi-page.session-detail-page.admin-session-detail-theme .session-tutor-bio,
+.dashboard-layout.admin-shell .kuppi-page.session-detail-page.admin-session-detail-theme .session-detail-label {
+  color: var(--detail-text-mid);
+}
+
+.dashboard-layout.admin-shell .kuppi-page.session-detail-page.admin-session-detail-theme .card {
+  background: var(--detail-surface);
+  border-color: var(--detail-line);
+  box-shadow: none;
+}
+
+.dashboard-layout.admin-shell .kuppi-page.session-detail-page.admin-session-detail-theme .session-title,
+.dashboard-layout.admin-shell .kuppi-page.session-detail-page.admin-session-detail-theme .session-detail-value,
+.dashboard-layout.admin-shell .kuppi-page.session-detail-page.admin-session-detail-theme .session-participant-name,
+.dashboard-layout.admin-shell .kuppi-page.session-detail-page.admin-session-detail-theme .session-tutor-name {
+  color: #e8f0ff;
+}
+
+.dashboard-layout.admin-shell .kuppi-page.session-detail-page.admin-session-detail-theme .session-subject-badge {
+  color: #8eb8ff;
+  background: rgba(43, 102, 255, 0.16);
+  border: 1px solid rgba(43, 102, 255, 0.34);
+}
+
+.dashboard-layout.admin-shell .kuppi-page.session-detail-page.admin-session-detail-theme .session-meeting-box {
+  background: var(--detail-surface-soft);
+  border: 1px solid rgba(91, 117, 188, 0.38);
+}
+
+.dashboard-layout.admin-shell .kuppi-page.session-detail-page.admin-session-detail-theme .session-meeting-label,
+.dashboard-layout.admin-shell .kuppi-page.session-detail-page.admin-session-detail-theme .session-meeting-link {
+  color: #9ec3ff;
+}
+
+.dashboard-layout.admin-shell .kuppi-page.session-detail-page.admin-session-detail-theme .session-material-box {
+  background: rgba(13, 109, 99, 0.16);
+  border-color: rgba(46, 174, 158, 0.32);
+}
+
+.dashboard-layout.admin-shell .kuppi-page.session-detail-page.admin-session-detail-theme .session-material-label {
+  color: #84ffd8;
+}
+
+.dashboard-layout.admin-shell .kuppi-page.session-detail-page.admin-session-detail-theme .session-material-name,
+.dashboard-layout.admin-shell .kuppi-page.session-detail-page.admin-session-detail-theme .session-material-size,
+.dashboard-layout.admin-shell .kuppi-page.session-detail-page.admin-session-detail-theme .session-tutor-heading {
+  color: var(--detail-text-mid);
+}
+
+.dashboard-layout.admin-shell .kuppi-page.session-detail-page.admin-session-detail-theme .session-detail-icon {
+  filter: saturate(0.8) brightness(1.08);
+}
+
+.dashboard-layout.admin-shell .kuppi-page.session-detail-page.admin-session-detail-theme .btn-primary {
+  background: linear-gradient(135deg, var(--detail-brand), var(--detail-brand-2));
+  box-shadow: none;
+}
+
+.dashboard-layout.admin-shell .kuppi-page.session-detail-page.admin-session-detail-theme .btn-primary:hover {
+  box-shadow: 0 10px 20px rgba(44, 102, 255, 0.28);
+}
+
+.dashboard-layout.admin-shell .kuppi-page.session-detail-page.admin-session-detail-theme .btn-secondary,
+.dashboard-layout.admin-shell .kuppi-page.session-detail-page.admin-session-detail-theme .btn-outline {
+  background: var(--detail-surface-soft);
+  border-color: rgba(91, 117, 188, 0.38);
+  color: #dbe8ff;
+}
+
+.dashboard-layout.admin-shell .kuppi-page.session-detail-page.admin-session-detail-theme .btn-secondary:hover,
+.dashboard-layout.admin-shell .kuppi-page.session-detail-page.admin-session-detail-theme .btn-outline:hover {
+  background: #152c63;
+}
+
+.dashboard-layout.admin-shell .kuppi-page.session-detail-page.admin-session-detail-theme .badge-green {
+  color: #84ffd8;
+  background: rgba(35, 211, 154, 0.16);
+  border: 1px solid rgba(35, 211, 154, 0.34);
+}
+
+.dashboard-layout.admin-shell .kuppi-page.session-detail-page.admin-session-detail-theme .badge-yellow {
+  color: #ffd58f;
+  background: rgba(242, 170, 33, 0.2);
+  border: 1px solid rgba(242, 170, 33, 0.38);
+}
+
+.dashboard-layout.admin-shell .kuppi-page.session-detail-page.admin-session-detail-theme .badge-blue {
+  color: #8eb8ff;
+  background: rgba(43, 102, 255, 0.16);
+  border: 1px solid rgba(43, 102, 255, 0.34);
+}
+
 /* Vision board page alignment */
 .kuppi-page.vision-board-page .vision-layout {
   display: grid;
