@@ -73,7 +73,11 @@ export default function CreateSession() {
       }
 
       const { data } = await api.post('/sessions', payload);
-      navigate(`/sessions/${data.session._id}`);
+      if (isAdminView) {
+        navigate('/sessions');
+      } else {
+        navigate(`/sessions/${data.session._id}`);
+      }
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to create session. Please try again.');
     } finally {
