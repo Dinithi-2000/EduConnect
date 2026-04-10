@@ -5,17 +5,21 @@ import { completeStripeCheckout } from '../services/commerceService';
 import { useAuth } from '../context/AuthContext';
 import BookingButton from '../components/BookingButton';
 import DashboardLayout from '../components/DashboardLayout';
+import AIChatWidget from '../components/AIChatWidget';
+import './StudentDashboard.css';
 
 const API_BASE_URL = 'http://localhost:5000';
 
 export default function SessionDetail() {
   const { id } = useParams();
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   const location = useLocation();
   const role = String(user?.role || '').toLowerCase();
   const isAdminView = ['admin', 'teacher'].includes(role);
+  const isStudent = role === 'student';
   const currentUserId = user?.id || user?._id;
   const navigate = useNavigate();
+  const [chatOpenSignal, setChatOpenSignal] = useState(0);
   const [session, setSession] = useState(null);
   const [isBooked, setIsBooked] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -85,23 +89,135 @@ export default function SessionDetail() {
     }
   };
 
-  if (loading) return (
-    <DashboardLayout activeSection="Kuppi Sessions" theme={isAdminView ? 'dark' : 'light'}>
+  const displayName = user?.name || 'Student';
+  const initials = displayName
+    .split(' ')
+    .map((part) => part.charAt(0))
+    .join('')
+    .slice(0, 2)
+    .toUpperCase();
+
+  const studentSidebarItems = [
+    { icon: '▦', label: 'Dashboard', route: '/student-dashboard' },
+    { icon: '🎓', label: 'My Courses', route: '/student/my-courses' },
+    { icon: '📚', label: 'Course & Contents', route: '/student/courses' },
+    { icon: '📝', label: 'Quiz & Mock Exams', route: '/student/quizzes' },
+    { icon: '🎥', label: 'Kuppi Sessions', route: '/sessions', active: true },
+    { icon: '💬', label: 'Community Board', route: '/student/community' },
+    { icon: '📈', label: 'Progress Analytics', route: '/student/progress' },
+    { icon: '👑', label: 'Premium', route: '/student/premium' },
+    { icon: '🤖', label: 'AI Chatbot', action: () => setChatOpenSignal((prev) => prev + 1) },
+    { icon: '⚙', label: 'Settings', route: '/settings' }
+  ];
+
+  const handleStudentSidebarAction = (item) => {
+    if (item.action) {
+      item.action();
+      return;
+    }
+    navigate(item.route);
+  };
+
+  const handleStudentLogout = () => {
+    logout();
+    navigate('/login');
+  };
+
+  const renderPageShell = (content) => {
+    if (!isStudent) {
+      return (
+        <DashboardLayout activeSection="Kuppi Sessions" theme={isAdminView ? 'dark' : 'light'}>
+          {content}
+        </DashboardLayout>
+      );
+    }
+
+    return (
+      <div className="student-v2-shell">
+        <aside className="student-v2-sidebar">
+          <div className="student-v2-brand">
+            <span className="brand-mark">E</span>
+            <div className="brand-copy">
+              <h1>EDUCONNECT</h1>
+              <small>Academic Portal</small>
+            </div>
+          </div>
+
+          <nav className="student-v2-nav" aria-label="Student navigation">
+            {studentSidebarItems.map((item) => (
+              <button
+                key={item.label}
+                type="button"
+                className={`student-v2-nav-item ${item.active ? 'active' : ''}`}
+                onClick={() => handleStudentSidebarAction(item)}
+              >
+                <span className="icon" aria-hidden="true">{item.icon}</span>
+                <span>{item.label}</span>
+              </button>
+            ))}
+          </nav>
+
+          <div className="student-v2-upgrade">
+            <p>Unlock all features</p>
+            <h3>Upgrade to Pro</h3>
+            <button type="button" onClick={() => navigate('/student/premium')}>Upgrade Now</button>
+          </div>
+
+          <button type="button" className="student-v2-logout" onClick={handleStudentLogout}>Logout</button>
+        </aside>
+
+        <main className="student-v2-main">
+          <header className="student-v2-topbar">
+            <div className="student-v2-search-wrap">
+              <span aria-hidden="true">⌕</span>
+              <input
+                type="text"
+                placeholder="Search courses, sessions, materials..."
+                aria-label="Search courses, sessions, materials"
+              />
+            </div>
+
+            <div className="student-v2-tools">
+              <button type="button" className="ghost-icon" aria-label="Notifications">🔔</button>
+              <button type="button" className="premium-pill" onClick={() => navigate('/student/premium')}>
+                <span aria-hidden="true">👑</span>
+                Premium
+              </button>
+              <div className="student-v2-profile-chip">
+                <div className="student-v2-profile-text">
+                  <strong>{displayName}</strong>
+                  <small>{user?.email || 'Student account'}</small>
+                </div>
+                <div className="student-v2-profile-avatar">{initials}</div>
+              </div>
+            </div>
+          </header>
+
+          {content}
+
+          <AIChatWidget
+            studentId={user?._id || user?.id || 'guest-student'}
+            context={{ page: 'student-session-detail', user: { id: user?._id, name: user?.name, role: user?.role } }}
+            openSignal={chatOpenSignal}
+          />
+        </main>
+      </div>
+    );
+  };
+
+  if (loading) return renderPageShell(
       <div className={`container kuppi-page kuppi-page-space-top session-detail-page ${isAdminView ? 'admin-session-detail-theme' : ''}`}>
         <div className="session-detail-loading">
         <div className="spinner spinner-dark session-detail-loading-spinner" />
         </div>
       </div>
-    </DashboardLayout>
   );
 
-  if (error) return (
-    <DashboardLayout activeSection="Kuppi Sessions" theme={isAdminView ? 'dark' : 'light'}>
+  if (error) return renderPageShell(
       <div className={`container kuppi-page kuppi-page-space-top session-detail-page ${isAdminView ? 'admin-session-detail-theme' : ''}`}>
         <div className="alert alert-error">{error}</div>
         <Link to="/sessions" className="btn btn-secondary">← Back to Sessions</Link>
       </div>
-    </DashboardLayout>
   );
 
   const sessionDate = new Date(session.date);
@@ -123,8 +239,7 @@ export default function SessionDetail() {
     return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
   };
 
-  return (
-    <DashboardLayout activeSection="Kuppi Sessions" theme={isAdminView ? 'dark' : 'light'}>
+  return renderPageShell(
       <div className={`container kuppi-page kuppi-page-space session-detail-page ${isAdminView ? 'admin-session-detail-theme' : ''}`}>
         <Link to="/sessions" className="session-back-link">
           ← Back to Sessions
@@ -262,6 +377,6 @@ export default function SessionDetail() {
         </div>
         </div>
       </div>
-    </DashboardLayout>
+    
   );
 }

@@ -8,6 +8,9 @@ import '../StudentDashboard.css';
 import './StudentMyCourses.css';
 
 const apiOrigin = API_URL.replace(/\/api\/?$/, '');
+const SETTINGS_STORAGE_KEY = 'student-settings-preferences';
+const THEME_STORAGE_KEY = 'student-theme-mode';
+const LEGACY_ENROLLMENT_KEY = 'student-course-enrollments';
 
 const StudentMyCourses = () => {
   const navigate = useNavigate();
@@ -20,6 +23,21 @@ const StudentMyCourses = () => {
   const [enrolledCourseIds, setEnrolledCourseIds] = useState([]);
   const [categoryFilter, setCategoryFilter] = useState('all');
   const [statusFilter, setStatusFilter] = useState('all');
+  const [themeMode, setThemeMode] = useState(() => {
+    try {
+      const storedTheme = localStorage.getItem(THEME_STORAGE_KEY);
+      if (storedTheme === 'dark' || storedTheme === 'light') return storedTheme;
+
+      const rawSettings = localStorage.getItem(SETTINGS_STORAGE_KEY);
+      const parsed = rawSettings ? JSON.parse(rawSettings) : null;
+      if (parsed && typeof parsed.darkMode === 'boolean') {
+        return parsed.darkMode ? 'dark' : 'light';
+      }
+    } catch {
+      // Ignore malformed storage values.
+    }
+    return 'light';
+  });
 
   const studentId = user?._id || user?.id || 'guest';
   const progressStorageKey = `student-course-progress-${studentId}`;
@@ -29,10 +47,14 @@ const StudentMyCourses = () => {
       .filter(Boolean);
 
     if (!candidates.length) {
-      return ['student-course-enrollments-guest'];
+      return ['student-course-enrollments-guest', LEGACY_ENROLLMENT_KEY];
     }
 
-    return Array.from(new Set(candidates.map((value) => `student-course-enrollments-${value}`)));
+    return Array.from(new Set([
+      ...candidates.map((value) => `student-course-enrollments-${value}`),
+      'student-course-enrollments-guest',
+      LEGACY_ENROLLMENT_KEY
+    ]));
   }, [user?._id, user?.id]);
 
   useEffect(() => {
@@ -46,7 +68,7 @@ const StudentMyCourses = () => {
 
   useEffect(() => {
     try {
-      const keysToCheck = Array.from(new Set([...enrollmentStorageKeys, 'student-course-enrollments-guest']));
+      const keysToCheck = Array.from(new Set([...enrollmentStorageKeys, 'student-course-enrollments-guest', LEGACY_ENROLLMENT_KEY]));
       const merged = new Set();
 
       keysToCheck.forEach((key) => {
@@ -81,6 +103,16 @@ const StudentMyCourses = () => {
 
     loadCourses();
   }, []);
+
+  const isDarkMode = themeMode === 'dark';
+
+  useEffect(() => {
+    localStorage.setItem(THEME_STORAGE_KEY, themeMode);
+  }, [themeMode]);
+
+  const handleToggleTheme = () => {
+    setThemeMode((prev) => (prev === 'dark' ? 'light' : 'dark'));
+  };
 
   const displayName = user?.name || 'Student';
   const initials = displayName
@@ -208,7 +240,7 @@ const StudentMyCourses = () => {
   };
 
   return (
-    <div className="student-v2-shell student-my-courses-shell">
+    <div className={`student-v2-shell student-my-courses-shell ${isDarkMode ? 'theme-dark' : ''}`}>
       <aside className="student-v2-sidebar">
         <div className="student-v2-brand">
           <span className="brand-mark">E</span>
@@ -253,7 +285,15 @@ const StudentMyCourses = () => {
           </div>
 
           <div className="student-v2-tools">
-            <button type="button" className="ghost-icon" aria-label="Theme">◐</button>
+            <button
+              type="button"
+              className="ghost-icon"
+              aria-label="Theme"
+              title={isDarkMode ? 'Switch to light mode' : 'Switch to dark mode'}
+              onClick={handleToggleTheme}
+            >
+              {isDarkMode ? '☀' : '◐'}
+            </button>
             <button type="button" className="ghost-icon" aria-label="Notifications">🔔</button>
             <button type="button" className="premium-pill" onClick={() => navigate('/student/premium')}>
               <span aria-hidden="true">👑</span>

@@ -12,6 +12,24 @@ import {
 import '../StudentDashboard.css';
 import './StudentQuizzes.css';
 
+const SETTINGS_STORAGE_KEY = 'student-settings-preferences';
+const THEME_STORAGE_KEY = 'student-theme-mode';
+
+const QUIZ_COVER_IMAGES = [
+  'https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=1400&q=80',
+  'https://images.unsplash.com/photo-1461749280684-dccba630e2f6?auto=format&fit=crop&w=1400&q=80',
+  'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=1400&q=80',
+  'https://images.unsplash.com/photo-1529070538774-1843cb3265df?auto=format&fit=crop&w=1400&q=80',
+  'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=1400&q=80',
+  'https://images.unsplash.com/photo-1513258496099-48168024aec0?auto=format&fit=crop&w=1400&q=80'
+];
+
+const getQuizCover = (quiz, index) => {
+  const seed = String(quiz?._id || quiz?.title || quiz?.subject || index || '0');
+  const hash = seed.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+  return QUIZ_COVER_IMAGES[hash % QUIZ_COVER_IMAGES.length];
+};
+
 const StudentQuizzes = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -22,6 +40,25 @@ const StudentQuizzes = () => {
   const [error, setError] = useState('');
   const [chatOpenSignal, setChatOpenSignal] = useState(0);
   const [activeTab, setActiveTab] = useState('all');
+  const [subjectFilter, setSubjectFilter] = useState('all');
+  const [difficultyFilter, setDifficultyFilter] = useState('all');
+  const [premiumFilter, setPremiumFilter] = useState('all');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [themeMode, setThemeMode] = useState(() => {
+    try {
+      const storedTheme = localStorage.getItem(THEME_STORAGE_KEY);
+      if (storedTheme === 'dark' || storedTheme === 'light') return storedTheme;
+
+      const rawSettings = localStorage.getItem(SETTINGS_STORAGE_KEY);
+      const parsed = rawSettings ? JSON.parse(rawSettings) : null;
+      if (parsed && typeof parsed.darkMode === 'boolean') {
+        return parsed.darkMode ? 'dark' : 'light';
+      }
+    } catch {
+      // Ignore malformed storage values.
+    }
+    return 'light';
+  });
   const [startedQuizIds, setStartedQuizIds] = useState([]);
   const [premiumMetaByQuizId, setPremiumMetaByQuizId] = useState({});
   const [purchasingQuizId, setPurchasingQuizId] = useState('');
@@ -140,15 +177,81 @@ const StudentQuizzes = () => {
     };
   }, [quizzes, startedQuizSet, completedQuizIds]);
 
+  const subjectOptions = useMemo(() => {
+    const subjects = new Set(
+      quizzes
+        .map((quiz) => String(quiz.subject || '').trim())
+        .filter(Boolean)
+    );
+    return ['all', ...Array.from(subjects)];
+  }, [quizzes]);
+
+  const difficultyOptions = useMemo(() => {
+    const difficulties = new Set(
+      quizzes
+        .map((quiz) => String(quiz.difficulty || '').trim())
+        .filter(Boolean)
+    );
+    return ['all', ...Array.from(difficulties)];
+  }, [quizzes]);
+
   const visibleQuizzes = useMemo(() => {
-    if (activeTab === 'started') {
-      return quizzes.filter((quiz) => startedQuizSet.has(quiz._id) && !completedQuizIds.has(quiz._id));
-    }
-    if (activeTab === 'completed') {
-      return quizzes.filter((quiz) => completedQuizIds.has(quiz._id));
-    }
-    return quizzes;
-  }, [activeTab, quizzes, startedQuizSet, completedQuizIds]);
+    const byTab = (() => {
+      if (activeTab === 'started') {
+        return quizzes.filter((quiz) => startedQuizSet.has(quiz._id) && !completedQuizIds.has(quiz._id));
+      }
+      if (activeTab === 'completed') {
+        return quizzes.filter((quiz) => completedQuizIds.has(quiz._id));
+      }
+      return quizzes;
+    })();
+
+    const bySubject = subjectFilter === 'all'
+      ? byTab
+      : byTab.filter((quiz) => String(quiz.subject || '').trim() === subjectFilter);
+
+    const byDifficulty = difficultyFilter === 'all'
+      ? bySubject
+      : bySubject.filter((quiz) => String(quiz.difficulty || '').trim() === difficultyFilter);
+
+    const byPremium = premiumFilter === 'all'
+      ? byDifficulty
+      : byDifficulty.filter((quiz) => (premiumFilter === 'premium' ? Boolean(quiz.isPremium) : !quiz.isPremium));
+
+    const q = searchQuery.trim().toLowerCase();
+    if (!q) return byPremium;
+
+    return byPremium.filter((quiz) => {
+      const title = String(quiz.title || '').toLowerCase();
+      const subject = String(quiz.subject || '').toLowerCase();
+      const difficulty = String(quiz.difficulty || '').toLowerCase();
+      const questionCount = String(quiz.questions?.length || 0);
+      const timeLimit = String(quiz.timeLimit || 0);
+      return (
+        title.includes(q)
+        || subject.includes(q)
+        || difficulty.includes(q)
+        || questionCount.includes(q)
+        || timeLimit.includes(q)
+      );
+    });
+  }, [activeTab, quizzes, startedQuizSet, completedQuizIds, subjectFilter, difficultyFilter, premiumFilter, searchQuery]);
+
+  const featuredQuiz = visibleQuizzes[0] || quizzes[0] || null;
+  const isDarkMode = themeMode === 'dark';
+
+  useEffect(() => {
+    localStorage.setItem(THEME_STORAGE_KEY, themeMode);
+  }, [themeMode]);
+
+  const handleToggleTheme = () => {
+    setThemeMode((prev) => (prev === 'dark' ? 'light' : 'dark'));
+  };
+
+  const heroSubtitle = useMemo(() => {
+    if (!featuredQuiz) return 'Pick a quiz by category and sharpen your exam performance.';
+    return `${featuredQuiz.subject || 'General'} • ${featuredQuiz.questions?.length || 0} questions • ${featuredQuiz.timeLimit || 0} mins`;
+  }, [featuredQuiz]);
 
   const displayName = user?.name || 'Student';
   const initials = displayName
@@ -236,7 +339,7 @@ const StudentQuizzes = () => {
   };
 
   return (
-    <div className="student-v2-shell student-quizzes-shell">
+    <div className={`student-v2-shell student-quizzes-shell ${isDarkMode ? 'theme-dark' : ''}`}>
       <aside className="student-v2-sidebar">
         <div className="student-v2-brand">
           <span className="brand-mark">E</span>
@@ -277,11 +380,21 @@ const StudentQuizzes = () => {
               type="text"
               placeholder="Search quizzes, subjects, attempts..."
               aria-label="Search quizzes, subjects, attempts"
+              value={searchQuery}
+              onChange={(event) => setSearchQuery(event.target.value)}
             />
           </div>
 
           <div className="student-v2-tools">
-            <button type="button" className="ghost-icon" aria-label="Theme">◐</button>
+            <button
+              type="button"
+              className="ghost-icon"
+              aria-label="Theme"
+              title={isDarkMode ? 'Switch to light mode' : 'Switch to dark mode'}
+              onClick={handleToggleTheme}
+            >
+              {isDarkMode ? '☀' : '◐'}
+            </button>
             <button type="button" className="ghost-icon" aria-label="Notifications">🔔</button>
             <button type="button" className="premium-pill" onClick={() => navigate('/student/premium')}>
               <span aria-hidden="true">👑</span>
@@ -299,9 +412,9 @@ const StudentQuizzes = () => {
 
         <div className="student-quizzes-page">
           <div className="student-quizzes-header">
-            <div>
+            <div className="student-quizzes-header-copy">
               <h1>Quiz & Mock Exams</h1>
-              <p>Attempt quizzes, review your latest score, and improve each round.</p>
+              <p>{heroSubtitle}</p>
             </div>
             <button className="progress-btn" onClick={() => navigate('/student/progress')}>
               Open Progress Dashboard
@@ -327,28 +440,86 @@ const StudentQuizzes = () => {
             </article>
           </div>
 
-          <div className="quiz-tabs" role="tablist" aria-label="Quiz status tabs">
-            <button
-              type="button"
-              className={`quiz-tab ${activeTab === 'all' ? 'active' : ''}`}
-              onClick={() => setActiveTab('all')}
-            >
-              All Quizzes <span>{tabCounts.all}</span>
-            </button>
-            <button
-              type="button"
-              className={`quiz-tab ${activeTab === 'started' ? 'active' : ''}`}
-              onClick={() => setActiveTab('started')}
-            >
-              Started <span>{tabCounts.started}</span>
-            </button>
-            <button
-              type="button"
-              className={`quiz-tab ${activeTab === 'completed' ? 'active' : ''}`}
-              onClick={() => setActiveTab('completed')}
-            >
-              Completed <span>{tabCounts.completed}</span>
-            </button>
+          <div className="quiz-toolbar">
+            <div className="quiz-tabs" role="tablist" aria-label="Quiz status tabs">
+              <button
+                type="button"
+                className={`quiz-tab ${activeTab === 'all' ? 'active' : ''}`}
+                onClick={() => setActiveTab('all')}
+              >
+                All Quizzes <span>{tabCounts.all}</span>
+              </button>
+              <button
+                type="button"
+                className={`quiz-tab ${activeTab === 'started' ? 'active' : ''}`}
+                onClick={() => setActiveTab('started')}
+              >
+                Started <span>{tabCounts.started}</span>
+              </button>
+              <button
+                type="button"
+                className={`quiz-tab ${activeTab === 'completed' ? 'active' : ''}`}
+                onClick={() => setActiveTab('completed')}
+              >
+                Completed <span>{tabCounts.completed}</span>
+              </button>
+            </div>
+
+            <div className="toolbar-filters" role="group" aria-label="Quiz filters">
+              <label htmlFor="subject-filter">Subject</label>
+              <select
+                id="subject-filter"
+                className="quiz-filter-select"
+                value={subjectFilter}
+                onChange={(event) => setSubjectFilter(event.target.value)}
+              >
+                {subjectOptions.map((subject) => (
+                  <option key={subject} value={subject}>
+                    {subject === 'all' ? 'All Subjects' : subject}
+                  </option>
+                ))}
+              </select>
+
+              <label htmlFor="difficulty-filter">Difficulty</label>
+              <select
+                id="difficulty-filter"
+                className="quiz-filter-select"
+                value={difficultyFilter}
+                onChange={(event) => setDifficultyFilter(event.target.value)}
+              >
+                {difficultyOptions.map((difficulty) => (
+                  <option key={difficulty} value={difficulty}>
+                    {difficulty === 'all' ? 'All Levels' : difficulty}
+                  </option>
+                ))}
+              </select>
+
+              <label htmlFor="premium-filter">Quiz Type</label>
+              <select
+                id="premium-filter"
+                className="quiz-filter-select"
+                value={premiumFilter}
+                onChange={(event) => setPremiumFilter(event.target.value)}
+              >
+                <option value="all">All Quizzes</option>
+                <option value="premium">Premium Only</option>
+                <option value="free">Free Only</option>
+              </select>
+
+              <button
+                type="button"
+                className="clear-filter-btn"
+                onClick={() => {
+                  setSubjectFilter('all');
+                  setDifficultyFilter('all');
+                  setPremiumFilter('all');
+                  setSearchQuery('');
+                  setActiveTab('all');
+                }}
+              >
+                Clear
+              </button>
+            </div>
           </div>
 
           {verifyingCheckout && (
@@ -361,30 +532,37 @@ const StudentQuizzes = () => {
             <div className="state-box error">{error}</div>
           ) : visibleQuizzes.length === 0 ? (
             <div className="state-box">
+              {searchQuery.trim() && `No quiz results for "${searchQuery}". `}
               {activeTab === 'started' && 'No started quizzes yet. Click Start Quiz to begin an exam.'}
               {activeTab === 'completed' && 'No completed quizzes yet. Submit a quiz to see it here.'}
-              {activeTab === 'all' && 'No quizzes available yet.'}
+              {activeTab === 'all' && 'No quizzes available for selected filters.'}
             </div>
           ) : (
             <div className="quiz-card-grid">
-              {visibleQuizzes.map((quiz) => {
+              {visibleQuizzes.map((quiz, index) => {
                 const latestAttempt = latestAttemptByQuizId[quiz._id];
                 const isCompleted = completedQuizIds.has(quiz._id);
                 const isStarted = startedQuizSet.has(quiz._id) && !isCompleted;
                 const isPremiumLocked = Boolean(quiz.isPremium) && !premiumMetaByQuizId[quiz._id]?.hasAccess;
                 return (
                   <div key={quiz._id} className="quiz-card">
-                    <div className="quiz-card-top">
-                      <h3>{quiz.title}</h3>
+                    <div
+                      className="quiz-card-cover"
+                      style={{ backgroundImage: `linear-gradient(140deg, rgba(22, 54, 143, 0.45), rgba(20, 92, 178, 0.28)), url(${getQuizCover(quiz, index)})` }}
+                    >
                       <div className="quiz-pill-group">
                         <span className="difficulty-pill">{quiz.difficulty}</span>
                         {quiz.isPremium && <span className="premium-quiz-pill">Premium</span>}
                       </div>
+                      <span className="quiz-card-time">{quiz.timeLimit || 0} mins</span>
                     </div>
 
-                    <p className="quiz-subject">{quiz.subject}</p>
+                    <div className="quiz-card-top">
+                      <h3>{quiz.title}</h3>
+                      <p className="quiz-subject">{quiz.subject}</p>
+                    </div>
                     <p className="quiz-meta">
-                      {quiz.questions?.length || 0} questions • {quiz.timeLimit || 0} mins
+                      {quiz.questions?.length || 0} questions • Mock exam ready
                     </p>
                     {quiz.isPremium && (
                       <p className="quiz-premium-price">
@@ -421,6 +599,7 @@ const StudentQuizzes = () => {
               })}
             </div>
           )}
+
         </div>
 
         <AIChatWidget

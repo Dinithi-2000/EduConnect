@@ -11,6 +11,7 @@ import './StudentCourses.css';
 const apiOrigin = API_URL.replace(/\/api\/?$/, '');
 const SETTINGS_STORAGE_KEY = 'student-settings-preferences';
 const THEME_STORAGE_KEY = 'student-theme-mode';
+const LEGACY_ENROLLMENT_KEY = 'student-course-enrollments';
 
 const COURSE_BANNERS = [
   'https://images.unsplash.com/photo-1513258496099-48168024aec0?auto=format&fit=crop&w=1600&q=80',
@@ -188,10 +189,14 @@ const StudentCourses = () => {
       .filter(Boolean);
 
     if (!candidates.length) {
-      return ['student-course-enrollments-guest'];
+      return ['student-course-enrollments-guest', LEGACY_ENROLLMENT_KEY];
     }
 
-    return Array.from(new Set(candidates.map((value) => `student-course-enrollments-${value}`)));
+    return Array.from(new Set([
+      ...candidates.map((value) => `student-course-enrollments-${value}`),
+      'student-course-enrollments-guest',
+      LEGACY_ENROLLMENT_KEY
+    ]));
   }, [user?._id, user?.id]);
 
   const enrollmentStorageKey = enrollmentStorageKeys[0];
@@ -219,7 +224,7 @@ const StudentCourses = () => {
 
   useEffect(() => {
     try {
-      const keysToCheck = Array.from(new Set([...enrollmentStorageKeys, 'student-course-enrollments-guest']));
+      const keysToCheck = Array.from(new Set([...enrollmentStorageKeys, 'student-course-enrollments-guest', LEGACY_ENROLLMENT_KEY]));
       const merged = new Set();
 
       keysToCheck.forEach((key) => {
@@ -269,7 +274,17 @@ const StudentCourses = () => {
 
     // Keep guest key synced for backward compatibility across prior sessions.
     localStorage.setItem('student-course-enrollments-guest', payload);
+    localStorage.setItem(LEGACY_ENROLLMENT_KEY, payload);
   }, [enrolledCourseIds, enrollmentStorageKeys]);
+
+  const persistEnrollmentIds = (nextIds) => {
+    const payload = JSON.stringify(nextIds);
+    enrollmentStorageKeys.forEach((key) => {
+      localStorage.setItem(key, payload);
+    });
+    localStorage.setItem('student-course-enrollments-guest', payload);
+    localStorage.setItem(LEGACY_ENROLLMENT_KEY, payload);
+  };
 
   useEffect(() => {
     localStorage.setItem(notesStorageKey, JSON.stringify(savedNotesMap));
@@ -566,10 +581,22 @@ const StudentCourses = () => {
     setSelectedContentId(content._id);
   };
 
+  const enrollCourseLocally = (courseId) => {
+    if (!courseId) return false;
+    if (enrolledCourseIds.includes(courseId)) return false;
+
+    const nextIds = [...enrolledCourseIds, courseId];
+    persistEnrollmentIds(nextIds);
+    setEnrolledCourseIds(nextIds);
+    return true;
+  };
+
   const handleOpenModuleWorkspace = (course, moduleId) => {
     if (!enrolledCourseIds.includes(course._id)) {
-      showCommentNotice('error', 'Please enroll in this course first.');
-      return;
+      const added = enrollCourseLocally(course._id);
+      if (added) {
+        showCommentNotice('success', 'Enrolled successfully. Added to My Courses.');
+      }
     }
 
     setSelectedCourseId(course._id);
@@ -599,16 +626,7 @@ const StudentCourses = () => {
     const isEnrolled = enrolledCourseIds.includes(course._id);
 
     if (!isEnrolled) {
-      setEnrolledCourseIds((prev) => {
-        if (prev.includes(course._id)) return prev;
-        const next = [...prev, course._id];
-        const payload = JSON.stringify(next);
-        enrollmentStorageKeys.forEach((key) => {
-          localStorage.setItem(key, payload);
-        });
-        localStorage.setItem('student-course-enrollments-guest', payload);
-        return next;
-      });
+      enrollCourseLocally(course._id);
       return;
     }
 
@@ -1004,14 +1022,13 @@ const StudentCourses = () => {
                           type="button"
                           className="overview-module-item"
                           onClick={() => handleOpenModuleWorkspace(course, module._id)}
-                          disabled={!isEnrolled}
                         >
                           <div>
                             <strong>{module.title}</strong>
                             <small>{getModuleOrderLabel(module, moduleIndex)}</small>
                             <small>{(module.contents || []).length} content items</small>
                           </div>
-                          <span>{isEnrolled ? 'Open →' : 'Enroll to Open'}</span>
+                          <span>{isEnrolled ? 'Open →' : 'Enroll & Open'}</span>
                         </button>
                       );
                     })}
@@ -1330,7 +1347,7 @@ const StudentCourses = () => {
                   onClick={handleOpenCurrentResource}
                   disabled={!activeContent?.url}
                 >
-                  Download Course
+                  Open Selected Resource
                 </button>
               </aside>
             </div>

@@ -2,6 +2,59 @@
   padding: 18px 20px 24px;
 }
 
+.student-v2-shell.theme-dark .my-courses-head h1,
+.student-v2-shell.theme-dark .my-course-body h3,
+.student-v2-shell.theme-dark .my-course-add strong {
+  color: #e6edff;
+}
+
+.student-v2-shell.theme-dark .my-courses-head p,
+.student-v2-shell.theme-dark .my-stat-card small,
+.student-v2-shell.theme-dark .my-stat-card p,
+.student-v2-shell.theme-dark .my-course-instructor,
+.student-v2-shell.theme-dark .my-course-progress-row small,
+.student-v2-shell.theme-dark .my-course-add,
+.student-v2-shell.theme-dark .my-course-add p {
+  color: #a9b9df;
+}
+
+.student-v2-shell.theme-dark .my-courses-filters select,
+.student-v2-shell.theme-dark .my-stat-card,
+.student-v2-shell.theme-dark .my-course-card,
+.student-v2-shell.theme-dark .my-course-add,
+.student-v2-shell.theme-dark .ghost-btn {
+  background: #121c34;
+  border-color: #223055;
+}
+
+.student-v2-shell.theme-dark .my-course-track,
+.student-v2-shell.theme-dark .avg-track {
+  background: #25365e;
+}
+
+.student-v2-shell.theme-dark .my-course-subject {
+  background: #1a2d5d;
+  color: #dbe8ff;
+}
+
+.student-v2-shell.theme-dark .my-course-done {
+  background: #1a3a2a;
+  color: #9ae6b4;
+}
+
+.student-v2-shell.theme-dark .my-course-progress-row strong {
+  color: #8db0ff;
+}
+
+.student-v2-shell.theme-dark .my-course-add span {
+  background: #1a2d5d;
+  color: #bcd1ff;
+}
+
+.student-v2-shell.theme-dark .ghost-btn {
+  color: #c6d7ff;
+}
+
 .my-courses-page {
   margin-top: 20px;
   display: grid;
@@ -42,6 +95,16 @@
   padding: 0 12px;
   font-family: inherit;
   font-weight: 600;
+}
+
+.my-courses-filters select:focus-visible,
+.blue-btn:focus-visible,
+.green-btn:focus-visible,
+.ghost-btn:focus-visible,
+.my-course-add:focus-visible {
+  outline: none;
+  border-color: #7ea7ff;
+  box-shadow: 0 0 0 3px rgba(86, 141, 255, 0.22);
 }
 
 .my-courses-stats {

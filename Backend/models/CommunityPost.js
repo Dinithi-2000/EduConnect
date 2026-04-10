@@ -50,6 +50,13 @@ const communityPostSchema = new mongoose.Schema({
     type: String,
     trim: true
   },
+  eventDate: {
+    type: Date
+  },
+  eventTime: {
+    type: String,
+    trim: true
+  },
   replies: [
     {
       id: String,

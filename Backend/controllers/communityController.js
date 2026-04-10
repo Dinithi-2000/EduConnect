@@ -4,7 +4,7 @@ const User = require('../models/User');
 // Create a new community post
 exports.createPost = async (req, res) => {
   try {
-    const { title, description, type, category, tags, location, contactInfo } = req.body;
+    const { title, description, type, category, tags, location, contactInfo, eventDate, eventTime } = req.body;
     const userId = req.user?._id || req.body.userId;
     const userName = req.user?.name || req.body.userName;
     const userEmail = req.user?.email || req.body.userEmail;
@@ -24,9 +24,6 @@ exports.createPost = async (req, res) => {
     }
 
     const normalizedTags = parsedTags.filter(Boolean);
-    const requestRole = String(req.user?.role || req.body.userRole || '').toLowerCase();
-    const canUploadGallery = requestRole === 'admin' || requestRole === 'teacher';
-
     const uploadedFiles = [
       ...(req.file ? [req.file] : []),
       ...(Array.isArray(req.files)
@@ -41,8 +38,29 @@ exports.createPost = async (req, res) => {
       (file) => `${req.protocol}://${req.get('host')}/uploads/community/${file.filename}`
     );
 
-    const maxAllowedImages = canUploadGallery ? 5 : 1;
-    const imageUrls = uploadedImageUrls.slice(0, maxAllowedImages);
+    if (uploadedImageUrls.length > 5) {
+      return res.status(400).json({
+        success: false,
+        message: 'You can upload up to 5 images per post.'
+      });
+    }
+
+    if (type === 'event' && !eventDate) {
+      return res.status(400).json({
+        success: false,
+        message: 'Event date is required for event posts.'
+      });
+    }
+
+    const parsedEventDate = eventDate ? new Date(eventDate) : undefined;
+    if (eventDate && Number.isNaN(parsedEventDate.getTime())) {
+      return res.status(400).json({
+        success: false,
+        message: 'Event date is invalid.'
+      });
+    }
+
+    const imageUrls = uploadedImageUrls;
 
     const imageUrl = imageUrls[0];
 
@@ -65,7 +83,9 @@ exports.createPost = async (req, res) => {
       imageUrl,
       imageUrls,
       location,
-      contactInfo
+      contactInfo,
+      eventDate: parsedEventDate,
+      eventTime: eventTime || ''
     });
 
     await post.save();
@@ -168,7 +188,7 @@ exports.getPostById = async (req, res) => {
 exports.updatePost = async (req, res) => {
   try {
     const { id } = req.params;
-    const { title, description, category, tags, imageUrl, location, contactInfo } = req.body;
+    const { title, description, category, tags, imageUrl, location, contactInfo, eventDate, eventTime } = req.body;
     const userId = req.user?._id || req.body.userId;
     const requestRole = String(req.user?.role || req.body.userRole || '').toLowerCase();
     const isRoleAdmin = requestRole === 'admin' || requestRole === 'teacher';
@@ -197,6 +217,17 @@ exports.updatePost = async (req, res) => {
     if (imageUrl) post.imageUrl = imageUrl;
     if (location) post.location = location;
     if (contactInfo) post.contactInfo = contactInfo;
+    if (eventDate) {
+      const parsedEventDate = new Date(eventDate);
+      if (Number.isNaN(parsedEventDate.getTime())) {
+        return res.status(400).json({
+          success: false,
+          message: 'Event date is invalid.'
+        });
+      }
+      post.eventDate = parsedEventDate;
+    }
+    if (typeof eventTime === 'string') post.eventTime = eventTime;
     post.updatedAt = new Date();
 
     await post.save();
