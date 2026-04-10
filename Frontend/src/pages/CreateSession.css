@@ -1,0 +1,82 @@
+.dashboard-layout.admin-shell .create-session-page.admin-create-session-theme {
+	--create-line: rgba(89, 114, 182, 0.33);
+	--create-surface: linear-gradient(145deg, rgba(10, 21, 55, 0.95), rgba(8, 17, 44, 0.95));
+	--create-surface-soft: #0f224f;
+	--create-text-strong: #edf3ff;
+	--create-text-mid: #a8bde8;
+	--create-text-soft: #7f97ca;
+	color: var(--create-text-strong);
+}
+
+.dashboard-layout.admin-shell .create-session-page.admin-create-session-theme::before {
+	display: none;
+}
+
+.dashboard-layout.admin-shell .create-session-page.admin-create-session-theme .kuppi-page-title,
+.dashboard-layout.admin-shell .create-session-page.admin-create-session-theme .create-session-card-title {
+	color: #ffffff;
+}
+
+.dashboard-layout.admin-shell .create-session-page.admin-create-session-theme .create-session-card {
+	border-color: var(--create-line);
+	background: var(--create-surface);
+	box-shadow: none;
+}
+
+.dashboard-layout.admin-shell .create-session-page.admin-create-session-theme .form-label {
+	color: var(--create-text-soft);
+}
+
+.dashboard-layout.admin-shell .create-session-page.admin-create-session-theme .form-input,
+.dashboard-layout.admin-shell .create-session-page.admin-create-session-theme .form-textarea,
+.dashboard-layout.admin-shell .create-session-page.admin-create-session-theme .form-select {
+	background: var(--create-surface-soft);
+	border-color: rgba(92, 118, 190, 0.36);
+	color: #d9e6ff;
+}
+
+.dashboard-layout.admin-shell .create-session-page.admin-create-session-theme .form-input::placeholder,
+.dashboard-layout.admin-shell .create-session-page.admin-create-session-theme .form-textarea::placeholder {
+	color: #7992c7;
+}
+
+.dashboard-layout.admin-shell .create-session-page.admin-create-session-theme .form-input:focus,
+.dashboard-layout.admin-shell .create-session-page.admin-create-session-theme .form-textarea:focus,
+.dashboard-layout.admin-shell .create-session-page.admin-create-session-theme .form-select:focus {
+	border-color: rgba(116, 147, 226, 0.82);
+	box-shadow: 0 0 0 3px rgba(52, 102, 255, 0.16);
+}
+
+.dashboard-layout.admin-shell .create-session-page.admin-create-session-theme .form-input[type="date"],
+.dashboard-layout.admin-shell .create-session-page.admin-create-session-theme .form-input[type="time"] {
+	color-scheme: dark;
+}
+
+.dashboard-layout.admin-shell .create-session-page.admin-create-session-theme .create-session-material-name {
+	color: var(--create-text-mid);
+}
+
+.dashboard-layout.admin-shell .create-session-page.admin-create-session-theme .btn-primary {
+	background: linear-gradient(135deg, #2c66ff, #6a4bff);
+	box-shadow: none;
+}
+
+.dashboard-layout.admin-shell .create-session-page.admin-create-session-theme .btn-primary:hover {
+	box-shadow: 0 10px 20px rgba(44, 102, 255, 0.28);
+}
+
+.dashboard-layout.admin-shell .create-session-page.admin-create-session-theme .btn-secondary {
+	background: var(--create-surface-soft);
+	border-color: rgba(91, 117, 188, 0.38);
+	color: #dbe8ff;
+}
+
+.dashboard-layout.admin-shell .create-session-page.admin-create-session-theme .btn-secondary:hover {
+	background: #152c63;
+}
+
+.dashboard-layout.admin-shell .create-session-page.admin-create-session-theme .alert-error {
+	color: #ff9fb0;
+	background: rgba(120, 20, 49, 0.2);
+	border-color: rgba(255, 122, 136, 0.35);
+}

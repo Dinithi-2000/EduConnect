@@ -2,10 +2,14 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
 import DashboardLayout from '../components/DashboardLayout';
+import { useAuth } from '../context/AuthContext';
 import './CreateSession.css';
 
 export default function CreateSession() {
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const role = String(user?.role || '').toLowerCase();
+  const isAdminView = ['admin', 'teacher'].includes(role);
   const [lectureMaterial, setLectureMaterial] = useState(null);
   const [form, setForm] = useState({
     title: '',
@@ -81,8 +85,8 @@ export default function CreateSession() {
   const today = new Date().toISOString().split('T')[0];
 
   return (
-    <DashboardLayout activeSection="Kuppi Sessions" theme="light">
-      <div className="container kuppi-page create-session-page">
+    <DashboardLayout activeSection="Kuppi Sessions" theme={isAdminView ? 'dark' : 'light'}>
+      <div className={`container kuppi-page create-session-page ${isAdminView ? 'admin-create-session-theme' : ''}`}>
         <div className="kuppi-page-header create-session-header">
           <h1 className="kuppi-page-title">Create Kuppi Session</h1>
         </div>

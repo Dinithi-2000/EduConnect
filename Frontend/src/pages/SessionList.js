@@ -9,6 +9,7 @@ import './SessionList.css';
 export default function SessionList() {
   const { user } = useAuth();
   const role = String(user?.role || '').toLowerCase();
+  const isAdminView = ['admin', 'teacher'].includes(role);
   const isStudent = role === 'student';
   const canCreateSession = role && role !== 'student';
   const [sessions, setSessions] = useState([]);
@@ -78,8 +79,8 @@ export default function SessionList() {
   ), 0);
 
   return (
-    <DashboardLayout activeSection="Kuppi Sessions" theme="light">
-      <div className="container kuppi-page sessions-page">
+    <DashboardLayout activeSection="Kuppi Sessions" theme={isAdminView ? 'dark' : 'light'}>
+      <div className={`container kuppi-page sessions-page ${isAdminView ? 'admin-sessions-theme' : ''}`}>
         <div className="kuppi-page-header sessions-page-header session-hero-card">
           <div className="session-hero-copy">
             <h1 className="kuppi-page-title">Kuppi Sessions</h1>
