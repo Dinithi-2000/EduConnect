@@ -2,6 +2,8 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import AIChatWidget from '../../components/AIChatWidget';
+import NotificationBell from '../../components/NotificationBell';
+import { buildStudentSidebarItems } from '../../utils/studentSidebar';
 import {
   createStripeCheckoutSession,
   getPaymentGatewayStatus,
@@ -71,18 +73,7 @@ const StudentPremium = () => {
     .slice(0, 2)
     .toUpperCase();
 
-  const sidebarItems = [
-    { icon: '▦', label: 'Dashboard', route: '/student-dashboard' },
-    { icon: '🎓', label: 'My Courses', route: '/student/my-courses' },
-    { icon: '📚', label: 'Course & Contents', route: '/student/courses' },
-    { icon: '📝', label: 'Quiz & Mock Exams', route: '/student/quizzes' },
-    { icon: '🎥', label: 'Kuppi Sessions', route: '/sessions' },
-    { icon: '💬', label: 'Community Board', route: '/student/community' },
-    { icon: '📈', label: 'Progress Analytics', route: '/student/progress' },
-    { icon: '👑', label: 'Premium', route: '/student/premium', active: true },
-    { icon: '🤖', label: 'AI Chatbot', action: () => setChatOpenSignal((prev) => prev + 1) },
-    { icon: '⚙', label: 'Settings', route: '/settings' }
-  ];
+  const sidebarItems = buildStudentSidebarItems('Premium', () => setChatOpenSignal((prev) => prev + 1));
 
   const premiumBenefits = [
     {
@@ -215,7 +206,7 @@ const StudentPremium = () => {
 
           <div className="student-v2-tools">
             <button type="button" className="ghost-icon" aria-label="Search">⌕</button>
-            <button type="button" className="ghost-icon" aria-label="Notifications">🔔</button>
+            <NotificationBell />
             <button type="button" className="premium-pill" onClick={() => navigate('/student/premium')}>
               <span aria-hidden="true">👑</span>
               Premium

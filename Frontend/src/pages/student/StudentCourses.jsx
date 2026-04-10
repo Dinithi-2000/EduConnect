@@ -3,6 +3,8 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { FaHeart, FaLightbulb, FaThumbsUp } from 'react-icons/fa';
 import { useAuth } from '../../context/AuthContext';
 import AIChatWidget from '../../components/AIChatWidget';
+import NotificationBell from '../../components/NotificationBell';
+import { buildStudentSidebarItems } from '../../utils/studentSidebar';
 import { API_URL } from '../../services/api';
 import { getCourses } from '../../services/courseService';
 import { trackStudyActivity } from '../../services/notificationService';
@@ -510,18 +512,7 @@ const StudentCourses = () => {
     };
   }, [noteNotice]);
 
-  const sidebarItems = [
-    { icon: '▦', label: 'Dashboard', route: '/student-dashboard' },
-    { icon: '🎓', label: 'My Courses', route: '/student/my-courses' },
-    { icon: '📚', label: 'Course & Contents', route: '/student/courses', active: true },
-    { icon: '📝', label: 'Quiz & Mock Exams', route: '/student/quizzes' },
-    { icon: '🎥', label: 'Kuppi Sessions', route: '/sessions' },
-    { icon: '💬', label: 'Community Board', route: '/student/community' },
-    { icon: '📈', label: 'Progress Analytics', route: '/student/progress' },
-    { icon: '👑', label: 'Premium', route: '/student/premium' },
-    { icon: '🤖', label: 'AI Chatbot', action: () => setChatOpenSignal((prev) => prev + 1) },
-    { icon: '⚙', label: 'Settings', route: '/settings' }
-  ];
+  const sidebarItems = buildStudentSidebarItems('Course & Contents', () => setChatOpenSignal((prev) => prev + 1));
 
   const handleSidebarAction = (item) => {
     if (item.action) {
@@ -910,7 +901,7 @@ const StudentCourses = () => {
             >
               {isDarkMode ? '☀' : '◐'}
             </button>
-            <button type="button" className="ghost-icon" aria-label="Notifications">🔔</button>
+            <NotificationBell />
             <button type="button" className="premium-pill" onClick={() => navigate('/student/premium')}>
               <span aria-hidden="true">👑</span>
               Premium

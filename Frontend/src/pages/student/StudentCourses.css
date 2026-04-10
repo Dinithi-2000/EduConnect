@@ -198,8 +198,8 @@
 }
 
 .student-v2-sidebar {
-  background: linear-gradient(180deg, #f3f5ff 0%, #edf1ff 100%);
-  border-right: 1px solid var(--line);
+  background: linear-gradient(180deg, #111d39 0%, #0d1730 100%);
+  border-right: 1px solid #1f2f55;
   padding: 16px 12px 18px;
   display: flex;
   flex-direction: column;
@@ -231,14 +231,14 @@
   text-transform: uppercase;
   letter-spacing: 0.1em;
   font-size: 15px;
-  color: #2455c8;
+  color: #8eb4ff;
   font-weight: 800;
 }
 
 .brand-copy small {
   display: block;
   margin-top: 2px;
-  color: #96a0be;
+  color: #8ca1cd;
   text-transform: uppercase;
   letter-spacing: 0.09em;
   font-size: 10px;
@@ -258,7 +258,7 @@
   align-items: center;
   gap: 10px;
   width: 100%;
-  color: #4c5778;
+  color: #b9c8ea;
   font-size: 14px;
   padding: 11px 12px;
   border-radius: 12px;
@@ -273,13 +273,13 @@
 }
 
 .student-v2-nav-item:hover {
-  background: #e8eeff;
-  color: #2846b0;
+  background: #182b54;
+  color: #e8f0ff;
 }
 
 .student-v2-nav-item.active {
-  background: #dce5ff;
-  color: #2648b6;
+  background: #22417d;
+  color: #f3f7ff;
   font-weight: 700;
 }
 
