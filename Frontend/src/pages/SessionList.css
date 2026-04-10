@@ -10,11 +10,11 @@
 .session-hero-card {
 	display: flex;
 	justify-content: space-between;
-	align-items: stretch;
+	align-items: flex-start;
 	gap: 16px;
 	border: 1px solid #d6e1f2;
 	border-radius: 18px;
-	padding: 18px;
+	padding: 20px;
 	background:
 		radial-gradient(420px 180px at 0% 0%, rgba(37, 99, 235, 0.08), transparent 70%),
 		linear-gradient(145deg, rgba(255, 255, 255, 0.98), rgba(245, 250, 255, 0.98));
@@ -25,11 +25,43 @@
 	min-width: 0;
 }
 
+.sessions-hero-right {
+	display: flex;
+	align-items: flex-start;
+}
+
 .sessions-hero-stats {
 	display: grid;
-	grid-template-columns: repeat(3, minmax(105px, 1fr));
 	gap: 10px;
+	min-width: 240px;
+	width: fit-content;
+	--sessions-hero-tile-height: 88px;
+	align-items: stretch;
+}
+
+.sessions-hero-stats-two {
+	grid-template-columns: repeat(2, minmax(120px, 1fr));
+}
+
+.sessions-hero-stats-three {
+	grid-template-columns: repeat(3, minmax(105px, 1fr));
 	min-width: 340px;
+}
+
+.sessions-hero-stats-with-create {
+	grid-template-columns: minmax(165px, auto) repeat(2, minmax(120px, 1fr));
+	min-width: 520px;
+}
+
+.sessions-hero-create-btn-inline {
+	height: var(--sessions-hero-tile-height);
+	min-height: var(--sessions-hero-tile-height);
+	padding: 12px 16px;
+	align-self: stretch;
+	white-space: nowrap;
+	border-radius: 12px;
+	margin: 0;
+	box-sizing: border-box;
 }
 
 .sessions-hero-stat {
@@ -37,10 +69,13 @@
 	flex-direction: column;
 	justify-content: center;
 	align-items: center;
-	padding: 10px;
+	height: var(--sessions-hero-tile-height);
+	min-height: var(--sessions-hero-tile-height);
+	padding: 14px 12px;
 	border-radius: 12px;
 	border: 1px solid #d7e3f7;
 	background: #ffffff;
+	box-sizing: border-box;
 }
 
 .sessions-hero-stat-num {
@@ -76,7 +111,7 @@
 	align-items: center;
 	gap: 10px;
 	flex-wrap: wrap;
-	margin-top: 14px;
+	margin-top: 16px;
 }
 
 /* Scoped button system for Kuppi sessions to avoid clashes with global .btn-primary rules */
@@ -179,6 +214,99 @@
 	gap: 14px;
 }
 
+.sessions-page:not(.admin-sessions-theme) .session-card {
+	position: relative;
+	overflow: hidden;
+	border: 1px solid #d8e3f6;
+	border-radius: 18px;
+	padding: 18px;
+	background:
+		radial-gradient(360px 140px at 100% 0%, rgba(76, 123, 255, 0.08), transparent 72%),
+		linear-gradient(160deg, rgba(255, 255, 255, 0.99), rgba(247, 251, 255, 0.98));
+	box-shadow: 0 12px 28px rgba(24, 58, 126, 0.1);
+	transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+}
+
+.sessions-page:not(.admin-sessions-theme) .session-card:hover {
+	transform: translateY(-3px);
+	border-color: #b9cdf1;
+	box-shadow: 0 16px 30px rgba(24, 58, 126, 0.16);
+}
+
+.sessions-page:not(.admin-sessions-theme) .session-card-top {
+	padding-bottom: 6px;
+	margin-bottom: 2px;
+	border-bottom: 1px solid #e4ecfa;
+}
+
+.sessions-page:not(.admin-sessions-theme) .session-card-title {
+	font-size: 1.24rem;
+	line-height: 1.25;
+	letter-spacing: -0.02em;
+	color: #0f2a54;
+}
+
+.sessions-page:not(.admin-sessions-theme) .session-card-description {
+	font-size: 0.98rem;
+	line-height: 1.55;
+	color: #4b638d;
+}
+
+.sessions-page:not(.admin-sessions-theme) .session-card-meta {
+	gap: 8px;
+}
+
+.sessions-page:not(.admin-sessions-theme) .session-card-meta-item {
+	display: inline-flex;
+	width: fit-content;
+	padding: 5px 10px;
+	border: 1px solid #d8e4f7;
+	border-radius: 999px;
+	background: #f7fbff;
+	color: #365481;
+	font-size: 12px;
+	font-weight: 600;
+}
+
+.sessions-page:not(.admin-sessions-theme) .session-card-footer {
+	margin-top: 4px;
+	padding-top: 10px;
+	border-top: 1px solid #e2ebfa;
+}
+
+.sessions-page:not(.admin-sessions-theme) .session-card-tutor-name {
+	font-size: 14px;
+	color: #1f3f73;
+}
+
+.sessions-page:not(.admin-sessions-theme) .session-card-spots {
+	font-size: 12px;
+	padding: 4px 10px;
+	border-radius: 999px;
+	background: #eef4ff;
+	border: 1px solid #d4e1f5;
+	color: #395b8c;
+}
+
+.sessions-page:not(.admin-sessions-theme) .session-card-spots.is-low {
+	background: #fff6e8;
+	border-color: #f6dfb9;
+	color: #9a5b00;
+}
+
+.sessions-page:not(.admin-sessions-theme) .session-card-spots.is-full {
+	background: #fff0f1;
+	border-color: #f6cdd2;
+	color: #a43245;
+}
+
+.sessions-page:not(.admin-sessions-theme) .session-card-actions .btn {
+	min-height: 36px;
+	border-radius: 10px;
+	padding: 8px 12px;
+	font-size: 13px;
+}
+
 .sessions-loading-center {
 	display: flex;
 	flex-direction: column;
@@ -213,6 +341,21 @@
 	.sessions-hero-stats {
 		grid-template-columns: repeat(3, minmax(0, 1fr));
 		min-width: 0;
+	}
+
+	.sessions-hero-right {
+		align-items: stretch;
+	}
+
+	.sessions-hero-stats-with-create {
+		grid-template-columns: 1fr;
+		min-width: 0;
+	}
+
+	.sessions-hero-create-btn-inline {
+		width: 100%;
+		height: auto;
+		min-height: 40px;
 	}
 
 	.sessions-search-bar {

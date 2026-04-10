@@ -1171,6 +1171,87 @@
   letter-spacing: -0.02em;
 }
 
+.dashboard-layout.admin-shell .kuppi-page.profile-page.admin-profile-theme {
+  --profile-line: rgba(89, 114, 182, 0.33);
+  --profile-surface: linear-gradient(145deg, rgba(10, 21, 55, 0.95), rgba(8, 17, 44, 0.95));
+  --profile-surface-soft: #0f224f;
+  --profile-text-strong: #edf3ff;
+  --profile-text-mid: #a8bde8;
+  color: var(--profile-text-strong);
+}
+
+.dashboard-layout.admin-shell .kuppi-page.profile-page.admin-profile-theme::before {
+  display: none;
+}
+
+.dashboard-layout.admin-shell .kuppi-page.profile-page.admin-profile-theme .page-title,
+.dashboard-layout.admin-shell .kuppi-page.profile-page.admin-profile-theme .profile-name,
+.dashboard-layout.admin-shell .kuppi-page.profile-page.admin-profile-theme .profile-edit-title {
+  color: #ffffff;
+}
+
+.dashboard-layout.admin-shell .kuppi-page.profile-page.admin-profile-theme .page-subtitle,
+.dashboard-layout.admin-shell .kuppi-page.profile-page.admin-profile-theme .profile-email,
+.dashboard-layout.admin-shell .kuppi-page.profile-page.admin-profile-theme .profile-bio,
+.dashboard-layout.admin-shell .kuppi-page.profile-page.admin-profile-theme .form-label {
+  color: var(--profile-text-mid);
+}
+
+.dashboard-layout.admin-shell .kuppi-page.profile-page.admin-profile-theme .profile-info-card,
+.dashboard-layout.admin-shell .kuppi-page.profile-page.admin-profile-theme .profile-form-panel .card {
+  border-color: var(--profile-line);
+  background: var(--profile-surface);
+  box-shadow: none;
+}
+
+.dashboard-layout.admin-shell .kuppi-page.profile-page.admin-profile-theme .profile-bio {
+  border-color: rgba(91, 117, 188, 0.38);
+  background: var(--profile-surface-soft);
+}
+
+.dashboard-layout.admin-shell .kuppi-page.profile-page.admin-profile-theme .form-input,
+.dashboard-layout.admin-shell .kuppi-page.profile-page.admin-profile-theme .form-textarea,
+.dashboard-layout.admin-shell .kuppi-page.profile-page.admin-profile-theme .form-select {
+  background: var(--profile-surface-soft);
+  border-color: rgba(92, 118, 190, 0.36);
+  color: #d9e6ff;
+}
+
+.dashboard-layout.admin-shell .kuppi-page.profile-page.admin-profile-theme .form-input::placeholder,
+.dashboard-layout.admin-shell .kuppi-page.profile-page.admin-profile-theme .form-textarea::placeholder {
+  color: #7992c7;
+}
+
+.dashboard-layout.admin-shell .kuppi-page.profile-page.admin-profile-theme .form-input:focus,
+.dashboard-layout.admin-shell .kuppi-page.profile-page.admin-profile-theme .form-textarea:focus,
+.dashboard-layout.admin-shell .kuppi-page.profile-page.admin-profile-theme .form-select:focus {
+  border-color: rgba(116, 147, 226, 0.82);
+  box-shadow: 0 0 0 3px rgba(52, 102, 255, 0.16);
+}
+
+.dashboard-layout.admin-shell .kuppi-page.profile-page.admin-profile-theme .btn-secondary,
+.dashboard-layout.admin-shell .kuppi-page.profile-page.admin-profile-theme .btn-outline {
+  background: var(--profile-surface-soft);
+  border-color: rgba(91, 117, 188, 0.38);
+  color: #dbe8ff;
+}
+
+.dashboard-layout.admin-shell .kuppi-page.profile-page.admin-profile-theme .btn-secondary:hover,
+.dashboard-layout.admin-shell .kuppi-page.profile-page.admin-profile-theme .btn-outline:hover {
+  background: #152c63;
+}
+
+.dashboard-layout.admin-shell .kuppi-page.profile-page.admin-profile-theme .profile-delete-btn {
+  border-color: rgba(255, 151, 174, 0.28);
+  background: #2a2348;
+  color: #ff97ae;
+}
+
+.dashboard-layout.admin-shell .kuppi-page.profile-page.admin-profile-theme .profile-delete-btn:hover:not(:disabled) {
+  background: #342a58;
+  color: #ffb2c4;
+}
+
 @media (max-width: 992px) {
   .kuppi-page.create-session-page .create-session-shell {
     grid-template-columns: 1fr;
