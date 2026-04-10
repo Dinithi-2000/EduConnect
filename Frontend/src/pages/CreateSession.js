@@ -238,7 +238,11 @@ export default function CreateSession() {
               <button type="submit" className="btn btn-primary btn-lg" disabled={loading}>
                 {loading ? <><span className="spinner" />Creating...</> : 'Create Session'}
               </button>
-              <button type="button" className="btn btn-secondary btn-lg" onClick={() => navigate('/my-sessions')}>
+              <button
+                type="button"
+                className="btn btn-secondary btn-lg"
+                onClick={() => navigate(isAdminView ? '/sessions' : '/my-sessions')}
+              >
                 Cancel
               </button>
             </div>

@@ -112,29 +112,37 @@ export default function SessionList() {
           <div className="session-hero-copy">
             <h1 className="kuppi-page-title">Kuppi Sessions</h1>
             <p className="kuppi-page-subtitle">Find and book expert-led study sessions</p>
-            <div className="sessions-header-actions">
-              <Link to="/vision-board" className="btn btn-secondary">Vision Board</Link>
-              {canCreateSession && (
-                <Link to="/create-session" className="btn btn-primary">+ Create Session</Link>
-              )}
-            </div>
           </div>
 
-          <div className="sessions-hero-stats" aria-label="Session highlights">
-            <div className="sessions-hero-stat">
-              <div className="sessions-hero-stat-num">{sessions.length}</div>
-              <div className="sessions-hero-stat-label">Visible Sessions</div>
-            </div>
-            <div className="sessions-hero-stat">
-              <div className="sessions-hero-stat-num">{totalVisibleSpots}</div>
-              <div className="sessions-hero-stat-label">Open Seats</div>
-            </div>
-            {isStudent && (
+          <div className="sessions-hero-right">
+            <div
+              className={`sessions-hero-stats ${
+                isStudent
+                  ? 'sessions-hero-stats-three'
+                  : canCreateSession
+                    ? 'sessions-hero-stats-with-create'
+                    : 'sessions-hero-stats-two'
+              }`}
+              aria-label="Session highlights"
+            >
+              {canCreateSession && (
+                <Link to="/create-session" className="btn btn-primary sessions-hero-create-btn-inline">+ Create Session</Link>
+              )}
               <div className="sessions-hero-stat">
-                <div className="sessions-hero-stat-num">{bookedVisibleCount}</div>
-                <div className="sessions-hero-stat-label">Already Booked</div>
+                <div className="sessions-hero-stat-num">{sessions.length}</div>
+                <div className="sessions-hero-stat-label">Visible Sessions</div>
               </div>
-            )}
+              <div className="sessions-hero-stat">
+                <div className="sessions-hero-stat-num">{totalVisibleSpots}</div>
+                <div className="sessions-hero-stat-label">Open Seats</div>
+              </div>
+              {isStudent && (
+                <div className="sessions-hero-stat">
+                  <div className="sessions-hero-stat-num">{bookedVisibleCount}</div>
+                  <div className="sessions-hero-stat-label">Already Booked</div>
+                </div>
+              )}
+            </div>
           </div>
         </div>
 

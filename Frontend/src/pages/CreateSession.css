@@ -1,3 +1,123 @@
+.kuppi-page.create-session-page {
+	--create-bg-soft: #eef4ff;
+	--create-line: #d8e3f6;
+	--create-card-text: #102446;
+	--create-label: #48638f;
+}
+
+.kuppi-page.create-session-page .create-session-header {
+	margin-bottom: 14px;
+}
+
+.kuppi-page.create-session-page .kuppi-page-title {
+	letter-spacing: -0.03em;
+	font-size: clamp(1.9rem, 1.6rem + 1vw, 2.5rem);
+	color: #102446;
+}
+
+.kuppi-page.create-session-page .create-session-card {
+	border: 1px solid var(--create-line);
+	border-radius: 22px;
+	padding: 28px;
+	background:
+		radial-gradient(360px 140px at 100% 0%, rgba(78, 119, 255, 0.08), transparent 70%),
+		linear-gradient(145deg, rgba(255, 255, 255, 0.99), rgba(246, 250, 255, 0.98));
+	box-shadow: 0 16px 38px rgba(22, 56, 122, 0.12);
+	color: var(--create-card-text);
+}
+
+.kuppi-page.create-session-page .create-session-card-title {
+	font-size: 1.3rem;
+	letter-spacing: -0.02em;
+	margin-bottom: 20px;
+	color: var(--create-card-text);
+}
+
+.kuppi-page.create-session-page .create-session-form {
+	display: grid;
+	gap: 4px;
+}
+
+.kuppi-page.create-session-page .form-group {
+	margin-bottom: 16px;
+}
+
+.kuppi-page.create-session-page .form-label {
+	color: var(--create-label);
+	font-size: 12px;
+	letter-spacing: 0.05em;
+	font-weight: 800;
+}
+
+.kuppi-page.create-session-page .form-input,
+.kuppi-page.create-session-page .form-textarea,
+.kuppi-page.create-session-page .form-select {
+	border-radius: 13px;
+	border: 1px solid #cad9f2;
+	background: #ffffff;
+	min-height: 46px;
+	transition: border-color 0.16s ease, box-shadow 0.16s ease, transform 0.16s ease;
+}
+
+.kuppi-page.create-session-page .form-textarea {
+	min-height: 120px;
+	resize: vertical;
+}
+
+.kuppi-page.create-session-page .form-input:focus,
+.kuppi-page.create-session-page .form-textarea:focus,
+.kuppi-page.create-session-page .form-select:focus {
+	border-color: rgba(45, 106, 255, 0.78);
+	box-shadow: 0 0 0 4px rgba(45, 106, 255, 0.14);
+	transform: translateY(-1px);
+}
+
+.kuppi-page.create-session-page .create-session-grid-2 {
+	gap: 16px;
+}
+
+.kuppi-page.create-session-page .create-session-material-name {
+	margin-top: 8px;
+	font-size: 12px;
+	font-weight: 700;
+	color: #4a6696;
+	background: var(--create-bg-soft);
+	border: 1px solid #d4e0f5;
+	padding: 7px 10px;
+	border-radius: 10px;
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+}
+
+.kuppi-page.create-session-page .create-session-actions {
+	margin-top: 18px;
+	padding-top: 16px;
+	border-top: 1px solid #dee8f8;
+	gap: 10px;
+}
+
+.kuppi-page.create-session-page .create-session-actions .btn {
+	min-height: 44px;
+	border-radius: 12px;
+	padding: 11px 17px;
+	font-weight: 700;
+}
+
+@media (max-width: 768px) {
+	.kuppi-page.create-session-page .create-session-card {
+		padding: 20px;
+	}
+
+	.kuppi-page.create-session-page .create-session-actions {
+		justify-content: stretch;
+	}
+
+	.kuppi-page.create-session-page .create-session-actions .btn {
+		width: 100%;
+	}
+}
+
 .dashboard-layout.admin-shell .create-session-page.admin-create-session-theme {
 	--create-line: rgba(89, 114, 182, 0.33);
 	--create-surface: linear-gradient(145deg, rgba(10, 21, 55, 0.95), rgba(8, 17, 44, 0.95));
@@ -20,7 +140,7 @@
 .dashboard-layout.admin-shell .create-session-page.admin-create-session-theme .create-session-card {
 	border-color: var(--create-line);
 	background: var(--create-surface);
-	box-shadow: none;
+	box-shadow: 0 16px 34px rgba(2, 10, 32, 0.44);
 }
 
 .dashboard-layout.admin-shell .create-session-page.admin-create-session-theme .form-label {
@@ -54,6 +174,8 @@
 
 .dashboard-layout.admin-shell .create-session-page.admin-create-session-theme .create-session-material-name {
 	color: var(--create-text-mid);
+	background: rgba(15, 34, 79, 0.9);
+	border-color: rgba(94, 120, 194, 0.38);
 }
 
 .dashboard-layout.admin-shell .create-session-page.admin-create-session-theme .btn-primary {

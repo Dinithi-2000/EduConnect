@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import api from '../services/api';
 import DashboardLayout from '../components/DashboardLayout';
+import { useAuth } from '../context/AuthContext';
 import './CreateSession.css';
 
 const toDateInputValue = (isoDate) => {
@@ -24,6 +25,9 @@ const toTimeInputValue = (isoDate) => {
 export default function EditSession() {
   const navigate = useNavigate();
   const { id } = useParams();
+  const { user } = useAuth();
+  const role = String(user?.role || '').toLowerCase();
+  const isAdminView = ['admin', 'teacher'].includes(role);
 
   const [lectureMaterial, setLectureMaterial] = useState(null);
   const [currentMaterialName, setCurrentMaterialName] = useState('');
@@ -150,8 +154,8 @@ export default function EditSession() {
 
   if (loading) {
     return (
-      <DashboardLayout activeSection="Kuppi Sessions" theme="light">
-        <div className="container kuppi-page kuppi-page-space-top">
+      <DashboardLayout activeSection="Kuppi Sessions" theme={isAdminView ? 'dark' : 'light'}>
+        <div className={`container kuppi-page kuppi-page-space-top create-session-page ${isAdminView ? 'admin-create-session-theme' : ''}`}>
           <div className="sessions-loading-center">
             <div className="spinner spinner-dark sessions-loading-spinner" />
             <p className="sessions-loading-text">Loading session...</p>
@@ -162,8 +166,8 @@ export default function EditSession() {
   }
 
   return (
-    <DashboardLayout activeSection="Kuppi Sessions" theme="light">
-      <div className="container kuppi-page create-session-page">
+    <DashboardLayout activeSection="Kuppi Sessions" theme={isAdminView ? 'dark' : 'light'}>
+      <div className={`container kuppi-page create-session-page ${isAdminView ? 'admin-create-session-theme' : ''}`}>
         <div className="kuppi-page-header create-session-header">
           <h1 className="kuppi-page-title">Edit Kuppi Session</h1>
         </div>
