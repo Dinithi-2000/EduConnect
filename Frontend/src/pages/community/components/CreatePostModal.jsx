@@ -39,6 +39,18 @@ const isValidHttpUrl = (value) => {
   }
 };
 
+const getTodayIsoDate = () => new Date().toISOString().split('T')[0];
+
+const isBeforeToday = (dateValue) => {
+  if (!dateValue) return false;
+  return dateValue < getTodayIsoDate();
+};
+
+const isAfterToday = (dateValue) => {
+  if (!dateValue) return false;
+  return dateValue > getTodayIsoDate();
+};
+
 const CreatePostModal = ({ onClose, onPostCreated }) => {
   const { user } = useAuth();
   const isAdmin = ['admin', 'teacher'].includes(String(user?.role || '').toLowerCase());
@@ -105,15 +117,31 @@ const CreatePostModal = ({ onClose, onPostCreated }) => {
   }, [maxImageCount]);
 
   const validateTypeSpecificFields = () => {
+    if (formData.type === 'lost-item' && typeFields.lostDate && isAfterToday(typeFields.lostDate)) {
+      return 'Lost date cannot be in the future.';
+    }
+
+    if (formData.type === 'found-item' && typeFields.foundDate && isAfterToday(typeFields.foundDate)) {
+      return 'Found date cannot be in the future.';
+    }
+
     if (formData.type === 'event') {
       if (!typeFields.eventDate || !typeFields.eventTime || !typeFields.venue?.trim()) {
         return 'Event posts require date, time, and venue.';
+      }
+
+      if (isBeforeToday(typeFields.eventDate)) {
+        return 'Event date cannot be in the past.';
       }
     }
 
     if (formData.type === 'help-request') {
       if (!typeFields.preferredHelp?.trim()) {
         return 'Help request posts require preferred help details.';
+      }
+
+      if (typeFields.needBy && isBeforeToday(typeFields.needBy)) {
+        return 'Need-by date cannot be in the past.';
       }
     }
 
@@ -410,6 +438,7 @@ const CreatePostModal = ({ onClose, onPostCreated }) => {
                     name="lostDate"
                     value={typeFields.lostDate || ''}
                     onChange={handleTypeFieldChange}
+                    max={getTodayIsoDate()}
                     className="form-control"
                   />
                 </div>
@@ -447,6 +476,7 @@ const CreatePostModal = ({ onClose, onPostCreated }) => {
                     name="foundDate"
                     value={typeFields.foundDate || ''}
                     onChange={handleTypeFieldChange}
+                    max={getTodayIsoDate()}
                     className="form-control"
                   />
                 </div>
@@ -505,6 +535,7 @@ const CreatePostModal = ({ onClose, onPostCreated }) => {
                     name="eventDate"
                     value={typeFields.eventDate || ''}
                     onChange={handleTypeFieldChange}
+                    min={getTodayIsoDate()}
                     className="form-control"
                   />
                 </div>
@@ -554,6 +585,7 @@ const CreatePostModal = ({ onClose, onPostCreated }) => {
                     name="needBy"
                     value={typeFields.needBy || ''}
                     onChange={handleTypeFieldChange}
+                    min={getTodayIsoDate()}
                     className="form-control"
                   />
                 </div>
