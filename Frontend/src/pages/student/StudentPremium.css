@@ -1,54 +1,58 @@
 .student-premium-main {
-  padding: 18px 20px 24px;
+  padding: 16px 20px 24px;
 }
 
 .student-premium-page {
-  margin-top: 18px;
+  margin-top: 14px;
   display: grid;
   gap: 16px;
 }
 
 .premium-hero-banner {
-  background: linear-gradient(130deg, #0f54d6 0%, #3166e1 46%, #6a32dd 100%);
-  border-radius: 32px;
-  padding: 30px 28px;
+  background:
+    radial-gradient(1200px 420px at 90% -30%, rgba(255, 255, 255, 0.24), transparent 48%),
+    linear-gradient(138deg, #0f5bd8 0%, #1d75d9 48%, #0f8f9e 100%);
+  border-radius: 26px;
+  padding: 26px;
   color: #ffffff;
   display: flex;
   justify-content: space-between;
   align-items: center;
   gap: 18px;
-  box-shadow: 0 16px 34px rgba(36, 63, 172, 0.27);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow: 0 18px 34px rgba(17, 73, 159, 0.26);
 }
 
 .hero-copy {
-  max-width: 620px;
+  max-width: 640px;
 }
 
 .elite-badge {
   display: inline-flex;
   align-items: center;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.26);
+  background: rgba(255, 255, 255, 0.13);
   border-radius: 999px;
   height: 24px;
   padding: 0 10px;
   text-transform: uppercase;
   letter-spacing: 0.12em;
   font-size: 10px;
-  font-weight: 700;
+  font-weight: 800;
 }
 
 .premium-hero-banner h1 {
-  margin: 14px 0 0;
-  font-size: 52px;
-  line-height: 1.08;
+  margin: 12px 0 0;
+  font-size: clamp(2.2rem, 5vw, 4rem);
+  line-height: 1.03;
   letter-spacing: -0.03em;
+  color: #f7fbff;
 }
 
 .premium-hero-banner p {
   margin: 14px 0 0;
-  color: #d8e5ff;
-  font-size: 22px;
+  color: #d7ecff;
+  font-size: clamp(1rem, 1.8vw, 1.4rem);
   line-height: 1.45;
 }
 
@@ -62,33 +66,39 @@
 .hero-actions button {
   border: none;
   border-radius: 999px;
-  height: 40px;
+  height: 42px;
   padding: 0 18px;
-  background: #ffffff;
-  color: #1844b3;
+  background: #f6fbff;
+  color: #114197;
   font-weight: 800;
   cursor: pointer;
+  transition: transform 0.16s ease, box-shadow 0.16s ease;
+}
+
+.hero-actions button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 18px rgba(12, 48, 118, 0.22);
 }
 
 .hero-actions .ghost {
-  background: rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.18);
   color: #ffffff;
-  border: 1px solid rgba(255, 255, 255, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.3);
 }
 
 .hero-stars {
-  min-width: 130px;
+  min-width: 110px;
   display: grid;
   justify-items: end;
-  gap: 6px;
-  opacity: 0.45;
-  font-size: 62px;
+  gap: 10px;
+  opacity: 0.44;
+  font-size: 52px;
   line-height: 0.9;
 }
 
 .hero-stars span:nth-child(2) {
-  font-size: 40px;
-  margin-right: 30px;
+  font-size: 30px;
+  margin-right: 20px;
 }
 
 .premium-section {
@@ -98,15 +108,15 @@
 
 .section-head h2 {
   margin: 0;
-  color: #151f39;
-  font-size: 38px;
-  letter-spacing: -0.02em;
+  color: #122849;
+  font-size: clamp(1.85rem, 3.4vw, 2.55rem);
+  letter-spacing: -0.025em;
 }
 
 .section-head p {
-  margin: 4px 0 0;
-  color: #647199;
-  font-size: 16px;
+  margin: 5px 0 0;
+  color: #60759f;
+  font-size: 15px;
 }
 
 .section-head.row {
@@ -117,9 +127,12 @@
 }
 
 .view-link {
-  border: none;
-  background: transparent;
-  color: #184dc1;
+  border: 1px solid #d3dff8;
+  background: #ffffff;
+  color: #1d54c5;
+  border-radius: 999px;
+  height: 36px;
+  padding: 0 14px;
   font-weight: 700;
   cursor: pointer;
 }
@@ -131,20 +144,27 @@
 }
 
 .benefit-card {
-  border-radius: 26px;
-  border: 1px solid #e5eaf8;
-  background: #f7f9ff;
-  padding: 16px;
+  border-radius: 18px;
+  border: 1px solid #e1e9fb;
+  background: linear-gradient(180deg, #ffffff 0%, #f7faff 100%);
+  padding: 15px;
   display: grid;
-  gap: 10px;
+  gap: 9px;
+  transition: transform 0.16s ease, box-shadow 0.16s ease, border-color 0.16s ease;
+}
+
+.benefit-card:hover {
+  transform: translateY(-2px);
+  border-color: #c8d8f8;
+  box-shadow: 0 10px 20px rgba(35, 71, 145, 0.12);
 }
 
 .benefit-icon {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  background: #dde6ff;
-  color: #244cb8;
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  background: #dfe9ff;
+  color: #2150b6;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -154,15 +174,15 @@
 
 .benefit-card h3 {
   margin: 0;
-  color: #1c2746;
-  font-size: 16px;
+  color: #1c2d51;
+  font-size: 1.04rem;
 }
 
 .benefit-card p {
   margin: 0;
-  color: #667399;
+  color: #667aa4;
   font-size: 13px;
-  line-height: 1.4;
+  line-height: 1.45;
 }
 
 .quiz-library-grid {
@@ -172,8 +192,8 @@
 }
 
 .library-card {
-  border-radius: 22px;
-  border: 1px solid #dce5f7;
+  border-radius: 16px;
+  border: 1px solid #dde6fa;
   background: #ffffff;
   padding: 10px;
   display: grid;
@@ -181,27 +201,27 @@
 }
 
 .library-thumb {
-  border-radius: 20px;
-  height: 110px;
+  border-radius: 14px;
+  height: 104px;
   background-size: cover;
   background-position: center;
-  border: 1px solid #dce5f8;
+  border: 1px solid #d9e4fa;
 }
 
 .thumb-1 {
-  background-image: linear-gradient(160deg, #18253f 0%, #26496f 60%, #6ea4d1 100%);
+  background-image: linear-gradient(160deg, #1a355f 0%, #2f6ca2 58%, #84badc 100%);
 }
 
 .thumb-2 {
-  background-image: linear-gradient(160deg, #10161f 0%, #17343f 55%, #42799b 100%);
+  background-image: linear-gradient(160deg, #10263e 0%, #214e65 56%, #5ea0b0 100%);
 }
 
 .thumb-3 {
-  background-image: linear-gradient(150deg, #162531 0%, #26345a 48%, #5793c0 100%);
+  background-image: linear-gradient(155deg, #17355a 0%, #2f5175 48%, #6da0c9 100%);
 }
 
 .thumb-4 {
-  background-image: linear-gradient(155deg, #41270d 0%, #6d4817 56%, #c18a3f 100%);
+  background-image: linear-gradient(155deg, #243a25 0%, #3f6a40 56%, #86b36a 100%);
 }
 
 .library-meta {
@@ -213,32 +233,32 @@
 
 .library-meta span {
   border-radius: 999px;
-  background: #ece9ff;
-  color: #5d3fca;
-  padding: 3px 7px;
+  background: #e3eeff;
+  color: #1f53b2;
+  padding: 3px 8px;
   font-size: 10px;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  font-weight: 700;
+  font-weight: 800;
 }
 
 .library-meta small {
-  color: #6d7aa1;
+  color: #7082a8;
   font-size: 11px;
 }
 
 .library-card h3 {
   margin: 0;
-  color: #18233f;
-  font-size: 17px;
-  min-height: 44px;
+  color: #152747;
+  font-size: 16px;
+  min-height: 40px;
 }
 
 .library-card button {
   border: none;
   border-radius: 999px;
   height: 34px;
-  background: #1253d8;
+  background: linear-gradient(135deg, #1558d8 0%, #2e76e0 100%);
   color: #ffffff;
   font-weight: 700;
   cursor: pointer;
@@ -246,8 +266,8 @@
 
 .premium-bottom-grid {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 290px;
-  gap: 14px;
+  grid-template-columns: minmax(0, 1fr) 300px;
+  gap: 12px;
 }
 
 .mock-list {
@@ -256,55 +276,55 @@
 }
 
 .mock-item {
-  border: 1px solid #dce5f7;
-  border-radius: 20px;
-  background: #f6f8ff;
-  padding: 11px;
+  border: 1px solid #dbe5fb;
+  border-radius: 16px;
+  background: #f7faff;
+  padding: 10px;
   display: grid;
   grid-template-columns: auto 1fr auto;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
 }
 
 .mock-date {
-  width: 54px;
-  height: 54px;
-  border-radius: 16px;
-  background: #eaf0ff;
+  width: 50px;
+  height: 50px;
+  border-radius: 14px;
+  background: #e7f0ff;
   display: grid;
   place-items: center;
 }
 
 .mock-date small {
-  color: #5b6c98;
+  color: #5a6c95;
   letter-spacing: 0.08em;
   font-size: 10px;
   font-weight: 700;
 }
 
 .mock-date strong {
-  color: #1b2850;
-  font-size: 21px;
+  color: #1b2f5d;
+  font-size: 20px;
   margin-top: -4px;
 }
 
 .mock-copy h3 {
   margin: 0;
-  color: #1a2645;
-  font-size: 19px;
+  color: #1a2d52;
+  font-size: 18px;
 }
 
 .mock-copy p {
   margin: 4px 0 0;
-  color: #66749b;
+  color: #687ca4;
   font-size: 13px;
 }
 
 .mock-item button {
-  border: none;
+  border: 1px solid #cfe0ff;
   border-radius: 999px;
-  background: #d9e4ff;
-  color: #1f55c9;
+  background: #ffffff;
+  color: #1f57c4;
   height: 34px;
   padding: 0 16px;
   font-weight: 700;
@@ -312,9 +332,9 @@
 }
 
 .plan-card {
-  border: 1px solid #dce5f8;
-  border-radius: 24px;
-  background: #e7edff;
+  border: 1px solid #dce7fb;
+  border-radius: 18px;
+  background: linear-gradient(180deg, #eef4ff 0%, #e4edff 100%);
   padding: 14px;
   display: grid;
   gap: 10px;
@@ -323,23 +343,23 @@
 
 .plan-card h3 {
   margin: 0;
-  font-size: 32px;
-  color: #1a2648;
+  font-size: 28px;
+  color: #1b3059;
   letter-spacing: -0.02em;
 }
 
 .plan {
-  border-radius: 18px;
-  padding: 12px;
+  border-radius: 14px;
+  padding: 11px;
 }
 
 .plan.basic {
-  border: 1px solid #d3dcf5;
+  border: 1px solid #d5dff6;
   background: #ffffff;
 }
 
 .plan.pro {
-  background: linear-gradient(140deg, #1f56d8 0%, #1d42c6 52%, #1340a9 100%);
+  background: linear-gradient(140deg, #1658d7 0%, #236fcf 52%, #13869a 100%);
   color: #ffffff;
 }
 
@@ -351,12 +371,12 @@
 }
 
 .plan-row strong {
-  font-size: 18px;
+  font-size: 17px;
 }
 
 .plan-row span {
   border-radius: 999px;
-  background: rgba(20, 54, 144, 0.16);
+  background: rgba(20, 54, 144, 0.14);
   color: #355ba7;
   padding: 2px 8px;
   text-transform: uppercase;
@@ -366,30 +386,30 @@
 }
 
 .plan.pro .plan-row span {
-  background: rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.18);
   color: #ffffff;
 }
 
 .plan p {
   margin: 8px 0 0;
-  color: #6d7ca3;
+  color: #687aa3;
   font-size: 12px;
-  line-height: 1.4;
+  line-height: 1.45;
 }
 
 .plan.pro p {
-  color: #e6eeff;
+  color: #e6f1ff;
 }
 
 .plan .price {
   margin-top: 10px;
-  font-size: 34px;
+  font-size: 30px;
   color: #ffffff;
   font-weight: 800;
 }
 
 .plan .price small {
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 600;
   opacity: 0.82;
 }
@@ -412,7 +432,7 @@
 
 .unlock-card {
   border: 1px solid #dde6f8;
-  border-radius: 18px;
+  border-radius: 16px;
   background: #ffffff;
   padding: 12px;
   display: grid;
@@ -446,8 +466,8 @@
 }
 
 .unlock-type.kuppi {
-  background: #eee9ff;
-  color: #5f45bd;
+  background: #e6f8fb;
+  color: #166273;
 }
 
 .unlock-top small {
@@ -458,7 +478,7 @@
 .unlock-card h3 {
   margin: 0;
   color: #162442;
-  font-size: 17px;
+  font-size: 16px;
 }
 
 .unlock-card p {
@@ -471,7 +491,7 @@
   border: none;
   border-radius: 10px;
   height: 34px;
-  background: #1e55d8;
+  background: linear-gradient(135deg, #1958d8 0%, #2b79d8 100%);
   color: #ffffff;
   font-weight: 700;
   cursor: pointer;
@@ -483,9 +503,9 @@
 }
 
 .premium-v2-state {
-  border: 1px dashed #cfdcf8;
+  border: 1px dashed #cfddf8;
   border-radius: 16px;
-  background: #f7f9ff;
+  background: #f7faff;
   padding: 14px;
   color: #4f638e;
 }
@@ -508,8 +528,8 @@
 }
 
 @media (max-width: 1100px) {
-  .premium-hero-banner h1 {
-    font-size: 42px;
+  .premium-hero-banner {
+    padding: 22px;
   }
 
   .premium-bottom-grid {
@@ -518,17 +538,13 @@
 }
 
 @media (max-width: 760px) {
+  .student-premium-main {
+    padding: 12px 12px 18px;
+  }
+
   .premium-hero-banner {
-    padding: 18px;
-    border-radius: 24px;
-  }
-
-  .premium-hero-banner h1 {
-    font-size: 34px;
-  }
-
-  .premium-hero-banner p {
-    font-size: 17px;
+    padding: 16px;
+    border-radius: 20px;
   }
 
   .hero-stars {

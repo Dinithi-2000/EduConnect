@@ -1,13 +1,15 @@
 const CommunityPost = require('../models/CommunityPost');
 const User = require('../models/User');
 
+const escapeRegex = (value = '') => String(value).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
 // Create a new community post
 exports.createPost = async (req, res) => {
   try {
     const { title, description, type, category, tags, location, contactInfo, eventDate, eventTime } = req.body;
     const userId = req.user?._id || req.body.userId;
-    const userName = req.user?.name || req.body.userName;
-    const userEmail = req.user?.email || req.body.userEmail;
+    let userName = req.user?.name || req.body.userName;
+    let userEmail = req.user?.email || req.body.userEmail;
 
     let parsedTags = [];
     if (Array.isArray(tags)) {
@@ -71,6 +73,21 @@ exports.createPost = async (req, res) => {
       });
     }
 
+    if (!userName || !userEmail) {
+      const author = await User.findById(userId).select('name email');
+      if (author) {
+        userName = userName || author.name;
+        userEmail = userEmail || author.email;
+      }
+    }
+
+    if (!userName || !userEmail) {
+      return res.status(400).json({
+        success: false,
+        message: 'userName and userEmail are required'
+      });
+    }
+
     const post = new CommunityPost({
       title,
       description,
@@ -119,10 +136,13 @@ exports.getPosts = async (req, res) => {
     }
 
     if (search) {
+      const safeSearch = escapeRegex(String(search).trim());
+      const searchRegex = new RegExp(safeSearch, 'i');
+
       filter.$or = [
-        { title: { $regex: search, $options: 'i' } },
-        { description: { $regex: search, $options: 'i' } },
-        { tags: { $in: [new RegExp(search, 'i')] } }
+        { title: { $regex: searchRegex } },
+        { description: { $regex: searchRegex } },
+        { tags: { $in: [searchRegex] } }
       ];
     }
 
@@ -292,7 +312,7 @@ exports.addReply = async (req, res) => {
     const { id } = req.params;
     const { content } = req.body;
     const userId = req.user?._id || req.body.userId;
-    const userName = req.user?.name || req.body.userName;
+    const userName = req.user?.name || req.body.userName || req.body.authorName || 'Community Member';
 
     if (!content) {
       return res.status(400).json({
@@ -311,7 +331,7 @@ exports.addReply = async (req, res) => {
 
     const reply = {
       id: `reply-${Date.now()}`,
-      authorId: userId,
+      authorId: userId || undefined,
       authorName: userName,
       content,
       createdAt: new Date()

@@ -55,9 +55,9 @@ export const deletePost = async (id, userContext = {}) => {
 };
 
 // Add reply to post
-export const addReply = async (id, content) => {
+export const addReply = async (id, payload) => {
   try {
-    const response = await api.post(`/community/posts/${id}/reply`, { content });
+    const response = await api.post(`/community/posts/${id}/reply`, payload);
     return response.data;
   } catch (error) {
     throw error.response?.data || error;

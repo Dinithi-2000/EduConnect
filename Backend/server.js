@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const dotenv = require('dotenv');
 const path = require('path');
+const multer = require('multer');
 
 // Load environment variables
 dotenv.config();
@@ -48,8 +49,34 @@ app.get('/', (req, res) => {
 
 // Error handling middleware
 app.use((err, req, res, next) => {
-    console.error(err.stack);
-    res.status(500).json({ message: 'Something went wrong!', error: err.message });
+    console.error(err.stack || err);
+
+    if (err instanceof multer.MulterError) {
+        if (err.code === 'LIMIT_FILE_SIZE') {
+            return res.status(413).json({
+                success: false,
+                message: 'Image is too large. Max allowed size is 12MB per image.'
+            });
+        }
+
+        return res.status(400).json({
+            success: false,
+            message: err.message || 'Upload failed.'
+        });
+    }
+
+    if (err.message === 'Only image files are allowed') {
+        return res.status(400).json({
+            success: false,
+            message: 'Only image files are allowed.'
+        });
+    }
+
+    return res.status(500).json({
+        success: false,
+        message: 'Something went wrong!',
+        error: err.message
+    });
 });
 
 const basePort = Number(process.env.PORT) || 5000;

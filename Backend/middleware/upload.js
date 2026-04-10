@@ -157,7 +157,7 @@ const uploadCommunityImage = multer({
   storage: communityStorage,
   fileFilter: imageFileFilter,
   limits: {
-    fileSize: 5 * 1024 * 1024
+    fileSize: 12 * 1024 * 1024
   }
 });
 

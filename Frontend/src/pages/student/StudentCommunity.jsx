@@ -1,7 +1,7 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import AIChatWidget from '../../components/AIChatWidget';
-import { createPost, getPosts, upvotePost } from '../../services/communityService';
+import { addReply, createPost, getPosts, upvotePost } from '../../services/communityService';
 import { useAuth } from '../../context/AuthContext';
 import '../StudentDashboard.css';
 import './StudentCommunity.css';
@@ -51,6 +51,13 @@ const getPostMediaImages = (post, index) => {
   ];
 };
 
+const resolveAvatarUrl = (avatar) => {
+  if (!avatar || typeof avatar !== 'string') return '';
+  if (/^https?:\/\//i.test(avatar)) return avatar;
+  if (avatar.startsWith('/')) return `${window.location.origin}${avatar}`;
+  return `${window.location.origin}/${avatar}`;
+};
+
 const StudentCommunity = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -76,6 +83,10 @@ const StudentCommunity = () => {
   const [postNotice, setPostNotice] = useState('');
   const [posting, setPosting] = useState(false);
   const [selectedImages, setSelectedImages] = useState([]);
+  const [isImageDropActive, setIsImageDropActive] = useState(false);
+  const imageInputRef = useRef(null);
+  const [replyDrafts, setReplyDrafts] = useState({});
+  const [replySubmittingByPost, setReplySubmittingByPost] = useState({});
   const [themeMode, setThemeMode] = useState(() => {
     try {
       const storedTheme = localStorage.getItem(THEME_STORAGE_KEY);
@@ -96,6 +107,20 @@ const StudentCommunity = () => {
     .join('')
     .slice(0, 2)
     .toUpperCase();
+  const currentUserAvatar = resolveAvatarUrl(
+    user?.avatar || user?.profileImage || user?.profilePicture || user?.photo
+  );
+
+  const selectedImagePreviews = useMemo(
+    () => selectedImages.map((file) => ({ file, previewUrl: URL.createObjectURL(file) })),
+    [selectedImages]
+  );
+
+  useEffect(() => {
+    return () => {
+      selectedImagePreviews.forEach(({ previewUrl }) => URL.revokeObjectURL(previewUrl));
+    };
+  }, [selectedImagePreviews]);
 
   const fetchPosts = useCallback(async () => {
     try {
@@ -237,26 +262,85 @@ const StudentCommunity = () => {
     });
   };
 
-  const handleImageSelection = (event) => {
-    const files = Array.from(event.target.files || []);
+  const appendSelectedImages = (incomingFiles) => {
+    const files = Array.from(incomingFiles || []);
+    if (files.length === 0) return;
+
     const imageFiles = files.filter((file) => file.type.startsWith('image/'));
+    const hasInvalidFiles = imageFiles.length !== files.length;
+    let exceededLimit = false;
 
-    if (imageFiles.length !== files.length) {
-      setPostNotice('Only image files are allowed.');
-    }
+    setSelectedImages((prev) => {
+      exceededLimit = prev.length + imageFiles.length > 5;
+      return [...prev, ...imageFiles].slice(0, 5);
+    });
 
-    const nextImages = [...selectedImages, ...imageFiles].slice(0, 5);
-    setSelectedImages(nextImages);
-
-    if (selectedImages.length + imageFiles.length > 5) {
+    if (exceededLimit) {
       setPostNotice('You can upload up to 5 images per post.');
+    } else if (hasInvalidFiles) {
+      setPostNotice('Only image files are allowed.');
+    } else {
+      setPostNotice('');
     }
+  };
 
+  const handleImageSelection = (event) => {
+    appendSelectedImages(event.target.files);
     event.target.value = '';
   };
 
   const handleRemoveImage = (index) => {
     setSelectedImages((prev) => prev.filter((_, fileIndex) => fileIndex !== index));
+  };
+
+  const handleOpenImagePicker = () => {
+    imageInputRef.current?.click();
+  };
+
+  const handleImageDrop = (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    setIsImageDropActive(false);
+    appendSelectedImages(event.dataTransfer?.files);
+  };
+
+  const handleImageDragOver = (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    setIsImageDropActive(true);
+  };
+
+  const handleImageDragLeave = (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    setIsImageDropActive(false);
+  };
+
+  const handleReplyDraftChange = (postId, value) => {
+    setReplyDrafts((prev) => ({
+      ...prev,
+      [postId]: value
+    }));
+  };
+
+  const handleAddReply = async (postId) => {
+    const content = String(replyDrafts[postId] || '').trim();
+    if (!content) return;
+
+    setReplySubmittingByPost((prev) => ({ ...prev, [postId]: true }));
+    try {
+      await addReply(postId, {
+        content,
+        userId: user?._id || user?.id,
+        userName: user?.name || 'Community Member'
+      });
+      setReplyDrafts((prev) => ({ ...prev, [postId]: '' }));
+      await fetchPosts();
+    } catch (err) {
+      setPostNotice(err?.message || 'Unable to post your comment right now.');
+    } finally {
+      setReplySubmittingByPost((prev) => ({ ...prev, [postId]: false }));
+    }
   };
 
   const validatePostForm = () => {
@@ -322,6 +406,9 @@ const StudentCommunity = () => {
       formData.append('tags', JSON.stringify(validation.payload.tags));
       formData.append('location', validation.payload.location);
       formData.append('contactInfo', validation.payload.contactInfo);
+      if (user?._id || user?.id) formData.append('userId', user?._id || user?.id);
+      if (user?.name) formData.append('userName', user.name);
+      if (user?.email) formData.append('userEmail', user.email);
       if (validation.payload.eventDate) formData.append('eventDate', validation.payload.eventDate);
       if (validation.payload.eventTime) formData.append('eventTime', validation.payload.eventTime);
       selectedImages.forEach((file) => {
@@ -442,7 +529,31 @@ const StudentCommunity = () => {
         </header>
 
         <div className="student-community-page">
-          <section className="community-top-grid">
+          <section className="community-stats-grid" aria-label="Community summary">
+            <article className="community-stat-card">
+              <small>Total Posts</small>
+              <strong>{metrics.total}</strong>
+              <span>Published in the board</span>
+            </article>
+            <article className="community-stat-card">
+              <small>Active Members</small>
+              <strong>{metrics.activeAuthors}</strong>
+              <span>Contributors in this feed</span>
+            </article>
+            <article className="community-stat-card">
+              <small>Engagement</small>
+              <strong>{metrics.engagementRate}%</strong>
+              <span>Average reactions per post</span>
+            </article>
+            <article className="community-stat-card">
+              <small>Lost & Found</small>
+              <strong>{typeCounts['lost-item'] + typeCounts['found-item']}</strong>
+              <span>Active related posts</span>
+            </article>
+          </section>
+
+          <div className="community-layout-grid">
+          <section className="community-main-column">
             <section className="post-composer-card large">
               <form className="composer-form" onSubmit={handleCreatePost} noValidate>
                 <div className="composer-header">
@@ -527,30 +638,78 @@ const StudentCommunity = () => {
                   )}
 
                   <div className="composer-image-upload">
-                    <label htmlFor="community-images">Attach images (up to 5)</label>
+                    <label htmlFor="community-images">Photos</label>
                     <input
+                      ref={imageInputRef}
                       id="community-images"
+                      className="composer-image-native-input"
                       type="file"
                       accept="image/*"
                       multiple
                       onChange={handleImageSelection}
                     />
-                    {selectedImages.length > 0 && (
-                      <div className="composer-image-list">
-                        {selectedImages.map((file, index) => (
-                          <button
-                            key={`${file.name}-${index}`}
-                            type="button"
-                            className="composer-image-chip"
-                            onClick={() => handleRemoveImage(index)}
-                            title="Remove image"
-                          >
-                            <span>{file.name}</span>
-                            <strong>✕</strong>
-                          </button>
-                        ))}
-                      </div>
-                    )}
+                    <div
+                      className={`composer-dropzone ${isImageDropActive ? 'drag-active' : ''}`}
+                      role="button"
+                      tabIndex={0}
+                      onClick={handleOpenImagePicker}
+                      onDragOver={handleImageDragOver}
+                      onDrop={handleImageDrop}
+                      onDragLeave={handleImageDragLeave}
+                      onKeyDown={(event) => {
+                        if (event.key === 'Enter' || event.key === ' ') {
+                          event.preventDefault();
+                          handleOpenImagePicker();
+                        }
+                      }}
+                      aria-label="Drag and drop photos or click to upload"
+                    >
+                      {selectedImages.length === 0 ? (
+                        <>
+                          <span className="composer-dropzone-icon" aria-hidden="true">📷</span>
+                          <strong>Add Photos</strong>
+                          <small>Drag and drop up to 5 photos, or click to browse</small>
+                          <em>{selectedImages.length}/5 selected</em>
+                        </>
+                      ) : (
+                        <>
+                          <div className="composer-image-gallery" onClick={(event) => event.stopPropagation()}>
+                            {selectedImagePreviews.map(({ file, previewUrl }, index) => (
+                              <article key={`${file.name}-${index}`} className="composer-image-tile">
+                                <img src={previewUrl} alt="Selected upload preview" />
+                                <button
+                                  type="button"
+                                  className="composer-image-remove"
+                                  onClick={(event) => {
+                                    event.stopPropagation();
+                                    handleRemoveImage(index);
+                                  }}
+                                  aria-label={`Remove ${file.name}`}
+                                >
+                                  ✕
+                                </button>
+                              </article>
+                            ))}
+
+                            {selectedImages.length < 5 && (
+                              <button
+                                type="button"
+                                className="composer-image-add-tile"
+                                onClick={(event) => {
+                                  event.stopPropagation();
+                                  handleOpenImagePicker();
+                                }}
+                                aria-label="Add more photos"
+                              >
+                                +
+                              </button>
+                            )}
+                          </div>
+                          <em>{selectedImages.length}/5 photos selected</em>
+                          <small>Drag more photos here or use + to add.</small>
+                        </>
+                      )}
+                    </div>
                     {(postErrors.images || postErrors.eventDate || postErrors.eventTime) && (
                       <small className="composer-error">
                         {postErrors.images || postErrors.eventDate || postErrors.eventTime}
@@ -558,7 +717,7 @@ const StudentCommunity = () => {
                     )}
                   </div>
 
-                  <button type="submit" disabled={posting}>
+                  <button type="submit" className="composer-submit-btn" disabled={posting}>
                     {posting ? 'Publishing...' : 'Publish Post'}
                   </button>
                 </div>
@@ -569,59 +728,47 @@ const StudentCommunity = () => {
                 )}
               </form>
             </section>
-
-            <section className="community-profile-card">
-              <p className="greeting">Hello {displayName.split(' ')[0]} 🌼</p>
-              <h2>{displayName}</h2>
-              <div className="profile-stats-row">
-                <div>
-                  <small>posts</small>
-                  <strong>{metrics.total}</strong>
-                </div>
-                <div>
-                  <small>active</small>
-                  <strong>{metrics.activeAuthors}</strong>
-                </div>
-                <div>
-                  <small>engagement</small>
-                  <strong>{metrics.engagementRate}%</strong>
-                </div>
+            <section className="student-community-toolbar">
+              <div className="type-tabs">
+                <button type="button" className={typeFilter === 'all' ? 'active' : ''} onClick={() => setTypeFilter('all')}>All</button>
+                <button type="button" className={typeFilter === 'lost-found' ? 'active' : ''} onClick={() => setTypeFilter('lost-found')}>
+                  Lost & Found ({typeCounts['lost-item'] + typeCounts['found-item']})
+                </button>
+                <button type="button" className={typeFilter === 'announcement' ? 'active' : ''} onClick={() => setTypeFilter('announcement')}>
+                  Announcements ({typeCounts.announcement})
+                </button>
+                <button type="button" className={typeFilter === 'event' ? 'active' : ''} onClick={() => setTypeFilter('event')}>
+                  Events ({typeCounts.event})
+                </button>
+                <button type="button" className={typeFilter === 'help-request' ? 'active' : ''} onClick={() => setTypeFilter('help-request')}>
+                  Study Support ({typeCounts['help-request']})
+                </button>
               </div>
             </section>
-          </section>
 
-          <section className="community-grid">
-            <div className="community-main-column">
-              <section className="student-community-toolbar">
-                <div className="type-tabs">
-                  <button type="button" className={typeFilter === 'all' ? 'active' : ''} onClick={() => setTypeFilter('all')}>All</button>
-                  <button type="button" className={typeFilter === 'lost-found' ? 'active' : ''} onClick={() => setTypeFilter('lost-found')}>
-                    Lost & Found ({typeCounts['lost-item'] + typeCounts['found-item']})
-                  </button>
-                  <button type="button" className={typeFilter === 'announcement' ? 'active' : ''} onClick={() => setTypeFilter('announcement')}>
-                    Announcements ({typeCounts.announcement})
-                  </button>
-                  <button type="button" className={typeFilter === 'event' ? 'active' : ''} onClick={() => setTypeFilter('event')}>
-                    Events ({typeCounts.event})
-                  </button>
-                  <button type="button" className={typeFilter === 'help-request' ? 'active' : ''} onClick={() => setTypeFilter('help-request')}>
-                    Study Support ({typeCounts['help-request']})
-                  </button>
-                </div>
-              </section>
+            {loading ? (
+              <div className="state-box">Loading community feed...</div>
+            ) : error ? (
+              <div className="state-box error">{error}</div>
+            ) : visiblePosts.length === 0 ? (
+              <div className="state-box">No posts found for the selected filters.</div>
+            ) : (
+              <section className="student-community-feed">
+                {visiblePosts.slice(0, 16).map((post, index) => {
+                  const postAuthorAvatar = resolveAvatarUrl(
+                    post?.author?.avatar || post?.author?.profileImage || post?.author?.profilePicture || post?.avatar
+                  );
 
-              {loading ? (
-                <div className="state-box">Loading community feed...</div>
-              ) : error ? (
-                <div className="state-box error">{error}</div>
-              ) : visiblePosts.length === 0 ? (
-                <div className="state-box">No posts found for the selected filters.</div>
-              ) : (
-                <section className="student-community-feed">
-                  {visiblePosts.slice(0, 16).map((post, index) => (
-                    <article key={post._id} className="post-card">
+                  return (
+                  <article key={post._id} className="post-card">
                       <div className="post-author-row">
-                        <div className="post-avatar">{String(post.authorName || 'S').charAt(0)}</div>
+                        <div className="post-avatar" aria-hidden="true">
+                          {postAuthorAvatar ? (
+                            <img src={postAuthorAvatar} alt="" loading="lazy" />
+                          ) : (
+                            <span>{String(post.authorName || 'S').charAt(0).toUpperCase()}</span>
+                          )}
+                        </div>
                         <div>
                           <strong>{post.authorName || 'Community Member'}</strong>
                           <small>{new Date(post.createdAt).toLocaleString()}</small>
@@ -654,13 +801,71 @@ const StudentCommunity = () => {
                         </button>
                         <span>{Array.isArray(post.replies) ? post.replies.length : Number(post.replyCount || 0)} comments</span>
                       </div>
-                    </article>
-                  ))}
-                </section>
-              )}
-            </div>
 
-            <aside className="community-side-column">
+                      <div className="post-reply-box">
+                        <input
+                          type="text"
+                          value={replyDrafts[post._id] || ''}
+                          onChange={(event) => handleReplyDraftChange(post._id, event.target.value)}
+                          placeholder="Write a comment..."
+                          aria-label="Write a comment"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => handleAddReply(post._id)}
+                          disabled={Boolean(replySubmittingByPost[post._id])}
+                        >
+                          {replySubmittingByPost[post._id] ? 'Posting...' : 'Comment'}
+                        </button>
+                      </div>
+
+                      {Array.isArray(post.replies) && post.replies.length > 0 && (
+                        <div className="post-reply-list">
+                          {post.replies.slice(-3).map((reply, replyIndex) => (
+                            <article key={reply.id || `${post._id}-reply-${replyIndex}`} className="post-reply-item">
+                              <strong>{reply.authorName || 'Community Member'}</strong>
+                              <p>{reply.content}</p>
+                              <small>{reply.createdAt ? new Date(reply.createdAt).toLocaleString() : ''}</small>
+                            </article>
+                          ))}
+                        </div>
+                      )}
+                  </article>
+                  );
+                })}
+              </section>
+            )}
+          </section>
+
+          <aside className="community-side-column">
+            <section className="community-profile-card">
+              <p className="greeting">Hello {displayName.split(' ')[0]} 🌼</p>
+              <div className="community-profile-identity">
+                <div className="community-profile-avatar" aria-hidden="true">
+                  {currentUserAvatar ? (
+                    <img src={currentUserAvatar} alt="" />
+                  ) : (
+                    <span>{initials}</span>
+                  )}
+                </div>
+                <h2>{displayName}</h2>
+              </div>
+              <div className="profile-stats-row">
+                <div>
+                  <small>posts</small>
+                  <strong>{metrics.total}</strong>
+                </div>
+                <div>
+                  <small>active</small>
+                  <strong>{metrics.activeAuthors}</strong>
+                </div>
+                <div>
+                  <small>engagement</small>
+                  <strong>{metrics.engagementRate}%</strong>
+                </div>
+              </div>
+            </section>
+
               <section className="side-card">
                 <div className="side-card-head">
                   <h3>Suggestions</h3>
@@ -736,8 +941,8 @@ const StudentCommunity = () => {
                   </li>
                 </ul>
               </section>
-            </aside>
-          </section>
+          </aside>
+          </div>
         </div>
 
         <AIChatWidget
