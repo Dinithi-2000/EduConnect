@@ -9,7 +9,17 @@ const notificationSchema = new mongoose.Schema(
     },
     type: {
       type: String,
-      enum: ['booking_confirmed', 'student_booked', 'session_reminder', 'session_cancelled'],
+      enum: [
+        'booking_confirmed',
+        'student_booked',
+        'session_reminder',
+        'session_cancelled',
+        'smart_reminder_inactivity',
+        'smart_reminder_deadline',
+        'smart_reminder_low_progress',
+        'smart_reminder_streak',
+        'smart_reminder_admin',
+      ],
       required: true,
     },
     title: {
@@ -28,6 +38,10 @@ const notificationSchema = new mongoose.Schema(
     isRead: {
       type: Boolean,
       default: false,
+    },
+    metadata: {
+      type: mongoose.Schema.Types.Mixed,
+      default: {},
     },
   },
   { timestamps: true }

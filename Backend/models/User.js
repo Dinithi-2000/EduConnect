@@ -62,6 +62,63 @@ const userSchema = new mongoose.Schema({
         type: Date,
         default: null
     },
+    smartReminder: {
+        lastStudyAt: {
+            type: Date,
+            default: null
+        },
+        firstStudyAt: {
+            type: Date,
+            default: null
+        },
+        courseProgressPercent: {
+            type: Number,
+            min: 0,
+            max: 100,
+            default: 0
+        },
+        studyStreak: {
+            type: Number,
+            min: 0,
+            default: 0
+        },
+        lastStreakDate: {
+            type: Date,
+            default: null
+        },
+        nextDeadlineAt: {
+            type: Date,
+            default: null
+        },
+        preferences: {
+            enabled: {
+                type: Boolean,
+                default: true
+            },
+            inactivity: {
+                type: Boolean,
+                default: true
+            },
+            deadline: {
+                type: Boolean,
+                default: true
+            },
+            lowProgress: {
+                type: Boolean,
+                default: true
+            },
+            streak: {
+                type: Boolean,
+                default: true
+            }
+        },
+        lastReminderAt: {
+            inactivity: { type: Date, default: null },
+            deadline: { type: Date, default: null },
+            lowProgress: { type: Date, default: null },
+            streak: { type: Date, default: null }
+        }
+    },
     createdAt: {
         type: Date,
         default: Date.now

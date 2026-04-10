@@ -2,6 +2,12 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import AIChatWidget from '../../components/AIChatWidget';
+import {
+  getNotifications,
+  getSmartReminderInsights,
+  getSmartReminderSettings,
+  updateSmartReminderSettings,
+} from '../../services/notificationService';
 import '../StudentDashboard.css';
 import './StudentSettings.css';
 
@@ -13,6 +19,23 @@ const StudentSettings = () => {
 
   const [chatOpenSignal, setChatOpenSignal] = useState(0);
   const [savedAt, setSavedAt] = useState('Not saved yet');
+  const [saveNotice, setSaveNotice] = useState('');
+  const [unreadCount, setUnreadCount] = useState(0);
+  const [recentNotifications, setRecentNotifications] = useState([]);
+  const [smartReminderPrefs, setSmartReminderPrefs] = useState({
+    enabled: true,
+    inactivity: true,
+    deadline: true,
+    lowProgress: true,
+    streak: true,
+  });
+  const [smartInsights, setSmartInsights] = useState({
+    lastStudyAt: null,
+    courseProgressPercent: 0,
+    studyStreak: 0,
+    inactivityDays: null,
+    nextDeadlineAt: null,
+  });
   const [preferences, setPreferences] = useState({
     darkMode: false,
     emailNotifications: true,
@@ -30,6 +53,45 @@ const StudentSettings = () => {
     } catch {
       // Ignore malformed local storage values.
     }
+  }, []);
+
+  useEffect(() => {
+    let mounted = true;
+
+    const loadSmartReminderData = async () => {
+      try {
+        const [settingsRes, insightsRes, notificationsRes] = await Promise.all([
+          getSmartReminderSettings(),
+          getSmartReminderInsights(),
+          getNotifications(),
+        ]);
+
+        if (!mounted) return;
+
+        setSmartReminderPrefs((prev) => ({
+          ...prev,
+          ...(settingsRes?.data?.preferences || {}),
+        }));
+
+        setSmartInsights((prev) => ({
+          ...prev,
+          ...(insightsRes?.data || {}),
+        }));
+
+        setUnreadCount(Number(notificationsRes?.unreadCount || 0));
+        setRecentNotifications((notificationsRes?.notifications || []).slice(0, 4));
+      } catch {
+        // Keep settings page usable if the live reminder API is temporarily unavailable.
+      }
+    };
+
+    loadSmartReminderData();
+    const timer = setInterval(loadSmartReminderData, 20000);
+
+    return () => {
+      mounted = false;
+      clearInterval(timer);
+    };
   }, []);
 
   const displayName = user?.name || 'Student';
@@ -81,6 +143,26 @@ const StudentSettings = () => {
   const handleSave = () => {
     localStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(preferences));
     setSavedAt(new Date().toLocaleString());
+    setSaveNotice('Preferences saved on this device.');
+  };
+
+  const handleSaveAllSettings = async () => {
+    try {
+      await updateSmartReminderSettings({
+        preferences: smartReminderPrefs,
+      });
+      handleSave();
+      setSaveNotice('Smart reminder settings synced successfully.');
+    } catch {
+      setSaveNotice('Saved locally, but smart reminder sync failed.');
+    }
+  };
+
+  const toggleSmartReminderPref = (key) => {
+    setSmartReminderPrefs((prev) => ({
+      ...prev,
+      [key]: !prev[key],
+    }));
   };
 
   return (
@@ -130,7 +212,10 @@ const StudentSettings = () => {
 
           <div className="student-v2-tools">
             <button type="button" className="ghost-icon" aria-label="Theme">◐</button>
-            <button type="button" className="ghost-icon" aria-label="Notifications">🔔</button>
+            <button type="button" className="ghost-icon" aria-label="Notifications">
+              🔔
+              {unreadCount > 0 ? <span className="settings-notif-badge">{Math.min(unreadCount, 99)}</span> : null}
+            </button>
             <button type="button" className="premium-pill" onClick={() => navigate('/student/premium')}>
               <span aria-hidden="true">👑</span>
               Premium
@@ -256,9 +341,97 @@ const StudentSettings = () => {
               <div className="summary-track">
                 <div className="summary-fill" style={{ width: `${completion}%` }}></div>
               </div>
-              <button type="button" onClick={handleSave}>Save All Settings</button>
+              <button type="button" onClick={handleSaveAllSettings}>Save All Settings</button>
             </article>
           </section>
+
+          <section className="settings-grid secondary">
+            <article className="settings-card smart-reminder-card">
+              <h2>Smart Reminder System</h2>
+              <div className="toggle-list-student">
+                <div className="toggle-item-student">
+                  <div>
+                    <strong>Enable Smart Reminders</strong>
+                    <small>Allow intelligent study reminders in real time</small>
+                  </div>
+                  <button type="button" className={`switch-btn ${smartReminderPrefs.enabled ? 'on' : ''}`} onClick={() => toggleSmartReminderPref('enabled')}>
+                    <i></i>
+                  </button>
+                </div>
+                <div className="toggle-item-student">
+                  <div>
+                    <strong>Inactivity Alerts</strong>
+                    <small>Warn after 2+ days without studying</small>
+                  </div>
+                  <button type="button" className={`switch-btn ${smartReminderPrefs.inactivity ? 'on' : ''}`} onClick={() => toggleSmartReminderPref('inactivity')}>
+                    <i></i>
+                  </button>
+                </div>
+                <div className="toggle-item-student">
+                  <div>
+                    <strong>Deadline Alerts</strong>
+                    <small>Notify when deadlines are within 24 hours</small>
+                  </div>
+                  <button type="button" className={`switch-btn ${smartReminderPrefs.deadline ? 'on' : ''}`} onClick={() => toggleSmartReminderPref('deadline')}>
+                    <i></i>
+                  </button>
+                </div>
+                <div className="toggle-item-student">
+                  <div>
+                    <strong>Low Progress Nudges</strong>
+                    <small>Detect when progress is behind pace</small>
+                  </div>
+                  <button type="button" className={`switch-btn ${smartReminderPrefs.lowProgress ? 'on' : ''}`} onClick={() => toggleSmartReminderPref('lowProgress')}>
+                    <i></i>
+                  </button>
+                </div>
+                <div className="toggle-item-student">
+                  <div>
+                    <strong>Streak Motivation</strong>
+                    <small>Celebrate consistent daily learning streaks</small>
+                  </div>
+                  <button type="button" className={`switch-btn ${smartReminderPrefs.streak ? 'on' : ''}`} onClick={() => toggleSmartReminderPref('streak')}>
+                    <i></i>
+                  </button>
+                </div>
+              </div>
+            </article>
+
+            <article className="settings-card smart-insights-card">
+              <h2>Live Study Insights</h2>
+              <div className="account-row">
+                <span>Last Study</span>
+                <strong>{smartInsights.lastStudyAt ? new Date(smartInsights.lastStudyAt).toLocaleString() : 'No activity yet'}</strong>
+              </div>
+              <div className="account-row">
+                <span>Course Progress</span>
+                <strong>{Math.round(Number(smartInsights.courseProgressPercent || 0))}%</strong>
+              </div>
+              <div className="account-row">
+                <span>Study Streak</span>
+                <strong>{Number(smartInsights.studyStreak || 0)} day(s)</strong>
+              </div>
+              <div className="account-row">
+                <span>Days Inactive</span>
+                <strong>{smartInsights.inactivityDays ?? 0}</strong>
+              </div>
+              <div className="account-row">
+                <span>Live Notifications</span>
+                <strong>{unreadCount} unread</strong>
+              </div>
+              <div className="live-notification-feed">
+                {recentNotifications.length === 0 ? <small>No notifications yet.</small> : null}
+                {recentNotifications.map((item) => (
+                  <div key={item._id} className="live-notification-item">
+                    <strong>{item.title}</strong>
+                    <span>{item.message}</span>
+                  </div>
+                ))}
+              </div>
+            </article>
+          </section>
+
+          {saveNotice ? <p className="settings-save-notice">{saveNotice}</p> : null}
         </div>
 
         <AIChatWidget

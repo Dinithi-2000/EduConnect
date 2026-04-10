@@ -3,6 +3,7 @@ const Session = require('../models/Session');
 const Notification = require('../models/Notification');
 const User = require('../models/User');
 const { sendReminderEmail } = require('./emailService');
+const { runSmartReminderSweep } = require('./smartReminderService');
 
 /**
  * Cron job: runs every hour
@@ -88,7 +89,28 @@ const startReminderCron = () => {
   console.log('⏰ Session reminder cron job scheduled (runs every hour).');
 };
 
-module.exports = { startReminderCron };
+/**
+ * Cron job: runs every hour at minute 15
+ * Evaluates smart study reminders based on user activity and progress signals.
+ */
+const startSmartReminderCron = () => {
+  cron.schedule('15 * * * *', async () => {
+    try {
+      console.log('🧠 Running smart reminder cron job...');
+      const result = await runSmartReminderSweep();
+      console.log(
+        `✅ Smart reminder sweep complete. Students=${result.scannedStudents}, inactive=${result.inactive}, deadlines=${result.deadline}, behind=${result.behind}, streak=${result.streak}`
+      );
+    } catch (error) {
+      console.error('❌ Smart reminder cron job error:', error.message);
+    }
+  });
+
+  console.log('⏰ Smart reminder cron job scheduled (runs every hour at :15).');
+};
+
+module.exports = { startReminderCron, startSmartReminderCron };
 
 // Auto-start when this module is required
 startReminderCron();
+startSmartReminderCron();

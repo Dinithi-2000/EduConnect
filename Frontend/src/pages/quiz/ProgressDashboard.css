@@ -119,7 +119,7 @@
 
 .reports-intel-head h1 {
   margin: 0;
-  font-size: 2rem;
+  font-size: clamp(1.38rem, 3vw, 2rem);
   letter-spacing: -0.03em;
   color: #ffffff;
 }
@@ -180,7 +180,7 @@
 }
 
 .intel-kpi-card strong {
-  font-size: 2rem;
+  font-size: clamp(1.45rem, 3vw, 2rem);
   line-height: 1;
 }
 
@@ -217,7 +217,7 @@
 }
 
 .admin-module-card strong {
-  font-size: 1.55rem;
+  font-size: clamp(1.2rem, 2.6vw, 1.55rem);
   line-height: 1.1;
 }
 
@@ -297,7 +297,7 @@
 
 .line-chart-svg {
   width: 100%;
-  height: 220px;
+  height: clamp(170px, 30vw, 220px);
 }
 
 .line-blue,
@@ -529,6 +529,11 @@
   .intel-lower-grid {
     grid-template-columns: 1fr;
   }
+
+  .reports-intel-actions {
+    width: 100%;
+    justify-content: flex-start;
+  }
 }
 
 @media (max-width: 760px) {
@@ -548,6 +553,14 @@
   .reports-intel-actions {
     width: 100%;
     justify-content: flex-start;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .reports-intel-actions .btn-ghost,
+  .reports-intel-actions .btn-primary {
+    width: 100%;
+    text-align: center;
   }
 
   .intel-kpi-grid,
@@ -556,9 +569,89 @@
     grid-template-columns: 1fr;
   }
 
+  .card-title-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .line-legend {
+    flex-wrap: wrap;
+  }
+
+  .donut-ring {
+    width: 160px;
+  }
+
+  .donut-ring::before {
+    width: 112px;
+  }
+
+  .donut-center {
+    font-size: 1.35rem;
+  }
+
   .mini-table-head,
   .mini-table-row {
     grid-template-columns: 1.3fr 0.8fr 0.9fr 0.8fr;
     font-size: 0.66rem;
+  }
+}
+
+@media (max-width: 560px) {
+  .student-progress-main {
+    padding: 14px 12px 20px;
+  }
+
+  .reports-intel-head,
+  .intel-chart-card,
+  .intel-donut-card,
+  .intel-table-card,
+  .intel-chatbot-card,
+  .intel-kpi-card,
+  .admin-module-card {
+    border-radius: 14px;
+  }
+
+  .reports-intel-head,
+  .intel-chart-card,
+  .intel-donut-card,
+  .intel-table-card,
+  .intel-chatbot-card {
+    padding: 12px;
+  }
+
+  .reports-intel-actions {
+    grid-template-columns: 1fr;
+  }
+
+  .line-months {
+    font-size: 0.53rem;
+    letter-spacing: 0.04em;
+  }
+
+  .mini-table-head {
+    display: none;
+  }
+
+  .mini-table-row {
+    grid-template-columns: 1fr 1fr;
+    gap: 6px 10px;
+    padding: 10px;
+    border: 1px solid rgba(88, 114, 184, 0.25);
+    border-radius: 10px;
+    margin-bottom: 8px;
+  }
+
+  .mini-table-row span:first-child {
+    grid-column: 1 / -1;
+    font-weight: 700;
+  }
+
+  .chatbot-metrics strong {
+    font-size: 1.5rem;
+  }
+
+  .chatbot-total strong {
+    font-size: 1.6rem;
   }
 }

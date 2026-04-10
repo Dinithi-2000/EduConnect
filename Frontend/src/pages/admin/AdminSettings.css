@@ -53,6 +53,82 @@
   padding: 16px;
 }
 
+.smart-monitor-card {
+  padding: 16px;
+  display: grid;
+  gap: 10px;
+}
+
+.monitor-metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.monitor-metric {
+  border: 1px solid rgba(87, 114, 185, 0.25);
+  border-radius: 12px;
+  background: rgba(18, 36, 77, 0.72);
+  padding: 8px;
+}
+
+.monitor-metric small {
+  display: block;
+  color: #8aa4d4;
+  font-size: 0.58rem;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+}
+
+.monitor-metric strong {
+  margin-top: 3px;
+  display: block;
+  color: #e2edff;
+  font-size: 1.05rem;
+}
+
+.monitor-list,
+.smart-feed-list {
+  display: grid;
+  gap: 8px;
+}
+
+.monitor-list small,
+.smart-feed-list small {
+  color: #7d97ca;
+  font-size: 0.62rem;
+}
+
+.monitor-list-item,
+.smart-feed-item {
+  border: 1px solid rgba(87, 114, 185, 0.25);
+  border-radius: 12px;
+  background: rgba(18, 36, 77, 0.72);
+  padding: 8px;
+  display: grid;
+  gap: 3px;
+}
+
+.monitor-list-item strong,
+.smart-feed-item strong {
+  color: #d7e5ff;
+  font-size: 0.72rem;
+}
+
+.monitor-list-item span,
+.smart-feed-item span {
+  color: #94addb;
+  font-size: 0.63rem;
+  line-height: 1.35;
+}
+
+.smart-feed-title {
+  margin: 2px 0 0;
+  color: #d6e4ff;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
 .panel-head {
   display: flex;
   justify-content: space-between;
@@ -400,7 +476,8 @@
   }
 
   .profile-grid,
-  .profile-fields {
+  .profile-fields,
+  .monitor-metrics-grid {
     grid-template-columns: 1fr;
   }
 

@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import DashboardLayout from '../../components/DashboardLayout';
 import { useAuth } from '../../context/AuthContext';
+import { getAdminSmartReminderOverview, getNotifications } from '../../services/notificationService';
 import './AdminSettings.css';
 
 const AdminSettings = () => {
@@ -34,6 +35,55 @@ const AdminSettings = () => {
 
   const [savedAt, setSavedAt] = useState('Never');
   const [saveError, setSaveError] = useState('');
+  const [smartOverview, setSmartOverview] = useState({
+    totalStudents: 0,
+    inactiveStudents: 0,
+    deadlineRiskStudents: 0,
+    behindStudents: 0,
+    streakStudents: 0,
+    items: [],
+  });
+  const [liveNotifications, setLiveNotifications] = useState([]);
+
+  useEffect(() => {
+    let mounted = true;
+
+    const loadLiveData = async () => {
+      try {
+        const [overviewRes, notificationRes] = await Promise.all([
+          getAdminSmartReminderOverview(),
+          getNotifications(),
+        ]);
+
+        if (!mounted) return;
+
+        setSmartOverview((overviewRes && overviewRes.data) || {
+          totalStudents: 0,
+          inactiveStudents: 0,
+          deadlineRiskStudents: 0,
+          behindStudents: 0,
+          streakStudents: 0,
+          items: [],
+        });
+        setLiveNotifications((notificationRes?.notifications || []).slice(0, 5));
+      } catch {
+        // Keep admin settings usable if realtime endpoints are temporarily unavailable.
+      }
+    };
+
+    if (isAdmin) {
+      loadLiveData();
+      const timer = setInterval(loadLiveData, 20000);
+      return () => {
+        mounted = false;
+        clearInterval(timer);
+      };
+    }
+
+    return () => {
+      mounted = false;
+    };
+  }, [isAdmin]);
 
   const handleSave = () => {
     const adminName = String(profile.adminName || '').trim();
@@ -211,6 +261,53 @@ const AdminSettings = () => {
                 <span>iPhone 14 Pro - Safari</span>
                 <button className="revoke-btn" type="button">Revoke</button>
               </div>
+            </div>
+          </article>
+
+          <article className="panel-card smart-monitor-card">
+            <h2>Smart Reminder Monitor</h2>
+            <p className="panel-subtitle">Realtime student engagement intelligence across the platform.</p>
+
+            <div className="monitor-metrics-grid">
+              <div className="monitor-metric">
+                <small>Total Students</small>
+                <strong>{smartOverview.totalStudents}</strong>
+              </div>
+              <div className="monitor-metric">
+                <small>Inactive (2+ days)</small>
+                <strong>{smartOverview.inactiveStudents}</strong>
+              </div>
+              <div className="monitor-metric">
+                <small>Deadline Risk</small>
+                <strong>{smartOverview.deadlineRiskStudents}</strong>
+              </div>
+              <div className="monitor-metric">
+                <small>Behind Progress</small>
+                <strong>{smartOverview.behindStudents}</strong>
+              </div>
+            </div>
+
+            <div className="monitor-list">
+              {smartOverview.items.length === 0 ? <small>No high-risk students right now.</small> : null}
+              {smartOverview.items.slice(0, 4).map((item) => (
+                <div key={item.id} className="monitor-list-item">
+                  <strong>{item.name}</strong>
+                  <span>
+                    Progress {Math.round(Number(item.courseProgressPercent || 0))}% | Inactive {item.inactivityDays ?? 0}d | Streak {item.studyStreak || 0}
+                  </span>
+                </div>
+              ))}
+            </div>
+
+            <h3 className="smart-feed-title">Live Notification Feed</h3>
+            <div className="smart-feed-list">
+              {liveNotifications.length === 0 ? <small>No notifications received yet.</small> : null}
+              {liveNotifications.map((item) => (
+                <div key={item._id} className="smart-feed-item">
+                  <strong>{item.title}</strong>
+                  <span>{item.message}</span>
+                </div>
+              ))}
             </div>
           </article>
         </section>

@@ -283,6 +283,10 @@
   gap: 10px;
 }
 
+.notification-wrap {
+  position: relative;
+}
+
 .icon-btn {
   border: 1px solid rgba(90, 115, 185, 0.45);
   border-radius: 11px;
@@ -299,12 +303,99 @@
 
 .notification-badge {
   position: absolute;
-  top: 7px;
-  right: 8px;
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: #10c4fb;
+  top: -6px;
+  right: -6px;
+  min-width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #2f84ff, #7f6eff);
+  color: #ffffff;
+  font-size: 0.62rem;
+  font-weight: 700;
+  display: grid;
+  place-items: center;
+  padding: 0 4px;
+}
+
+.notification-panel {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  width: min(360px, 86vw);
+  border-radius: 14px;
+  border: 1px solid rgba(90, 115, 185, 0.45);
+  background: #0b1b44;
+  box-shadow: 0 12px 30px rgba(3, 11, 33, 0.55);
+  padding: 10px;
+  z-index: 40;
+}
+
+.notification-panel-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.notification-panel-head strong {
+  font-size: 0.86rem;
+  color: #d7e5ff;
+}
+
+.notification-panel-head button {
+  border: 1px solid rgba(103, 130, 206, 0.42);
+  background: rgba(20, 43, 96, 0.86);
+  color: #c8d9ff;
+  border-radius: 999px;
+  font-size: 0.65rem;
+  font-weight: 600;
+  padding: 5px 10px;
+  cursor: pointer;
+}
+
+.notification-list {
+  display: grid;
+  gap: 8px;
+  max-height: 320px;
+  overflow-y: auto;
+}
+
+.notification-item {
+  text-align: left;
+  border: 1px solid rgba(97, 123, 196, 0.34);
+  background: rgba(16, 35, 78, 0.9);
+  border-radius: 10px;
+  padding: 8px;
+  color: #c5d7fb;
+  cursor: pointer;
+  display: grid;
+  gap: 3px;
+}
+
+.notification-item strong {
+  font-size: 0.74rem;
+  color: #e3edff;
+}
+
+.notification-item span {
+  font-size: 0.66rem;
+  line-height: 1.35;
+  color: #a8bce8;
+}
+
+.notification-item.unread {
+  border-color: rgba(97, 152, 255, 0.58);
+  background: rgba(20, 47, 102, 0.95);
+}
+
+.notification-item.read {
+  opacity: 0.86;
+}
+
+.notification-empty {
+  margin: 10px 2px;
+  color: #8ea7d8;
+  font-size: 0.72rem;
 }
 
 .user-profile {

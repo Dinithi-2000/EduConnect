@@ -1,11 +1,21 @@
-import React, { useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import {
+  getNotifications,
+  markAllNotificationsAsRead,
+  markNotificationAsRead,
+} from '../services/notificationService';
 import AIChatWidget from './AIChatWidget';
 import './DashboardLayout.css';
 
 const DashboardLayout = ({ children, activeSection = 'Quizzes', theme = 'dark' }) => {
   const [chatOpenSignal, setChatOpenSignal] = useState(0);
+  const [notifications, setNotifications] = useState([]);
+  const [unreadCount, setUnreadCount] = useState(0);
+  const [notifOpen, setNotifOpen] = useState(false);
+  const [notifLoading, setNotifLoading] = useState(false);
+  const notifPanelRef = useRef(null);
   const navigate = useNavigate();
   const location = useLocation();
   const { logout, user } = useAuth();
@@ -20,6 +30,69 @@ const DashboardLayout = ({ children, activeSection = 'Quizzes', theme = 'dark' }
   const handleLogout = () => {
     logout();
     navigate('/login');
+  };
+
+  const loadNotifications = useCallback(async () => {
+    if (!user?._id && !user?.id) return;
+
+    try {
+      setNotifLoading(true);
+      const response = await getNotifications();
+      setNotifications(response?.notifications || []);
+      setUnreadCount(Number(response?.unreadCount || 0));
+    } catch {
+      // Keep UI non-blocking if notification endpoint is unavailable.
+    } finally {
+      setNotifLoading(false);
+    }
+  }, [user?._id, user?.id]);
+
+  useEffect(() => {
+    loadNotifications();
+    const timer = setInterval(loadNotifications, 20000);
+    return () => clearInterval(timer);
+  }, [loadNotifications]);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (!notifPanelRef.current) return;
+      if (!notifPanelRef.current.contains(event.target)) {
+        setNotifOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const handleToggleNotifications = async () => {
+    const nextOpen = !notifOpen;
+    setNotifOpen(nextOpen);
+    if (nextOpen) {
+      await loadNotifications();
+    }
+  };
+
+  const handleMarkAllRead = async () => {
+    try {
+      await markAllNotificationsAsRead();
+      setNotifications((prev) => prev.map((item) => ({ ...item, isRead: true })));
+      setUnreadCount(0);
+    } catch {
+      // Ignore UX-only action failures.
+    }
+  };
+
+  const handleMarkOneRead = async (notificationId) => {
+    try {
+      await markNotificationAsRead(notificationId);
+      setNotifications((prev) => prev.map((item) => (
+        item._id === notificationId ? { ...item, isRead: true } : item
+      )));
+      setUnreadCount((prev) => Math.max(0, prev - 1));
+    } catch {
+      // Ignore UX-only action failures.
+    }
   };
 
   const navItems = isAdminView
@@ -105,9 +178,43 @@ const DashboardLayout = ({ children, activeSection = 'Quizzes', theme = 'dark' }
             <input type="text" placeholder="Search resources..." className="search-input" />
           </div>
           <div className="header-actions">
-            <button className="icon-btn notification-btn">
-              🔔<span className="notification-badge"></span>
-            </button>
+            <div className="notification-wrap" ref={notifPanelRef}>
+              <button className="icon-btn notification-btn" onClick={handleToggleNotifications}>
+                🔔
+                {unreadCount > 0 ? <span className="notification-badge">{Math.min(unreadCount, 99)}</span> : null}
+              </button>
+
+              {notifOpen ? (
+                <div className="notification-panel">
+                  <div className="notification-panel-head">
+                    <strong>Notifications</strong>
+                    <button type="button" onClick={handleMarkAllRead}>Mark all read</button>
+                  </div>
+
+                  {notifLoading ? <p className="notification-empty">Loading...</p> : null}
+
+                  {!notifLoading && notifications.length === 0 ? (
+                    <p className="notification-empty">No notifications yet.</p>
+                  ) : null}
+
+                  {!notifLoading && notifications.length > 0 ? (
+                    <div className="notification-list">
+                      {notifications.slice(0, 8).map((item) => (
+                        <button
+                          type="button"
+                          key={item._id}
+                          className={`notification-item ${item.isRead ? 'read' : 'unread'}`}
+                          onClick={() => handleMarkOneRead(item._id)}
+                        >
+                          <strong>{item.title}</strong>
+                          <span>{item.message}</span>
+                        </button>
+                      ))}
+                    </div>
+                  ) : null}
+                </div>
+              ) : null}
+            </div>
             <button className="icon-btn">⚙️</button>
             <div className="user-profile-wrap">
             <div

@@ -2,6 +2,26 @@
   padding: 18px 20px 24px;
 }
 
+.student-settings-main .ghost-icon {
+  position: relative;
+}
+
+.settings-notif-badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  min-width: 16px;
+  height: 16px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #2f84ff, #7e6dff);
+  color: #ffffff;
+  display: grid;
+  place-items: center;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 0 4px;
+}
+
 .student-settings-page {
   margin-top: 20px;
   display: grid;
@@ -171,6 +191,48 @@
 .summary-fill {
   height: 100%;
   background: linear-gradient(90deg, #1f56d9 0%, #4a78ef 100%);
+}
+
+.smart-insights-card,
+.smart-reminder-card {
+  align-content: start;
+}
+
+.live-notification-feed {
+  display: grid;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.live-notification-feed small {
+  color: #73809f;
+  font-size: 12px;
+}
+
+.live-notification-item {
+  border: 1px solid #e5eaf8;
+  border-radius: 12px;
+  background: #f8faff;
+  padding: 8px 10px;
+  display: grid;
+  gap: 2px;
+}
+
+.live-notification-item strong {
+  color: #1e2d4e;
+  font-size: 12px;
+}
+
+.live-notification-item span {
+  color: #607193;
+  font-size: 11px;
+  line-height: 1.35;
+}
+
+.settings-save-notice {
+  margin: 2px 2px 0;
+  color: #4a5f8a;
+  font-size: 12px;
 }
 
 @media (max-width: 1100px) {

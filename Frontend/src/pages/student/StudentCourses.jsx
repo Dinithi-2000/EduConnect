@@ -5,6 +5,7 @@ import { useAuth } from '../../context/AuthContext';
 import AIChatWidget from '../../components/AIChatWidget';
 import { API_URL } from '../../services/api';
 import { getCourses } from '../../services/courseService';
+import { trackStudyActivity } from '../../services/notificationService';
 import './StudentCourses.css';
 
 const apiOrigin = API_URL.replace(/\/api\/?$/, '');
@@ -116,6 +117,7 @@ const StudentCourses = () => {
   ]);
   const noticeTimerRef = useRef(null);
   const noteNoticeTimerRef = useRef(null);
+  const lastActivityPingRef = useRef('');
 
   const progressStorageKey = `student-course-progress-${studentId}`;
   const enrollmentStorageKey = `student-course-enrollments-${studentId}`;
@@ -270,6 +272,39 @@ const StudentCourses = () => {
   }, [selectedCourse, courseModules, selectedModuleId, selectedContentId]);
 
   const selectedCourseProgress = selectedCourse ? getCourseProgress(selectedCourse) : { total: 0, done: 0, percent: 0 };
+
+  useEffect(() => {
+    if (!user?._id && !user?.id) return;
+    if (!selectedCourse?._id) return;
+    if (!activeContent?._id) return;
+
+    const fingerprint = [selectedCourse._id, activeContent._id, selectedCourseProgress.percent].join(':');
+    if (lastActivityPingRef.current === fingerprint) return;
+
+    const timer = setTimeout(async () => {
+      try {
+        await trackStudyActivity({
+          courseId: selectedCourse._id,
+          moduleId: activeModule?._id || null,
+          contentId: activeContent._id,
+          progressPercent: selectedCourseProgress.percent,
+        });
+        lastActivityPingRef.current = fingerprint;
+      } catch {
+        // Ignore tracking failures to keep learning flow uninterrupted.
+      }
+    }, 900);
+
+    return () => clearTimeout(timer);
+  }, [
+    user?._id,
+    user?.id,
+    selectedCourse?._id,
+    activeModule?._id,
+    activeContent?._id,
+    selectedCourseProgress.percent,
+  ]);
+
   const resourceItems = useMemo(() => {
     const source = activeModule?.contents || [];
     return source.slice(0, 2).map((content, index) => ({
