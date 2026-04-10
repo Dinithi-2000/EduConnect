@@ -4,6 +4,8 @@ import { registerUser } from '../services/userService';
 import { getPasswordStrengthError, PASSWORD_POLICY_TEXT } from '../utils/passwordValidation';
 import './Auth.css';
 
+const REGISTER_ART_IMAGE = 'https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=1400&q=80';
+
 const Register = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
@@ -64,6 +66,22 @@ const Register = () => {
 
   return (
     <div className="register-page">
+      <aside className="register-right-panel" aria-label="Marketing panel">
+        <div className="right-panel-content">
+          <div className="right-kicker">Learning, Connected</div>
+          <h2>Build your academic momentum with smarter tools.</h2>
+          <p>
+            Join thousands of learners who track progress, book live sessions, and collaborate with their campus community.
+          </p>
+          <div className="right-visual-card">
+            <img src={REGISTER_ART_IMAGE} alt="Students collaborating in a modern learning space" />
+          </div>
+          <div className="right-fade-strip">Interactive Courses</div>
+          <div className="right-fade-strip secondary">AI-Powered Study Support</div>
+          <div className="right-fade-strip tertiary">Community Driven Learning</div>
+        </div>
+      </aside>
+
       <section className="register-left-shell">
         <div className="register-wrapper">
           <header className="register-header">
@@ -78,6 +96,8 @@ const Register = () => {
           </header>
 
           <div className="register-card">
+            <h1>Create Account</h1>
+            <p className="register-subtitle">Start your personalized learning workspace in minutes.</p>
             {error && <div className="auth-error">{error}</div>}
 
             <form onSubmit={handleSubmit} className="register-form">
@@ -187,20 +207,6 @@ const Register = () => {
           </div>
         </div>
       </section>
-
-      <aside className="register-right-panel" aria-label="Marketing panel">
-        <div className="right-panel-content">
-          <div className="right-kicker"></div>
-          <h2>Elevating Global Learning Standards.</h2>
-          <p>
-            Join thousands of institutions managing their academic ecosystem with EduConnect Scholar.
-          </p>
-          <div className="right-visual-card"></div>
-          <div className="right-fade-strip"></div>
-          <div className="right-fade-strip secondary"></div>
-          <div className="right-fade-strip tertiary"></div>
-        </div>
-      </aside>
     </div>
   );
 };

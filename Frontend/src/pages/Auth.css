@@ -1,30 +1,30 @@
-@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap');
 
 .register-page {
-  --bg: #f4f4fc;
-  --ink: #10172b;
+  --bg: #f3f5fd;
+  --ink: #101a35;
 
   min-height: 100vh;
   display: grid;
-  grid-template-columns: 3fr 1fr;
+  grid-template-columns: minmax(320px, 0.95fr) minmax(420px, 1fr);
   background:
-    radial-gradient(980px 540px at 12% -8%, #e5ebff 0, transparent 46%),
-    radial-gradient(880px 520px at 100% 108%, #e9e4ff 0, transparent 48%),
+    radial-gradient(980px 540px at 12% -8%, #e4ebff 0, transparent 46%),
+    radial-gradient(880px 520px at 100% 108%, #ece6ff 0, transparent 48%),
     var(--bg);
   color: var(--ink);
-  font-family: 'Manrope', 'Segoe UI', sans-serif;
+  font-family: 'Outfit', 'Segoe UI', sans-serif;
 }
 
 .register-left-shell {
   display: flex;
   align-items: stretch;
   justify-content: flex-start;
-  padding: 22px 24px 26px;
+  padding: 22px clamp(16px, 3vw, 34px) 26px;
 }
 
 .register-wrapper {
   width: 100%;
-  max-width: none;
+  max-width: 760px;
   display: grid;
   grid-template-rows: auto 1fr auto;
 }
@@ -50,8 +50,8 @@
 
 .register-brand .logo-text {
   margin: 0;
-  font-size: 30px;
-  color: #1350ca;
+  font-size: clamp(26px, 2.8vw, 32px);
+  color: #2050ce;
   font-weight: 800;
   letter-spacing: -0.03em;
 }
@@ -65,7 +65,7 @@
 .register-header-links a {
   text-decoration: none;
   color: #404965;
-  font-size: 12px;
+  font-size: 11px;
   text-transform: uppercase;
   letter-spacing: 0.15em;
   font-weight: 600;
@@ -73,16 +73,29 @@
 
 .register-card {
   align-self: center;
-  justify-self: center;
+  justify-self: flex-start;
   width: 100%;
-  max-width: 560px;
-  background: rgba(255, 255, 255, 0.8);
-  border: 1px solid rgba(190, 199, 218, 0.65);
-  border-radius: 18px;
-  padding: 30px;
-  box-shadow: 0 20px 35px rgba(39, 57, 102, 0.08);
+  max-width: 640px;
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(204, 214, 237, 0.9);
+  border-radius: 26px;
+  padding: clamp(20px, 3.2vw, 34px);
+  box-shadow: 0 22px 44px rgba(35, 52, 100, 0.14);
   -webkit-backdrop-filter: blur(6px);
   backdrop-filter: blur(6px);
+}
+
+.register-card h1 {
+  margin: 0;
+  font-size: clamp(32px, 4vw, 46px);
+  line-height: 1.02;
+  letter-spacing: -0.03em;
+}
+
+.register-subtitle {
+  margin: 10px 0 20px;
+  color: #5f6d92;
+  font-size: 15px;
 }
 
 .register-form {
@@ -98,19 +111,19 @@
   display: block;
   margin-bottom: 7px;
   color: #546685;
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 700;
-  letter-spacing: 0.8px;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
 }
 
 .auth-input-wrap {
   display: flex;
   align-items: center;
-  border-radius: 22px;
-  border: 1px solid #c8d2e2;
-  background: #edf1f7;
-  min-height: 48px;
+  border-radius: 12px;
+  border: 1px solid #d8e0f3;
+  background: #f5f8ff;
+  min-height: 49px;
   padding: 0 14px;
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
@@ -138,7 +151,7 @@
   font-size: 15px;
   color: #30405f;
   font-family: inherit;
-  padding: 11px 0;
+  padding: 12px 0;
 }
 
 .auth-input-wrap input::placeholder {
@@ -242,7 +255,7 @@
   color: #8f9cb3;
   font-size: 11px;
   text-transform: uppercase;
-  letter-spacing: 1.4px;
+  letter-spacing: 1.2px;
 }
 
 .register-bottom div {
@@ -256,8 +269,8 @@
 }
 
 .register-right-panel {
-  background: transparent;
-  border-left: 0;
+  background: #dfe7ff;
+  border-right: 1px solid #cfd9f4;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -265,88 +278,101 @@
   overflow: hidden;
 }
 
+.register-right-panel::before {
+  content: '';
+  position: absolute;
+  width: 360px;
+  height: 360px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(81, 107, 205, 0.22), rgba(81, 107, 205, 0));
+  top: -130px;
+  right: -100px;
+}
+
+.register-right-panel::after {
+  content: '';
+  position: absolute;
+  width: 280px;
+  height: 280px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(115, 96, 206, 0.22), rgba(115, 96, 206, 0));
+  bottom: -110px;
+  left: -90px;
+}
+
 .right-panel-content {
-  width: min(320px, 86%);
-  color: #172037;
+  width: min(420px, 86%);
+  color: #172a58;
   position: relative;
   z-index: 2;
 }
 
 .right-kicker {
-  width: 34px;
-  height: 3px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   border-radius: 999px;
+  padding: 6px 12px;
   margin-bottom: 16px;
-  background: #295fef;
+  background: rgba(35, 80, 201, 0.12);
+  color: #214bba;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
 }
 
 .right-panel-content h2 {
   margin: 0;
-  font-size: clamp(32px, 3vw, 44px);
+  font-size: clamp(30px, 2.9vw, 42px);
   line-height: 1.08;
   letter-spacing: -0.7px;
 }
 
 .right-panel-content p {
-  color: #5f7090;
+  color: #4f6189;
   line-height: 1.55;
-  margin: 18px 0 30px;
-  font-size: 17px;
+  margin: 14px 0 22px;
+  font-size: 16px;
 }
 
 .right-visual-card {
   position: relative;
   overflow: hidden;
-  height: 166px;
-  border-radius: 16px;
-  border: 1px solid #d6ddea;
-  background:
-    linear-gradient(145deg, rgba(255, 255, 255, 0.65), rgba(240, 243, 250, 0.92)),
-    linear-gradient(35deg, rgba(145, 154, 176, 0.2), rgba(220, 226, 239, 0.4));
+  height: 250px;
+  border-radius: 20px;
+  border: 1px solid rgba(180, 196, 235, 0.72);
+  box-shadow: 0 16px 34px rgba(47, 75, 153, 0.2);
 }
 
-.right-visual-card::before,
-.right-visual-card::after {
-  content: '';
-  position: absolute;
-  pointer-events: none;
-}
-
-.right-visual-card::before {
-  width: 118px;
-  height: 118px;
-  right: 24px;
-  top: 22px;
-  border: 2px solid rgba(201, 208, 224, 0.82);
-  border-radius: 8px;
-  transform: rotate(-27deg);
-  background: linear-gradient(155deg, rgba(255, 255, 255, 0.42), rgba(225, 230, 241, 0.2));
-}
-
-.right-visual-card::after {
-  width: 138px;
-  height: 138px;
-  left: 18px;
-  bottom: -58px;
-  border-radius: 14px;
-  background: linear-gradient(140deg, rgba(168, 179, 206, 0.22), rgba(214, 221, 237, 0.08));
-  transform: rotate(18deg);
+.right-visual-card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
 }
 
 .right-fade-strip {
-  width: 65%;
-  height: 10px;
+  width: 80%;
+  min-height: 36px;
+  padding: 0 14px;
+  display: inline-flex;
+  align-items: center;
+  font-size: 12px;
+  font-weight: 600;
+  color: #3e5486;
   margin-top: 14px;
   border-radius: 999px;
-  background: linear-gradient(90deg, rgba(83, 106, 160, 0.25), rgba(146, 159, 188, 0.08));
+  border: 1px solid rgba(166, 181, 219, 0.62);
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.82), rgba(228, 235, 253, 0.56));
 }
 
 .right-fade-strip.secondary {
-  width: 52%;
+  width: 86%;
 }
 
 .right-fade-strip.tertiary {
-  width: 76%;
+  width: 90%;
 }
 
 @media (max-width: 1024px) {
@@ -355,11 +381,9 @@
   }
 
   .register-right-panel {
-    display: none;
-  }
-
-  .register-left-shell {
-    padding: 18px 16px 22px;
+    min-height: 300px;
+    border-right: none;
+    border-bottom: 1px solid #cfd9f4;
   }
 
   .register-wrapper {
@@ -367,9 +391,15 @@
   }
 }
 
-@media (max-width: 640px) {
+@media (max-width: 720px) {
+  .register-left-shell {
+    padding: 18px 14px 20px;
+  }
+
   .register-header {
-    margin-bottom: 16px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
   }
 
   .register-header-links {
@@ -378,26 +408,35 @@
 
   .register-header-links a {
     font-size: 10px;
-    letter-spacing: 0.12em;
-  }
-
-  .register-brand .logo-text {
-    font-size: 24px;
   }
 
   .register-card {
-    padding: 22px 18px;
-    border-radius: 14px;
+    max-width: none;
+    border-radius: 20px;
+    padding: 24px 18px;
   }
 
   .password-row {
     grid-template-columns: 1fr;
-    gap: 16px;
+    gap: 10px;
   }
 
   .register-bottom {
     flex-direction: column;
     align-items: flex-start;
-    gap: 8px;
+    gap: 10px;
+  }
+
+  .register-right-panel {
+    min-height: 240px;
+  }
+
+  .right-panel-content {
+    width: min(460px, 90%);
+    padding: 16px 0 20px;
+  }
+
+  .right-visual-card {
+    height: 200px;
   }
 }
