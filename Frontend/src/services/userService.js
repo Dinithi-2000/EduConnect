@@ -46,9 +46,29 @@ export const getCurrentUser = async () => {
 // Get all users
 export const getUsers = async () => {
   try {
-    const response = await api.get('/users');
+    const response = await api.get('/users', { timeout: 20000 });
     return response.data;
   } catch (error) {
+    const code = String(error?.code || '');
+    const message = String(error?.message || '');
+    const shouldRetry = !error?.response && (
+      code === 'ERR_NETWORK'
+      || code === 'ECONNRESET'
+      || code === 'ECONNABORTED'
+      || message.includes('ERR_CONNECTION_RESET')
+      || message.toLowerCase().includes('network error')
+    );
+
+    if (shouldRetry) {
+      try {
+        const retryResponse = await api.get('/users', { timeout: 20000 });
+        return retryResponse.data;
+      } catch (retryError) {
+        console.error('Error fetching users (retry failed):', retryError);
+        throw retryError;
+      }
+    }
+
     console.error('Error fetching users:', error);
     throw error;
   }

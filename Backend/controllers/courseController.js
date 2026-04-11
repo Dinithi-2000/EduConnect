@@ -56,9 +56,12 @@ const getCourses = async (req, res) => {
 
     const query = Course.find(filter).sort({ updatedAt: -1 }).lean();
 
-    // Instructor info is used on student pages, but manager pages do not require populate.
-    if (!manager) {
+    // Manager pages may need creator identity; skip populate for student fetches.
+    if (manager) {
       query.populate('createdBy', 'name email role');
+    } else {
+      // Student list fetches can be very large; omit heavy inline note bodies.
+      query.select('-modules.contents.textContent');
     }
 
     const courses = await query.exec();

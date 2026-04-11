@@ -1,18 +1,10 @@
 import axios from 'axios';
 
 export const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
-const LOCAL_API_CANDIDATES = ['http://localhost:5000/api', 'http://localhost:5001/api'];
-
-const getLocalFallbackBaseUrl = (currentBaseUrl = '', tried = []) => {
-  const normalizedCurrent = String(currentBaseUrl || '').toLowerCase();
-  const triedSet = new Set((Array.isArray(tried) ? tried : []).map((value) => String(value).toLowerCase()));
-
-  return LOCAL_API_CANDIDATES.find((candidate) => {
-    const normalizedCandidate = String(candidate).toLowerCase();
-    if (normalizedCurrent === normalizedCandidate) return false;
-    return !triedSet.has(normalizedCandidate);
-  }) || null;
-};
+const LOCAL_FALLBACK_API_URLS = [
+  'http://localhost:5000/api',
+  'http://localhost:5001/api',
+];
 
 // Create axios instance with default config
 const api = axios.create({
@@ -42,20 +34,29 @@ api.interceptors.response.use(
   (response) => response,
   async (error) => {
     const requestConfig = error.config || {};
-    const isNetworkRefused = !error.response && (error.code === 'ERR_NETWORK' || String(error.message || '').includes('Network Error'));
+    const isNetworkFailure = !error.response && (
+      error.code === 'ERR_NETWORK'
+      || error.code === 'ECONNRESET'
+      || String(error.message || '').includes('Network Error')
+      || String(error.message || '').includes('ERR_CONNECTION_RESET')
+    );
     const currentBaseUrl = requestConfig.baseURL || api.defaults.baseURL || '';
-    const localFallbackBaseUrl = getLocalFallbackBaseUrl(currentBaseUrl, requestConfig.__triedLocalFallbackBaseUrls);
-    const canTryLocalFallback = isNetworkRefused && Boolean(localFallbackBaseUrl);
 
-    if (canTryLocalFallback) {
-      const triedBaseUrls = Array.isArray(requestConfig.__triedLocalFallbackBaseUrls)
-        ? requestConfig.__triedLocalFallbackBaseUrls
+    if (isNetworkFailure) {
+      const tried = Array.isArray(requestConfig.__triedBaseUrls)
+        ? requestConfig.__triedBaseUrls
         : [];
 
-      requestConfig.__triedLocalFallbackBaseUrls = [...triedBaseUrls, localFallbackBaseUrl];
-      requestConfig.baseURL = localFallbackBaseUrl;
-      api.defaults.baseURL = localFallbackBaseUrl;
-      return api(requestConfig);
+      const fallbackTargets = LOCAL_FALLBACK_API_URLS.filter((url) => !tried.includes(url));
+
+      // Only auto-failover for localhost development targets.
+      if (String(currentBaseUrl).includes('localhost') && fallbackTargets.length) {
+        const nextBaseUrl = fallbackTargets[0];
+        requestConfig.__triedBaseUrls = [...tried, nextBaseUrl];
+        requestConfig.baseURL = nextBaseUrl;
+        api.defaults.baseURL = nextBaseUrl;
+        return api(requestConfig);
+      }
     }
 
     if (error.response?.status === 401) {

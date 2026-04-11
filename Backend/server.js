@@ -81,18 +81,14 @@ app.use((err, req, res, next) => {
 });
 
 const basePort = Number(process.env.PORT) || 5000;
-const startServer = (port) => {
-    const server = app.listen(port, () => {
-        console.log(`Server is running on port ${port}`);
-    });
-    server.on('error', (error) => {
-        if (error.code === 'EADDRINUSE') {
-            const fallbackPort = port + 1;
-            console.warn(`Port ${port} is already in use. Retrying on port ${fallbackPort}...`);
-            startServer(fallbackPort);
-            return;
-        }
-        throw error;
-    });
-};
-startServer(basePort);
+const server = app.listen(basePort, () => {
+    console.log(`Server is running on port ${basePort}`);
+});
+
+server.on('error', (error) => {
+    if (error.code === 'EADDRINUSE') {
+        console.error(`Port ${basePort} is already in use. Stop the existing process or change PORT in Backend/.env.`);
+        process.exit(1);
+    }
+    throw error;
+});

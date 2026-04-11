@@ -351,7 +351,19 @@ const CourseManager = () => {
     try {
       setLoading(true);
       setError('');
-      const result = await getCourses(search ? { search } : {}, options);
+      const filters = {};
+      if (search) filters.search = search;
+      if (isManager) {
+        if (levelFilter !== 'All') filters.level = levelFilter;
+        if (publishFilter === 'published') filters.published = 'true';
+        if (publishFilter === 'draft') filters.published = 'false';
+      }
+
+      const result = await getCourses(filters, {
+        ...options,
+        forceRefresh: isManager ? true : Boolean(options.forceRefresh),
+        cacheScope: isManager ? 'manager' : currentRole || 'default',
+      });
       const items = toCourseList(result);
       setCourses(items);
       if (items.length && !selectedCourseId) {
@@ -371,6 +383,15 @@ const CourseManager = () => {
     loadCourses();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(() => {
+    if (!isManager) return;
+    const timeout = setTimeout(() => {
+      loadCourses({ forceRefresh: true });
+    }, 250);
+    return () => clearTimeout(timeout);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [search, levelFilter, publishFilter, isManager]);
 
   const handleCreateCourse = async (e) => {
     e.preventDefault();
@@ -508,6 +529,10 @@ const CourseManager = () => {
       }
       if (initialLectureVideoInputRef.current) {
         initialLectureVideoInputRef.current.value = '';
+      }
+
+      if (isManager) {
+        showToast('Course created. Publish it to make it visible on the student side.', 'success');
       }
     } catch (err) {
       showToast(err?.response?.data?.message || 'Failed to create course.', 'error');

@@ -10,9 +10,9 @@ const normalizeFilters = (filters = {}) => {
     .sort(([a], [b]) => a.localeCompare(b));
 };
 
-const createCacheKey = (filters = {}) => {
+const createCacheKey = (filters = {}, scope = 'default') => {
   const normalized = normalizeFilters(filters);
-  return `${COURSE_CACHE_PREFIX}${JSON.stringify(normalized)}`;
+  return `${COURSE_CACHE_PREFIX}${scope}:${JSON.stringify(normalized)}`;
 };
 
 const readCache = (key) => {
@@ -50,8 +50,8 @@ export const invalidateCoursesCache = () => {
 };
 
 export const getCourses = async (filters = {}, options = {}) => {
-  const { forceRefresh = false } = options;
-  const cacheKey = createCacheKey(filters);
+  const { forceRefresh = false, cacheScope = 'default' } = options;
+  const cacheKey = createCacheKey(filters, cacheScope);
 
   if (!forceRefresh) {
     const cached = readCache(cacheKey);
