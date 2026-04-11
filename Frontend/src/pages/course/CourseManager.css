@@ -80,15 +80,21 @@ button.danger {
 
 /* Icon-only action buttons */
 .btn-icon {
-  width: 34px;
-  height: 34px;
-  border-radius: 10px;
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
   padding: 0;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-size: 1rem;
-  border: 1px solid rgba(110, 140, 220, 0.35);
+  border: 1px solid rgba(110, 140, 220, 0.42);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.14), 0 6px 14px rgba(8, 16, 40, 0.35);
+}
+
+.btn-icon svg {
+  width: 18px;
+  height: 18px;
+  display: block;
 }
 
 .btn-icon.btn-edit {
@@ -102,6 +108,18 @@ button.danger {
 .btn-icon.btn-delete,
 .btn-icon.danger {
   background: linear-gradient(135deg, #e11d48, #be123c);
+}
+
+.btn-icon:hover {
+  transform: translateY(-1px) scale(1.03);
+  filter: brightness(1.08);
+}
+
+.btn-icon:disabled {
+  opacity: 0.62;
+  cursor: not-allowed;
+  transform: none;
+  filter: grayscale(0.2);
 }
 
 /* Small button variant for module expanded tools */
@@ -1002,10 +1020,42 @@ button.danger:disabled,
   gap: 6px;
 }
 
-.uploaded-items-actions .btn-edit,
-.uploaded-items-actions .btn-delete {
-  padding: 6px 9px;
+.table-action-btn {
+  border: 1px solid rgba(110, 140, 220, 0.38);
+  border-radius: 9px;
+  padding: 5px 8px;
   font-size: 0.62rem;
+  font-weight: 700;
+  color: #eef4ff;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  cursor: pointer;
+  transition: transform 0.14s ease, filter 0.14s ease, box-shadow 0.14s ease;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12), 0 4px 12px rgba(8, 16, 40, 0.28);
+}
+
+.table-action-btn svg {
+  width: 13px;
+  height: 13px;
+  display: block;
+}
+
+.table-action-btn.action-open {
+  background: linear-gradient(135deg, #1d4ed8, #2563eb);
+}
+
+.table-action-btn.action-edit {
+  background: linear-gradient(135deg, #0ea5e9, #0284c7);
+}
+
+.table-action-btn.action-delete {
+  background: linear-gradient(135deg, #e11d48, #be123c);
+}
+
+.table-action-btn:hover {
+  transform: translateY(-1px) scale(1.02);
+  filter: brightness(1.08);
 }
 
 .content-item p {
@@ -1158,6 +1208,10 @@ button.danger:disabled,
   padding: 5px 9px;
   font-size: 0.62rem;
   border-radius: 8px;
+}
+
+.inventory-actions .table-action-btn {
+  padding: 5px 8px;
 }
 
 .inventory-empty {

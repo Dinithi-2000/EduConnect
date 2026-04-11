@@ -77,6 +77,7 @@ const CourseManager = () => {
   const [publishFilter, setPublishFilter] = useState('all');
   const [inventoryTypeFilter, setInventoryTypeFilter] = useState('all');
   const [sortBy, setSortBy] = useState('newest');
+  const [publishingCourseId, setPublishingCourseId] = useState('');
   const [uploadingModuleId, setUploadingModuleId] = useState('');
   const [thumbnailDropActive, setThumbnailDropActive] = useState(false);
   const [showCreateForm, setShowCreateForm] = useState(false);
@@ -510,12 +511,20 @@ const CourseManager = () => {
   };
 
   const togglePublish = async (course) => {
+    if (!course?._id || publishingCourseId) return;
     try {
+      setPublishingCourseId(course._id);
       const res = await updateCourse(course._id, { isPublished: !course.isPublished });
       const updated = res.data;
       setCourses((prev) => prev.map((item) => (item._id === updated._id ? updated : item)));
+      showToast(
+        updated.isPublished ? 'Course published successfully.' : 'Course unpublished successfully.',
+        'info'
+      );
     } catch (err) {
       showToast(err?.response?.data?.message || 'Failed to update course publish status.', 'error');
+    } finally {
+      setPublishingCourseId('');
     }
   };
 
@@ -1192,7 +1201,18 @@ const CourseManager = () => {
                               <path d="M20.71 7.04a1 1 0 0 0 0-1.41L18.37 3.29a1 1 0 0 0-1.41 0l-1.13 1.13 3.75 3.75 1.13-1.13z" fill="currentColor" />
                             </svg>
                           </button>
-                          <button className="btn-icon btn-publish" onClick={() => togglePublish(selectedCourse)} title={selectedCourse.isPublished ? 'Unpublish' : 'Publish'}>
+                          <button
+                            type="button"
+                            className="btn-icon btn-publish"
+                            onClick={(event) => {
+                              event.preventDefault();
+                              event.stopPropagation();
+                              togglePublish(selectedCourse);
+                            }}
+                            title={selectedCourse.isPublished ? 'Unpublish' : 'Publish'}
+                            aria-label={selectedCourse.isPublished ? 'Unpublish course' : 'Publish course'}
+                            disabled={publishingCourseId === selectedCourse._id}
+                          >
                             {selectedCourse.isPublished ? (
                               <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
                                 <path d="M12 4a8 8 0 1 1 0 16 8 8 0 0 1 0-16zm0-2a10 10 0 1 0 0 20 10 10 0 0 0 0-20z" fill="currentColor" />
@@ -1339,8 +1359,19 @@ const CourseManager = () => {
                                         <td className="content-source-cell">{content.url || 'Uploaded / internal file'}</td>
                                         <td>
                                           <div className="uploaded-items-actions">
-                                            <button className="btn-edit" onClick={() => handleEditContent(module, content)}>Edit</button>
-                                            <button className="danger btn-delete" onClick={() => handleDeleteContent(module, content)}>Delete</button>
+                                            <button className="table-action-btn action-edit" onClick={() => handleEditContent(module, content)}>
+                                              <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                                                <path d="M3 17.25V21h3.75L18.81 8.94l-3.75-3.75L3 17.25z" fill="currentColor" />
+                                                <path d="M20.71 7.04a1 1 0 0 0 0-1.41L18.37 3.29a1 1 0 0 0-1.41 0l-1.13 1.13 3.75 3.75 1.13-1.13z" fill="currentColor" />
+                                              </svg>
+                                              <span>Edit</span>
+                                            </button>
+                                            <button className="table-action-btn action-delete" onClick={() => handleDeleteContent(module, content)}>
+                                              <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                                                <path d="M9 3h6l1 2h4v2H4V5h4l1-2zm1 6h2v9h-2V9zm4 0h2v9h-2V9zM7 9h2v9H7V9z" fill="currentColor" />
+                                              </svg>
+                                              <span>Delete</span>
+                                            </button>
                                           </div>
                                         </td>
                                       </tr>
@@ -1465,16 +1496,44 @@ const CourseManager = () => {
                         <td>{row.updatedAt ? new Date(row.updatedAt).toLocaleDateString() : '-'}</td>
                         <td>
                           <div className="inventory-actions">
-                            <button className="btn-add" onClick={() => setSelectedCourseId(row.courseId)}>Open</button>
+                            <button className="table-action-btn action-open" onClick={() => setSelectedCourseId(row.courseId)}>
+                              <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                                <path d="M14 3h7v7h-2V6.41l-9.29 9.3-1.42-1.42 9.3-9.29H14V3z" fill="currentColor" />
+                                <path d="M5 5h6v2H7v10h10v-4h2v6H5V5z" fill="currentColor" />
+                              </svg>
+                              <span>Open</span>
+                            </button>
                             {row.type === 'course' ? (
                               <>
-                                <button className="btn-edit" onClick={() => handleEditCourse(row.courseData)}>Edit</button>
-                                <button className="danger btn-delete" onClick={() => handleDeleteCourse(row.courseData)}>Delete</button>
+                                <button className="table-action-btn action-edit" onClick={() => handleEditCourse(row.courseData)}>
+                                  <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                                    <path d="M3 17.25V21h3.75L18.81 8.94l-3.75-3.75L3 17.25z" fill="currentColor" />
+                                    <path d="M20.71 7.04a1 1 0 0 0 0-1.41L18.37 3.29a1 1 0 0 0-1.41 0l-1.13 1.13 3.75 3.75 1.13-1.13z" fill="currentColor" />
+                                  </svg>
+                                  <span>Edit</span>
+                                </button>
+                                <button className="table-action-btn action-delete" onClick={() => handleDeleteCourse(row.courseData)}>
+                                  <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                                    <path d="M9 3h6l1 2h4v2H4V5h4l1-2zm1 6h2v9h-2V9zm4 0h2v9h-2V9zM7 9h2v9H7V9z" fill="currentColor" />
+                                  </svg>
+                                  <span>Delete</span>
+                                </button>
                               </>
                             ) : (
                               <>
-                                <button className="btn-edit" onClick={() => handleEditModuleFromRow(row.moduleData)}>Edit</button>
-                                <button className="danger btn-delete" onClick={() => handleDeleteModuleFromRow(row.moduleData)}>Delete</button>
+                                <button className="table-action-btn action-edit" onClick={() => handleEditModuleFromRow(row.moduleData)}>
+                                  <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                                    <path d="M3 17.25V21h3.75L18.81 8.94l-3.75-3.75L3 17.25z" fill="currentColor" />
+                                    <path d="M20.71 7.04a1 1 0 0 0 0-1.41L18.37 3.29a1 1 0 0 0-1.41 0l-1.13 1.13 3.75 3.75 1.13-1.13z" fill="currentColor" />
+                                  </svg>
+                                  <span>Edit</span>
+                                </button>
+                                <button className="table-action-btn action-delete" onClick={() => handleDeleteModuleFromRow(row.moduleData)}>
+                                  <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                                    <path d="M9 3h6l1 2h4v2H4V5h4l1-2zm1 6h2v9h-2V9zm4 0h2v9h-2V9zM7 9h2v9H7V9z" fill="currentColor" />
+                                  </svg>
+                                  <span>Delete</span>
+                                </button>
                               </>
                             )}
                           </div>

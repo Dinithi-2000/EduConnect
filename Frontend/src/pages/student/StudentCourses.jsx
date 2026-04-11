@@ -51,7 +51,19 @@ const sortModulesByMode = (modules = [], mode = 'week') => {
   return list.sort((a, b) => (a.order || 0) - (b.order || 0));
 };
 
+const getCourseThumbnailUrl = (value) => {
+  const url = String(value || '').trim();
+  if (!url) return '';
+  if (url.startsWith('data:image/')) return url;
+  if (/^https?:\/\//i.test(url)) return url;
+  if (url.startsWith('/')) return `${apiOrigin}${url}`;
+  return `${apiOrigin}/${url}`;
+};
+
 const getCourseBanner = (course, index) => {
+  const thumbnail = getCourseThumbnailUrl(course?.thumbnailUrl);
+  if (thumbnail) return thumbnail;
+
   const seed = String(course?._id || course?.title || index || '0');
   const hash = seed.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
   return COURSE_BANNERS[hash % COURSE_BANNERS.length];
@@ -64,6 +76,9 @@ const getWorkspaceHeroImage = ({ course, module, content }) => {
     if (url.startsWith('/')) return `${apiOrigin}${url}`;
     return `${apiOrigin}/${url}`;
   }
+
+  const courseThumbnail = getCourseThumbnailUrl(course?.thumbnailUrl);
+  if (courseThumbnail) return courseThumbnail;
 
   const seed = String(
     module?.title
@@ -702,7 +717,11 @@ const StudentCourses = () => {
     const isEnrolled = enrolledCourseIds.includes(course._id);
 
     if (!isEnrolled) {
-      enrollCourseLocally(course._id);
+      const added = enrollCourseLocally(course._id);
+      if (added) {
+        showCommentNotice('success', 'Enrolled successfully. Redirecting to My Courses...');
+      }
+      navigate('/student/my-courses', { state: { newlyEnrolledCourseId: course._id } });
       return;
     }
 
