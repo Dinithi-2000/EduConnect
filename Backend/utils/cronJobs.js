@@ -110,7 +110,3 @@ const startSmartReminderCron = () => {
 };
 
 module.exports = { startReminderCron, startSmartReminderCron };
-
-// Auto-start when this module is required
-startReminderCron();
-startSmartReminderCron();

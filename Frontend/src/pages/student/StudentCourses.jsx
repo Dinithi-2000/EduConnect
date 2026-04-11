@@ -725,9 +725,11 @@ const StudentCourses = () => {
     if (!isEnrolled) {
       const added = enrollCourseLocally(course._id);
       if (added) {
-        showCommentNotice('success', 'Enrolled successfully. Redirecting to My Courses...');
+        showCommentNotice('success', 'Enrolled successfully. You can now open this course.');
       }
-      navigate('/student/my-courses', { state: { newlyEnrolledCourseId: course._id } });
+
+      setSelectedCourseId(course._id);
+      setViewMode('overview');
       return;
     }
 

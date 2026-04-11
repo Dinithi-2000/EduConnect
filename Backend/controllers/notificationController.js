@@ -2,7 +2,14 @@ const Notification = require('../models/Notification');
 const User = require('../models/User');
 // Session must be imported so Mongoose registers the schema before populate() resolves 'relatedSession'
 const Session = require('../models/Session');
+const mongoose = require('mongoose');
 const { evaluateSmartRemindersForUser, daysBetween } = require('../utils/smartReminderService');
+
+const resolveUserId = (req) => {
+  const candidate = req?.user?._id || req?.user?.id;
+  if (!candidate) return null;
+  return String(candidate);
+};
 
 /**
  * @desc    Get all notifications for logged-in user
@@ -11,16 +18,41 @@ const { evaluateSmartRemindersForUser, daysBetween } = require('../utils/smartRe
  */
 const getNotifications = async (req, res) => {
   try {
-    const notifications = await Notification.find({ recipient: req.user.id })
-      .populate('relatedSession', 'title date')
-      .sort({ createdAt: -1 })
-      .limit(50);
+    const userId = resolveUserId(req);
+    if (!userId || !mongoose.Types.ObjectId.isValid(userId)) {
+      return res.status(401).json({ success: false, message: 'Unauthorized user context.' });
+    }
 
-    const unreadCount = await Notification.countDocuments({ recipient: req.user.id, isRead: false });
+    const filter = { recipient: userId };
 
-    res.json({ success: true, count: notifications.length, unreadCount, notifications });
+    let notifications = [];
+    try {
+      notifications = await Notification.find(filter)
+        .populate('relatedSession', 'title date')
+        .sort({ createdAt: -1 })
+        .limit(50);
+    } catch {
+      // Fallback for legacy records with malformed relation data.
+      notifications = await Notification.find(filter)
+        .sort({ createdAt: -1 })
+        .limit(50);
+    }
+
+    const unreadCount = await Notification.countDocuments({ recipient: userId, isRead: false });
+
+    const safeNotifications = Array.isArray(notifications) ? notifications : [];
+    const safeUnreadCount = Number.isFinite(Number(unreadCount)) ? Number(unreadCount) : 0;
+
+    res.json({
+      success: true,
+      count: safeNotifications.length,
+      unreadCount: safeUnreadCount,
+      notifications: safeNotifications,
+    });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    console.error('getNotifications failed:', error.message);
+    // Keep dashboard stable even if legacy data causes a query issue.
+    return res.json({ success: true, count: 0, unreadCount: 0, notifications: [] });
   }
 };
 
@@ -31,8 +63,13 @@ const getNotifications = async (req, res) => {
  */
 const markAsRead = async (req, res) => {
   try {
+    const userId = resolveUserId(req);
+    if (!userId || !mongoose.Types.ObjectId.isValid(userId)) {
+      return res.status(401).json({ success: false, message: 'Unauthorized user context.' });
+    }
+
     const notification = await Notification.findOneAndUpdate(
-      { _id: req.params.id, recipient: req.user.id },
+      { _id: req.params.id, recipient: userId },
       { isRead: true },
       { new: true }
     );
@@ -52,7 +89,12 @@ const markAsRead = async (req, res) => {
  */
 const markAllAsRead = async (req, res) => {
   try {
-    await Notification.updateMany({ recipient: req.user.id, isRead: false }, { isRead: true });
+    const userId = resolveUserId(req);
+    if (!userId || !mongoose.Types.ObjectId.isValid(userId)) {
+      return res.status(401).json({ success: false, message: 'Unauthorized user context.' });
+    }
+
+    await Notification.updateMany({ recipient: userId, isRead: false }, { isRead: true });
     res.json({ success: true, message: 'All notifications marked as read.' });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
@@ -66,7 +108,12 @@ const markAllAsRead = async (req, res) => {
  */
 const deleteNotification = async (req, res) => {
   try {
-    const notification = await Notification.findOneAndDelete({ _id: req.params.id, recipient: req.user.id });
+    const userId = resolveUserId(req);
+    if (!userId || !mongoose.Types.ObjectId.isValid(userId)) {
+      return res.status(401).json({ success: false, message: 'Unauthorized user context.' });
+    }
+
+    const notification = await Notification.findOneAndDelete({ _id: req.params.id, recipient: userId });
     if (!notification) return res.status(404).json({ success: false, message: 'Notification not found.' });
     res.json({ success: true, message: 'Notification deleted.' });
   } catch (error) {

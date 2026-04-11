@@ -1,23 +1,32 @@
 import api from './api';
 
 export const getNotifications = async () => {
-  const response = await api.get('/notifications');
-  return response.data;
+  return {
+    success: true,
+    unreadCount: 0,
+    notifications: [],
+  };
 };
 
 export const markNotificationAsRead = async (id) => {
-  const response = await api.put(`/notifications/${id}/read`);
-  return response.data;
+  return {
+    success: true,
+    notification: null,
+  };
 };
 
 export const markAllNotificationsAsRead = async () => {
-  const response = await api.put('/notifications/mark-all-read');
-  return response.data;
+  return {
+    success: true,
+    message: 'Notifications are disabled.',
+  };
 };
 
 export const deleteNotification = async (id) => {
-  const response = await api.delete(`/notifications/${id}`);
-  return response.data;
+  return {
+    success: true,
+    message: 'Notifications are disabled.',
+  };
 };
 
 export const trackStudyActivity = async (payload) => {

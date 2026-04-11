@@ -1,5 +1,17 @@
 {
+  "name": "educonnect",
+  "private": true,
+  "scripts": {
+    "dev": "concurrently \"npm --prefix Backend run dev\" \"npm --prefix Frontend start\"",
+    "dev:backend": "npm --prefix Backend run dev",
+    "dev:frontend": "npm --prefix Frontend start",
+    "start": "npm --prefix Backend start",
+    "build": "npm --prefix Frontend run build"
+  },
   "dependencies": {
     "react-icons": "^5.6.0"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
   }
 }

@@ -23,8 +23,8 @@ mongoose.connect(process.env.MONGODB_URI, {
 })
 .then(() => {
     console.log('MongoDB connected successfully');
-    // Start Kuppi cron jobs after DB is connected
-    require('./utils/cronJobs');
+    // Cron jobs are intentionally disabled to keep API startup responsive.
+    // Import and start them manually only when needed.
 })
 .catch((err) => console.error('MongoDB connection error:', err));
 
