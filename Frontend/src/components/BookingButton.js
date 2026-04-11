@@ -71,7 +71,7 @@ export default function BookingButton({ session, isBooked: initialBooked, onBook
       ) : isBooked ? (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
           <div className="alert alert-success" style={{ margin: 0 }}>✓ You're booked for this session!</div>
-          <button className="btn btn-danger btn-full" onClick={handleCancel} disabled={loading}>
+          <button className="btn btn-danger btn-full booking-cancel-btn" onClick={handleCancel} disabled={loading}>
             {loading ? <><span className="spinner" />Cancelling…</> : 'Cancel Booking'}
           </button>
         </div>

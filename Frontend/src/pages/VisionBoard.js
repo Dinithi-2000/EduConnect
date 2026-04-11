@@ -155,7 +155,7 @@ export default function VisionBoard() {
         headerBackground: 'linear-gradient(135deg, rgba(255, 255, 255, 0.94), rgba(241, 245, 249, 0.92))',
         boardBorder: '1px solid rgba(15, 23, 42, 0.18)',
         boardBackground: 'linear-gradient(145deg, rgba(255, 255, 255, 0.96), rgba(226, 232, 240, 0.92))',
-        imageCardBackground: 'rgba(255, 255, 255, 0.95)',
+        imageCardBackground: 'rgba(148, 163, 184, 0.08)',
         imageCardBorder: '1px solid rgba(15, 23, 42, 0.2)',
         imageCardText: '#0f172a',
         imagePreviewBackground: '#f8fafc',

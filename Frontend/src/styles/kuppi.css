@@ -497,20 +497,27 @@
 
 /* Session detail page alignment */
 .kuppi-page.session-detail-page .session-detail-layout {
-  display: flex;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 300px;
   gap: 18px;
-  align-items: flex-start;
-  flex-wrap: wrap;
+  align-items: stretch;
 }
 
 .kuppi-page.session-detail-page .session-detail-main {
-  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
   min-width: 0;
 }
 
 .kuppi-page.session-detail-page .session-detail-sidebar {
   width: 300px;
   flex-shrink: 0;
+}
+
+.kuppi-page.session-detail-page.kuppi-page-space {
+  padding-top: 24px;
+  padding-bottom: 28px;
 }
 
 .kuppi-page .session-detail-loading {
@@ -536,7 +543,34 @@
 }
 
 .kuppi-page .session-detail-primary-card {
-  margin-bottom: 20px;
+  margin-bottom: 0;
+  height: 100%;
+}
+
+.kuppi-page.session-detail-page:not(.admin-session-detail-theme) .card {
+  background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
+  border: 1px solid #dbe6fb;
+  box-shadow: 0 16px 34px rgba(24, 57, 122, 0.14), 0 4px 10px rgba(24, 57, 122, 0.08);
+}
+
+.kuppi-page.session-detail-page:not(.admin-session-detail-theme) .session-detail-primary-card {
+  box-shadow: 0 20px 42px rgba(22, 55, 118, 0.16), 0 6px 14px rgba(22, 55, 118, 0.1);
+}
+
+.kuppi-page .session-detail-banner-wrap {
+  margin: -18px -18px 14px;
+  height: 176px;
+  border-radius: 20px 20px 12px 12px;
+  overflow: hidden;
+  border-bottom: 1px solid #dce8ff;
+  background: linear-gradient(135deg, #dbeafe, #c7d2fe);
+}
+
+.kuppi-page .session-detail-banner-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
 }
 
 .kuppi-page .session-detail-head {
@@ -780,6 +814,33 @@
   gap: 10px;
 }
 
+.kuppi-page .booking-cancel-btn {
+  background: rgba(239, 68, 68, 0.08);
+  color: #b23b4d;
+  border: 1px solid rgba(226, 90, 111, 0.42);
+  box-shadow: none;
+}
+
+.kuppi-page .booking-cancel-btn:hover:not(:disabled) {
+  background: rgba(239, 68, 68, 0.14);
+  border-color: rgba(203, 68, 92, 0.5);
+  color: #9f3242;
+}
+
+@media (max-width: 1024px) {
+  .kuppi-page.session-detail-page .session-detail-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .kuppi-page.session-detail-page .session-detail-sidebar {
+    width: 100%;
+  }
+
+  .kuppi-page .session-detail-banner-wrap {
+    height: 152px;
+  }
+}
+
 /* Admin dark theme alignment for session detail page */
 .dashboard-layout.admin-shell .kuppi-page.session-detail-page.admin-session-detail-theme {
   --detail-line: rgba(89, 114, 182, 0.33);
@@ -873,6 +934,19 @@
 .dashboard-layout.admin-shell .kuppi-page.session-detail-page.admin-session-detail-theme .btn-secondary:hover,
 .dashboard-layout.admin-shell .kuppi-page.session-detail-page.admin-session-detail-theme .btn-outline:hover {
   background: #152c63;
+}
+
+.dashboard-layout.admin-shell .kuppi-page.session-detail-page.admin-session-detail-theme .session-manage-card .btn-danger {
+  background: rgba(239, 68, 68, 0.14);
+  color: #ffb8c4;
+  border: 1px solid rgba(244, 114, 133, 0.42);
+  box-shadow: none;
+}
+
+.dashboard-layout.admin-shell .kuppi-page.session-detail-page.admin-session-detail-theme .session-manage-card .btn-danger:hover {
+  background: rgba(239, 68, 68, 0.2);
+  border-color: rgba(244, 114, 133, 0.56);
+  color: #ffd1d9;
 }
 
 .dashboard-layout.admin-shell .kuppi-page.session-detail-page.admin-session-detail-theme .badge-green {

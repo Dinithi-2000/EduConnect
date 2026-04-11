@@ -18,12 +18,34 @@ const getSubjectStyle = (subject) => {
   return subjectColors[key] || subjectColors.default;
 };
 
-export default function SessionCard({ session, isBooked = false, userRole, onBookStatusChange }) {
+const COURSE_BANNERS = [
+  'https://images.unsplash.com/photo-1513258496099-48168024aec0?auto=format&fit=crop&w=1600&q=80',
+  'https://images.unsplash.com/photo-1516321497487-e288fb19713f?auto=format&fit=crop&w=1600&q=80',
+  'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=1600&q=80',
+  'https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=1600&q=80',
+  'https://images.unsplash.com/photo-1529070538774-1843cb3265df?auto=format&fit=crop&w=1600&q=80',
+  'https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=1600&q=80',
+];
+
+const getSessionCoverImage = (session, index = 0) => {
+  const safeIndex = Number.isInteger(index) && index >= 0 ? index : 0;
+  return COURSE_BANNERS[safeIndex % COURSE_BANNERS.length];
+};
+
+export default function SessionCard({ session, isBooked = false, userRole, onBookStatusChange, listIndex = 0 }) {
+  const role = String(userRole || '').toLowerCase();
+  const showCardImage = role === 'student';
   const spotsLeft = session.maxParticipants - (session.participants?.length || 0);
   const isFull = spotsLeft <= 0;
   const sessionDate = new Date(session.date);
   const isPast = sessionDate <= new Date();
   const subStyle = getSubjectStyle(session.subject);
+  const coverImage = getSessionCoverImage(session, listIndex);
+  const moduleCount = Array.isArray(session?.materials)
+    ? session.materials.length
+    : session?.material
+      ? 1
+      : 1;
   const [bookingLoading, setBookingLoading] = useState(false);
   const [bookingError, setBookingError] = useState('');
 
@@ -63,6 +85,20 @@ export default function SessionCard({ session, isBooked = false, userRole, onBoo
 
   return (
     <div className="card session-card">
+      {showCardImage && (
+        <div className="session-card-image-wrap">
+          <img
+            src={coverImage}
+            alt={`${session.title} cover`}
+            className="session-card-image"
+            loading="lazy"
+          />
+          <span className="session-card-image-badge">
+            {moduleCount} module{moduleCount !== 1 ? 's' : ''}
+          </span>
+        </div>
+      )}
+
       <div className="session-card-top">
         <span className="session-subject-badge" style={{ background: subStyle.bg, color: subStyle.color }}>
           {session.subject}
@@ -102,7 +138,7 @@ export default function SessionCard({ session, isBooked = false, userRole, onBoo
           <div className="session-card-tutor-avatar">
             {session.tutor?.profilePicture
               ? <img src={`http://localhost:5000${session.tutor.profilePicture}`} alt="" className="session-card-tutor-image" />
-              : <span className="session-card-tutor-initial">{session.tutor?.name?.charAt(0)?.toUpperCase()}</span>
+              : <span className="session-card-tutor-initial">{session.tutor?.name?.charAt(0)?.toUpperCase() || '?'}</span>
             }
           </div>
           <span className="session-card-tutor-name">{session.tutor?.name}</span>
@@ -112,23 +148,25 @@ export default function SessionCard({ session, isBooked = false, userRole, onBoo
           <span className={`session-card-spots ${spotsClass}`}>
             {isFull ? 'Full' : `${spotsLeft} spot${spotsLeft !== 1 ? 's' : ''} left`}
           </span>
-          {userRole === 'student' && (
-            <button
-              type="button"
-              className="btn btn-secondary btn-sm"
-              onClick={handleBookNow}
-              disabled={bookingLoading || isBooked || isFull || isPast}
-            >
-              {isBooked
-                ? 'Booked'
-                : bookingLoading
-                  ? (session.isPremium && !session.hasPremiumAccess ? 'Redirecting...' : 'Booking...')
-                  : isPast
-                    ? 'Ended'
-                    : (session.isPremium && !session.hasPremiumAccess ? 'Pay & Book' : 'Book the session')}
-            </button>
-          )}
-          <Link to={`/sessions/${session._id}`} className="btn btn-primary btn-sm">View</Link>
+          <div className="session-card-cta">
+            {userRole === 'student' && (
+              <button
+                type="button"
+                className="btn btn-secondary btn-sm"
+                onClick={handleBookNow}
+                disabled={bookingLoading || isBooked || isFull || isPast}
+              >
+                {isBooked
+                  ? 'Booked'
+                  : bookingLoading
+                    ? (session.isPremium && !session.hasPremiumAccess ? 'Redirecting...' : 'Booking...')
+                    : isPast
+                      ? 'Ended'
+                      : (session.isPremium && !session.hasPremiumAccess ? 'Pay & Book' : 'Book the session')}
+              </button>
+            )}
+            <Link to={`/sessions/${session._id}`} className="btn btn-primary btn-sm">View</Link>
+          </div>
         </div>
       </div>
       {bookingError && (

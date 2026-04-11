@@ -10,6 +10,23 @@ import './StudentDashboard.css';
 
 const API_BASE_URL = 'http://localhost:5000';
 
+const COURSE_BANNERS = [
+  'https://images.unsplash.com/photo-1513258496099-48168024aec0?auto=format&fit=crop&w=1600&q=80',
+  'https://images.unsplash.com/photo-1516321497487-e288fb19713f?auto=format&fit=crop&w=1600&q=80',
+  'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=1600&q=80',
+  'https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=1600&q=80',
+  'https://images.unsplash.com/photo-1529070538774-1843cb3265df?auto=format&fit=crop&w=1600&q=80',
+  'https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=1600&q=80',
+];
+
+const getSessionCoverImage = (session) => {
+  const seed = String(session?._id || session?.title || session?.subject || '0');
+  const hash = seed
+    .split('')
+    .reduce((acc, char) => acc + char.charCodeAt(0), 0);
+  return COURSE_BANNERS[hash % COURSE_BANNERS.length];
+};
+
 export default function SessionDetail() {
   const { id } = useParams();
   const { user, logout } = useAuth();
@@ -231,6 +248,7 @@ export default function SessionDetail() {
     ? `${API_BASE_URL}${materialRelativePath.startsWith('/') ? materialRelativePath : `/${materialRelativePath}`}`
     : '';
   const hasMaterial = Boolean(material?.path || material?.filename || material?.originalName);
+  const sessionCoverImage = getSessionCoverImage(session);
 
   const formatFileSize = (bytes) => {
     if (!bytes) return '';
@@ -248,6 +266,16 @@ export default function SessionDetail() {
       <div className="session-detail-layout">
         <div className="session-detail-main">
           <div className="card card-body session-detail-primary-card">
+            {isStudent && (
+              <div className="session-detail-banner-wrap">
+                <img
+                  src={sessionCoverImage}
+                  alt={`${session.title} cover`}
+                  className="session-detail-banner-img"
+                />
+              </div>
+            )}
+
             <div className="session-detail-head">
               <div>
                 <span className="session-subject-badge">{session.subject}</span>

@@ -160,72 +160,133 @@ export default function SessionList() {
 
   const sessionContent = (
     <div className={`container kuppi-page sessions-page ${isAdminView ? 'admin-sessions-theme' : ''}`}>
-      <div className="kuppi-page-header sessions-page-header session-hero-card">
-        <div className="session-hero-copy">
-          <h1 className="kuppi-page-title">Kuppi Sessions</h1>
-          <p className="kuppi-page-subtitle">Find and book expert-led study sessions</p>
-        </div>
-
-        <div className="sessions-hero-right">
-          <div
-            className={`sessions-hero-stats ${
-              isStudent
-                ? 'sessions-hero-stats-three'
-                : canCreateSession
-                  ? 'sessions-hero-stats-with-create'
-                  : 'sessions-hero-stats-two'
-            }`}
-            aria-label="Session highlights"
-          >
-            {canCreateSession && (
-              <Link to="/create-session" className="btn btn-primary sessions-hero-create-btn-inline">+ Create Session</Link>
-            )}
-            <div className="sessions-hero-stat">
-              <div className="sessions-hero-stat-num">{sessions.length}</div>
-              <div className="sessions-hero-stat-label">Visible Sessions</div>
+      {isStudent ? (
+        <div className="kuppi-page-header sessions-page-header session-hero-card session-hero-combined">
+          <div className="session-hero-main">
+            <div className="session-hero-copy">
+              <h1 className="kuppi-page-title">Kuppi Sessions</h1>
+              <p className="kuppi-page-subtitle">Find and book expert-led study sessions</p>
             </div>
-            <div className="sessions-hero-stat">
-              <div className="sessions-hero-stat-num">{totalVisibleSpots}</div>
-              <div className="sessions-hero-stat-label">Open Seats</div>
-            </div>
-            {isStudent && (
-              <div className="sessions-hero-stat">
-                <div className="sessions-hero-stat-num">{bookedVisibleCount}</div>
-                <div className="sessions-hero-stat-label">Already Booked</div>
-              </div>
-            )}
           </div>
-        </div>
-      </div>
 
-      <form onSubmit={handleSearch} className="sessions-search-bar">
-        <div className="sessions-search-field sessions-search-field-lg">
-          <label className="sessions-search-label">Search Title</label>
-          <input
-            className="form-input"
-            placeholder="Try integration, vectors, revision..."
-            value={search}
-            onChange={e => setSearch(e.target.value)}
-          />
+          <div className="session-hero-side">
+            <div className="sessions-hero-right">
+              <div className="sessions-hero-stats sessions-hero-stats-three" aria-label="Session highlights">
+                <div className="sessions-hero-stat">
+                  <div className="sessions-hero-stat-num">{sessions.length}</div>
+                  <div className="sessions-hero-stat-label">Visible Sessions</div>
+                </div>
+                <div className="sessions-hero-stat">
+                  <div className="sessions-hero-stat-num">{totalVisibleSpots}</div>
+                  <div className="sessions-hero-stat-label">Open Seats</div>
+                </div>
+                <div className="sessions-hero-stat">
+                  <div className="sessions-hero-stat-num">{bookedVisibleCount}</div>
+                  <div className="sessions-hero-stat-label">Already Booked</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <form onSubmit={handleSearch} className="sessions-search-bar sessions-search-bar-embedded">
+            <div className="sessions-search-field sessions-search-field-lg">
+              <label className="sessions-search-label">Search Title</label>
+              <input
+                className="form-input"
+                placeholder="Try integration, vectors, revision..."
+                value={search}
+                onChange={e => setSearch(e.target.value)}
+              />
+            </div>
+            <div className="sessions-search-field">
+              <label className="sessions-search-label">Subject</label>
+              <input
+                className="form-input"
+                placeholder="Maths, Physics, Chemistry"
+                value={subject}
+                onChange={e => setSubject(e.target.value)}
+              />
+            </div>
+            <div className="sessions-search-actions">
+              <button type="submit" className="btn btn-primary">Search</button>
+              {(search || subject) && (
+                <button type="button" className="btn btn-secondary" onClick={() => { setSearch(''); setSubject(''); setPage(1); }}>
+                  Clear
+                </button>
+              )}
+            </div>
+          </form>
         </div>
-        <div className="sessions-search-field">
-          <label className="sessions-search-label">Subject</label>
-          <input
-            className="form-input"
-            placeholder="Maths, Physics, Chemistry"
-            value={subject}
-            onChange={e => setSubject(e.target.value)}
-          />
-        </div>
-        <div className="sessions-search-actions">
-          <button type="submit" className="btn btn-primary">Search</button>
-          {(search || subject) && (
-            <button type="button" className="btn btn-secondary" onClick={() => { setSearch(''); setSubject(''); setPage(1); }}>
-              Clear
-            </button>
-          )}
-        </div>
-      </form>
+      ) : (
+        <>
+          <div className="kuppi-page-header sessions-page-header session-hero-card">
+            <div className="session-hero-copy">
+              <h1 className="kuppi-page-title">Kuppi Sessions</h1>
+              <p className="kuppi-page-subtitle">Find and book expert-led study sessions</p>
+            </div>
+
+            <div className="sessions-hero-right">
+              <div
+                className={`sessions-hero-stats ${
+                  isStudent
+                    ? 'sessions-hero-stats-three'
+                    : canCreateSession
+                      ? 'sessions-hero-stats-with-create'
+                      : 'sessions-hero-stats-two'
+                }`}
+                aria-label="Session highlights"
+              >
+                {canCreateSession && (
+                  <Link to="/create-session" className="btn btn-primary sessions-hero-create-btn-inline">+ Create Session</Link>
+                )}
+                <div className="sessions-hero-stat">
+                  <div className="sessions-hero-stat-num">{sessions.length}</div>
+                  <div className="sessions-hero-stat-label">Visible Sessions</div>
+                </div>
+                <div className="sessions-hero-stat">
+                  <div className="sessions-hero-stat-num">{totalVisibleSpots}</div>
+                  <div className="sessions-hero-stat-label">Open Seats</div>
+                </div>
+                {isStudent && (
+                  <div className="sessions-hero-stat">
+                    <div className="sessions-hero-stat-num">{bookedVisibleCount}</div>
+                    <div className="sessions-hero-stat-label">Already Booked</div>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+
+          <form onSubmit={handleSearch} className="sessions-search-bar">
+            <div className="sessions-search-field sessions-search-field-lg">
+              <label className="sessions-search-label">Search Title</label>
+              <input
+                className="form-input"
+                placeholder="Try integration, vectors, revision..."
+                value={search}
+                onChange={e => setSearch(e.target.value)}
+              />
+            </div>
+            <div className="sessions-search-field">
+              <label className="sessions-search-label">Subject</label>
+              <input
+                className="form-input"
+                placeholder="Maths, Physics, Chemistry"
+                value={subject}
+                onChange={e => setSubject(e.target.value)}
+              />
+            </div>
+            <div className="sessions-search-actions">
+              <button type="submit" className="btn btn-primary">Search</button>
+              {(search || subject) && (
+                <button type="button" className="btn btn-secondary" onClick={() => { setSearch(''); setSubject(''); setPage(1); }}>
+                  Clear
+                </button>
+              )}
+            </div>
+          </form>
+        </>
+      )}
 
       {loading ? (
         <div className="sessions-loading-center">
@@ -245,11 +306,12 @@ export default function SessionList() {
           <div className="sessions-results-head">
             <p className="kuppi-results-count sessions-results-count">{sessions.length} session{sessions.length !== 1 ? 's' : ''} found</p>
           </div>
-          <div className="grid grid-2 sessions-grid">
-            {sessions.map(session => (
+          <div className="sessions-grid">
+            {sessions.map((session, sessionIndex) => (
               <SessionCard
                 key={session._id}
                 session={session}
+                listIndex={sessionIndex}
                 isBooked={bookedIds.has(session._id)}
                 userRole={user?.role}
                 onBookStatusChange={handleBookStatusChange}
