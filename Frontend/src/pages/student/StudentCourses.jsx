@@ -94,6 +94,8 @@ const StudentCourses = () => {
   const [selectedContentId, setSelectedContentId] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [overviewFilterTab, setOverviewFilterTab] = useState('all');
+  const [levelFilter, setLevelFilter] = useState('all');
+  const [sortMode, setSortMode] = useState('default');
   const [themeMode, setThemeMode] = useState(() => {
     try {
       const storedTheme = localStorage.getItem(THEME_STORAGE_KEY);
@@ -358,14 +360,43 @@ const StudentCourses = () => {
       return searchFiltered;
     })();
 
-    return tabFiltered;
-  }, [courses, searchQuery, overviewFilterTab, enrolledCourseIds, bookmarkedCourseIds]);
+    const levelFiltered = levelFilter === 'all'
+      ? tabFiltered
+      : tabFiltered.filter((course) => String(course.level || '').toLowerCase() === levelFilter.toLowerCase());
+
+    const sorted = [...levelFiltered];
+    if (sortMode === 'modules-desc') {
+      sorted.sort((a, b) => (b.modules?.length || 0) - (a.modules?.length || 0));
+    } else if (sortMode === 'modules-asc') {
+      sorted.sort((a, b) => (a.modules?.length || 0) - (b.modules?.length || 0));
+    } else if (sortMode === 'lectures-desc') {
+      const lectureCount = (c) => (c.modules || []).reduce((s, m) => s + (m.contents?.length || 0), 0);
+      sorted.sort((a, b) => lectureCount(b) - lectureCount(a));
+    } else if (sortMode === 'lectures-asc') {
+      const lectureCount = (c) => (c.modules || []).reduce((s, m) => s + (m.contents?.length || 0), 0);
+      sorted.sort((a, b) => lectureCount(a) - lectureCount(b));
+    } else if (sortMode === 'az') {
+      sorted.sort((a, b) => (a.title || '').localeCompare(b.title || ''));
+    } else if (sortMode === 'za') {
+      sorted.sort((a, b) => (b.title || '').localeCompare(a.title || ''));
+    }
+
+    return sorted;
+  }, [courses, searchQuery, overviewFilterTab, enrolledCourseIds, bookmarkedCourseIds, levelFilter, sortMode]);
 
   const overviewTabCounts = useMemo(() => ({
     all: courses.length,
     enrolled: courses.filter((course) => enrolledCourseIds.includes(course._id)).length,
     bookmarked: courses.filter((course) => bookmarkedCourseIds.has(String(course._id))).length
   }), [courses, enrolledCourseIds, bookmarkedCourseIds]);
+
+  const courseStats = useMemo(() => {
+    const totalModules = courses.reduce((s, c) => s + (c.modules?.length || 0), 0);
+    const totalLectures = courses.reduce((s, c) =>
+      s + (c.modules || []).reduce((ms, m) => ms + (m.contents?.length || 0), 0), 0);
+    const levels = [...new Set(courses.map((c) => c.level).filter(Boolean))];
+    return { totalModules, totalLectures, levels };
+  }, [courses]);
 
   const displayName = user?.name || 'Student';
   const initials = displayName
@@ -1187,29 +1218,115 @@ const StudentCourses = () => {
           </div>
 
           {viewMode === 'overview' ? (
-            <div className="course-overview-tabs" role="tablist" aria-label="Course overview filters">
-              <button
-                type="button"
-                className={`course-overview-tab ${overviewFilterTab === 'all' ? 'active' : ''}`}
-                onClick={() => setOverviewFilterTab('all')}
-              >
-                All <span>{overviewTabCounts.all}</span>
-              </button>
-              <button
-                type="button"
-                className={`course-overview-tab ${overviewFilterTab === 'enrolled' ? 'active' : ''}`}
-                onClick={() => setOverviewFilterTab('enrolled')}
-              >
-                Enrolled <span>{overviewTabCounts.enrolled}</span>
-              </button>
-              <button
-                type="button"
-                className={`course-overview-tab ${overviewFilterTab === 'bookmarked' ? 'active' : ''}`}
-                onClick={() => setOverviewFilterTab('bookmarked')}
-              >
-                Bookmarked <span>{overviewTabCounts.bookmarked}</span>
-              </button>
-            </div>
+            <>
+              {/* ── Stats top bar ── */}
+              <div className="sc-stats-bar">
+                <div className="sc-stat-card">
+                  <span className="sc-stat-icon">📚</span>
+                  <div>
+                    <p className="sc-stat-value">{overviewTabCounts.all}</p>
+                    <p className="sc-stat-label">Total Courses</p>
+                  </div>
+                </div>
+                <div className="sc-stat-card accent-green">
+                  <span className="sc-stat-icon">✅</span>
+                  <div>
+                    <p className="sc-stat-value">{overviewTabCounts.enrolled}</p>
+                    <p className="sc-stat-label">Enrolled</p>
+                  </div>
+                </div>
+                <div className="sc-stat-card accent-yellow">
+                  <span className="sc-stat-icon">⭐</span>
+                  <div>
+                    <p className="sc-stat-value">{overviewTabCounts.bookmarked}</p>
+                    <p className="sc-stat-label">Bookmarked</p>
+                  </div>
+                </div>
+                <div className="sc-stat-card accent-purple">
+                  <span className="sc-stat-icon">🗂</span>
+                  <div>
+                    <p className="sc-stat-value">{courseStats.totalModules}</p>
+                    <p className="sc-stat-label">Total Modules</p>
+                  </div>
+                </div>
+                <div className="sc-stat-card accent-blue">
+                  <span className="sc-stat-icon">🎬</span>
+                  <div>
+                    <p className="sc-stat-value">{courseStats.totalLectures}</p>
+                    <p className="sc-stat-label">Total Lectures</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* ── Tab + Filter bar ── */}
+              <div className="sc-filter-bar">
+                <div className="course-overview-tabs" role="tablist" aria-label="Course overview filters">
+                  <button
+                    type="button"
+                    className={`course-overview-tab ${overviewFilterTab === 'all' ? 'active' : ''}`}
+                    onClick={() => setOverviewFilterTab('all')}
+                  >
+                    All <span>{overviewTabCounts.all}</span>
+                  </button>
+                  <button
+                    type="button"
+                    className={`course-overview-tab ${overviewFilterTab === 'enrolled' ? 'active' : ''}`}
+                    onClick={() => setOverviewFilterTab('enrolled')}
+                  >
+                    Enrolled <span>{overviewTabCounts.enrolled}</span>
+                  </button>
+                  <button
+                    type="button"
+                    className={`course-overview-tab ${overviewFilterTab === 'bookmarked' ? 'active' : ''}`}
+                    onClick={() => setOverviewFilterTab('bookmarked')}
+                  >
+                    Bookmarked <span>{overviewTabCounts.bookmarked}</span>
+                  </button>
+                </div>
+
+                <div className="sc-controls">
+                  <select
+                    className="sc-select"
+                    value={levelFilter}
+                    onChange={(e) => setLevelFilter(e.target.value)}
+                    aria-label="Filter by level"
+                  >
+                    <option value="all">All Levels</option>
+                    {courseStats.levels.map((l) => (
+                      <option key={l} value={l}>{l}</option>
+                    ))}
+                  </select>
+
+                  <select
+                    className="sc-select"
+                    value={sortMode}
+                    onChange={(e) => setSortMode(e.target.value)}
+                    aria-label="Sort courses"
+                  >
+                    <option value="default">Default Order</option>
+                    <option value="az">A → Z</option>
+                    <option value="za">Z → A</option>
+                    <option value="modules-desc">Most Modules</option>
+                    <option value="modules-asc">Fewest Modules</option>
+                    <option value="lectures-desc">Most Lectures</option>
+                    <option value="lectures-asc">Fewest Lectures</option>
+                  </select>
+
+                  {(levelFilter !== 'all' || sortMode !== 'default') && (
+                    <button
+                      type="button"
+                      className="sc-reset-btn"
+                      onClick={() => { setLevelFilter('all'); setSortMode('default'); }}
+                      title="Clear filters"
+                    >
+                      ✕ Clear
+                    </button>
+                  )}
+
+                  <span className="sc-result-count">{filteredCourses.length} result{filteredCourses.length !== 1 ? 's' : ''}</span>
+                </div>
+              </div>
+            </>
           ) : null}
 
           {loading ? (
@@ -1285,14 +1402,6 @@ const StudentCourses = () => {
                               <small>{(module.contents || []).length} content items</small>
                             </div>
                             <span>{isEnrolled ? 'Open →' : 'Enroll & Open'}</span>
-                          </button>
-                          <button
-                            type="button"
-                            className={`module-bookmark-btn ${isModuleBookmarked ? 'active' : ''}`}
-                            onClick={() => handleToggleModuleBookmark(course, module)}
-                            title={isModuleBookmarked ? 'Remove module bookmark' : 'Bookmark this module'}
-                          >
-                            {isModuleBookmarked ? '★' : '☆'}
                           </button>
                         </div>
                       );

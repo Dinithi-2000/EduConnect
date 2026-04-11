@@ -75,11 +75,38 @@ const CourseManager = () => {
   const [search, setSearch] = useState('');
   const [levelFilter, setLevelFilter] = useState('All');
   const [publishFilter, setPublishFilter] = useState('all');
+  const [inventoryTypeFilter, setInventoryTypeFilter] = useState('all');
   const [sortBy, setSortBy] = useState('newest');
   const [uploadingModuleId, setUploadingModuleId] = useState('');
   const [thumbnailDropActive, setThumbnailDropActive] = useState(false);
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [showAdvancedCreate, setShowAdvancedCreate] = useState(false);
+  const [modalModules, setModalModules] = useState([{ title: '', description: '' }]);
+  const [toasts, setToasts] = useState([]);
+  const [modalSaving, setModalSaving] = useState(false);
+  const [editDialog, setEditDialog] = useState({
+    open: false,
+    type: 'course',
+    courseId: '',
+    moduleId: '',
+    contentId: '',
+    form: {}
+  });
+  const [deleteDialog, setDeleteDialog] = useState({
+    open: false,
+    type: '',
+    courseId: '',
+    moduleId: '',
+    contentId: '',
+    name: ''
+  });
+
+  const showToast = (message, type = 'error') => {
+    const id = Date.now() + Math.random();
+    setToasts((prev) => [...prev, { id, message, type }]);
+    setTimeout(() => setToasts((prev) => prev.filter((t) => t.id !== id)), 4200);
+  };
+  const dismissToast = (id) => setToasts((prev) => prev.filter((t) => t.id !== id));
   const [expandedModuleTools, setExpandedModuleTools] = useState({});
   const [completedContent, setCompletedContent] = useState({});
   const [courseForm, setCourseForm] = useState({
@@ -180,6 +207,54 @@ const CourseManager = () => {
       totalModules
     };
   }, [courses]);
+
+  const recentInventoryRows = useMemo(() => {
+    const courseRows = courses.map((course) => {
+      const modules = course.modules || [];
+      const lectureCount = modules.reduce((sum, module) => sum + ((module.contents || []).length), 0);
+      return {
+        rowId: `course-${course._id}`,
+        type: 'course',
+        name: course.title,
+        parentCourse: '-',
+        contains: `${modules.length} modules / ${lectureCount} lectures`,
+        structure: 'Course -> Modules -> Lectures',
+        status: course.isPublished ? 'published' : 'draft',
+        updatedAt: course.updatedAt || course.createdAt,
+        courseId: course._id,
+        courseData: course
+      };
+    });
+
+    const moduleRows = courses.flatMap((course) =>
+      (course.modules || []).map((module) => ({
+        rowId: `module-${module._id}`,
+        type: 'module',
+        name: module.title,
+        parentCourse: course.title,
+        contains: `${(module.contents || []).length} lectures`,
+        structure: 'Module inside Course',
+        status: course.isPublished ? 'published' : 'draft',
+        updatedAt: module.updatedAt || module.createdAt || course.updatedAt || course.createdAt,
+        courseId: course._id,
+        moduleData: {
+          ...module,
+          courseId: course._id,
+          courseTitle: course.title,
+          coursePublished: Boolean(course.isPublished)
+        }
+      }))
+    );
+
+    return [...courseRows, ...moduleRows]
+      .sort((a, b) => new Date(b.updatedAt || 0) - new Date(a.updatedAt || 0))
+      .slice(0, 18);
+  }, [courses]);
+
+  const filteredInventoryRows = useMemo(() => {
+    if (inventoryTypeFilter === 'all') return recentInventoryRows;
+    return recentInventoryRows.filter((row) => row.type === inventoryTypeFilter);
+  }, [recentInventoryRows, inventoryTypeFilter]);
   const moduleFileInputRefs = useRef({});
   const moduleImageInputRefs = useRef({});
   const thumbnailFileInputRef = useRef(null);
@@ -219,7 +294,7 @@ const CourseManager = () => {
     if (!file) return;
 
     if (!file.type.startsWith('image/')) {
-      alert('Please drop or upload an image file for thumbnail.');
+      showToast('Please drop or upload an image file for thumbnail.', 'warning');
       return;
     }
 
@@ -227,7 +302,7 @@ const CourseManager = () => {
       const dataUrl = await fileToDataUrl(file);
       updateThumbnailUrl(dataUrl);
     } catch {
-      alert('Unable to read image file. Please try another one.');
+      showToast('Unable to read image file. Please try another one.', 'error');
     }
   };
 
@@ -302,32 +377,32 @@ const CourseManager = () => {
     const thumbnailUrl = String(courseForm.thumbnailUrl || '').trim();
 
     if (!title) {
-      alert('Course title is required.');
+      showToast('Course title is required.', 'warning');
       return;
     }
 
     if (!subject) {
-      alert('Subject is required.');
+      showToast('Subject is required.', 'warning');
       return;
     }
 
     if (!LEVELS.includes(level)) {
-      alert('Please select a valid level.');
+      showToast('Please select a valid level.', 'warning');
       return;
     }
 
     if (initialLectureVideoUrl && !isValidHttpUrl(initialLectureVideoUrl)) {
-      alert('Initial lecture video URL must start with http:// or https://');
+      showToast('Initial lecture video URL must start with http:// or https://', 'warning');
       return;
     }
 
     if (thumbnailUrl && !isValidResourceUrl(thumbnailUrl)) {
-      alert('Thumbnail must be a valid image URL or uploaded image.');
+      showToast('Thumbnail must be a valid image URL or uploaded image.', 'warning');
       return;
     }
 
     if ((initialLecturePdfFile || initialLectureVideoFile || initialLectureVideoUrl) && !initialModuleTitle) {
-      alert('Add an initial module title before attaching initial lecture files or video URL.');
+      showToast('Add an initial module title before attaching initial lecture files or video URL.', 'warning');
       return;
     }
 
@@ -428,7 +503,7 @@ const CourseManager = () => {
         initialLectureVideoInputRef.current.value = '';
       }
     } catch (err) {
-      alert(err?.response?.data?.message || 'Failed to create course.');
+      showToast(err?.response?.data?.message || 'Failed to create course.', 'error');
     } finally {
       setSaving(false);
     }
@@ -440,74 +515,220 @@ const CourseManager = () => {
       const updated = res.data;
       setCourses((prev) => prev.map((item) => (item._id === updated._id ? updated : item)));
     } catch (err) {
-      alert(err?.response?.data?.message || 'Failed to update course publish status.');
+      showToast(err?.response?.data?.message || 'Failed to update course publish status.', 'error');
     }
   };
 
-  const handleEditCourse = async (course) => {
-    const titleInput = window.prompt('Edit course title', course.title);
-    if (titleInput === null) return;
-    const title = String(titleInput || '').trim();
-    if (!title) {
-      alert('Course title is required.');
-      return;
-    }
-
-    const subjectInput = window.prompt('Edit subject', course.subject);
-    if (subjectInput === null) return;
-    const subject = String(subjectInput || '').trim();
-    if (!subject) {
-      alert('Subject is required.');
-      return;
-    }
-
-    const levelInput = window.prompt(`Edit level (${LEVELS.join(', ')})`, course.level || 'Beginner');
-    const level = String(levelInput || '').trim();
-    if (!level || !LEVELS.includes(level)) {
-      alert('Invalid level value.');
-      return;
-    }
-
-    const description = window.prompt('Edit description', course.description || '') || '';
-    const thumbnailUrl = (window.prompt('Edit thumbnail URL', course.thumbnailUrl || '') || '').trim();
-    if (thumbnailUrl && !isValidResourceUrl(thumbnailUrl)) {
-      alert('Thumbnail must be a valid image URL or uploaded image data URL.');
-      return;
-    }
-    const faqText =
-      window.prompt(
-        'Course FAQs (one per line: question | answer)',
-        stringifyFaqLines(course.faqs || [])
-      ) || '';
-
-    try {
-      const res = await updateCourse(course._id, {
-        title,
-        subject,
-        level,
-        description,
-        thumbnailUrl,
-        faqs: parseFaqLines(faqText)
-      });
-      const updated = res.data;
-      setCourses((prev) => prev.map((item) => (item._id === updated._id ? updated : item)));
-    } catch (err) {
-      alert(err?.response?.data?.message || 'Failed to update course.');
-    }
-  };
-
-  const handleDeleteCourse = async (course) => {
-    if (!window.confirm(`Delete course "${course.title}"?`)) return;
-
-    try {
-      await deleteCourse(course._id);
-      setCourses((prev) => prev.filter((item) => item._id !== course._id));
-      if (selectedCourseId === course._id) {
-        setSelectedCourseId('');
+  const openCourseEditDialog = (course) => {
+    setEditDialog({
+      open: true,
+      type: 'course',
+      courseId: course._id,
+      moduleId: '',
+      contentId: '',
+      form: {
+        title: course.title || '',
+        subject: course.subject || '',
+        level: course.level || 'Beginner',
+        description: course.description || '',
+        thumbnailUrl: course.thumbnailUrl || '',
+        faqText: stringifyFaqLines(course.faqs || [])
       }
+    });
+  };
+
+  const openModuleEditDialog = (module, courseId) => {
+    setEditDialog({
+      open: true,
+      type: 'module',
+      courseId,
+      moduleId: module._id,
+      contentId: '',
+      form: {
+        title: module.title || '',
+        description: module.description || '',
+        faqText: stringifyFaqLines(module.faqs || [])
+      }
+    });
+  };
+
+  const openContentEditDialog = (content, moduleId, courseId) => {
+    setEditDialog({
+      open: true,
+      type: 'content',
+      courseId,
+      moduleId,
+      contentId: content._id,
+      form: {
+        title: content.title || '',
+        contentType: content.contentType || 'Video',
+        url: content.url || '',
+        textContent: content.textContent || ''
+      }
+    });
+  };
+
+  const openDeleteDialog = (payload) => {
+    setDeleteDialog({
+      open: true,
+      type: payload.type,
+      courseId: payload.courseId || '',
+      moduleId: payload.moduleId || '',
+      contentId: payload.contentId || '',
+      name: payload.name || ''
+    });
+  };
+
+  const closeEditDialog = () => {
+    setEditDialog({ open: false, type: 'course', courseId: '', moduleId: '', contentId: '', form: {} });
+  };
+
+  const closeDeleteDialog = () => {
+    setDeleteDialog({ open: false, type: '', courseId: '', moduleId: '', contentId: '', name: '' });
+  };
+
+  const handleEditDialogChange = (key, value) => {
+    setEditDialog((prev) => ({ ...prev, form: { ...prev.form, [key]: value } }));
+  };
+
+  const submitEditDialog = async () => {
+    try {
+      setModalSaving(true);
+
+      if (editDialog.type === 'course') {
+        const title = String(editDialog.form.title || '').trim();
+        const subject = String(editDialog.form.subject || '').trim();
+        const level = String(editDialog.form.level || 'Beginner').trim();
+        const description = String(editDialog.form.description || '').trim();
+        const thumbnailUrl = String(editDialog.form.thumbnailUrl || '').trim();
+        const faqText = String(editDialog.form.faqText || '');
+
+        if (!title) {
+          showToast('Course title is required.', 'warning');
+          return;
+        }
+        if (!subject) {
+          showToast('Subject is required.', 'warning');
+          return;
+        }
+        if (!LEVELS.includes(level)) {
+          showToast('Invalid level value.', 'warning');
+          return;
+        }
+        if (thumbnailUrl && !isValidResourceUrl(thumbnailUrl)) {
+          showToast('Thumbnail must be a valid image URL or uploaded image data URL.', 'warning');
+          return;
+        }
+
+        const res = await updateCourse(editDialog.courseId, {
+          title,
+          subject,
+          level,
+          description,
+          thumbnailUrl,
+          faqs: parseFaqLines(faqText)
+        });
+        const updated = res.data;
+        setCourses((prev) => prev.map((item) => (item._id === updated._id ? updated : item)));
+      }
+
+      if (editDialog.type === 'module') {
+        const title = String(editDialog.form.title || '').trim();
+        const description = String(editDialog.form.description || '').trim();
+        const faqText = String(editDialog.form.faqText || '');
+
+        if (!title) {
+          showToast('Module title is required.', 'warning');
+          return;
+        }
+
+        const res = await updateModule(editDialog.courseId, editDialog.moduleId, {
+          title,
+          description,
+          faqs: parseFaqLines(faqText)
+        });
+        const updated = res.data;
+        setCourses((prev) => prev.map((item) => (item._id === updated._id ? updated : item)));
+        setSelectedCourseId(editDialog.courseId);
+      }
+
+      if (editDialog.type === 'content') {
+        const title = String(editDialog.form.title || '').trim();
+        const contentType = String(editDialog.form.contentType || '').trim();
+        const url = String(editDialog.form.url || '').trim();
+        const textContent = String(editDialog.form.textContent || '');
+
+        if (!title) {
+          showToast('Content title is required.', 'warning');
+          return;
+        }
+        if (!contentType || !CONTENT_TYPES.includes(contentType)) {
+          showToast('Invalid content type.', 'warning');
+          return;
+        }
+        if (url && !isValidResourceUrl(url)) {
+          showToast('Content URL must be a valid URL.', 'warning');
+          return;
+        }
+
+        const res = await updateContent(editDialog.courseId, editDialog.moduleId, editDialog.contentId, {
+          title,
+          contentType,
+          url,
+          textContent
+        });
+        const updated = res.data;
+        setCourses((prev) => prev.map((item) => (item._id === updated._id ? updated : item)));
+        setSelectedCourseId(editDialog.courseId);
+      }
+
+      closeEditDialog();
     } catch (err) {
-      alert(err?.response?.data?.message || 'Failed to delete course.');
+      showToast(err?.response?.data?.message || 'Failed to save changes.', 'error');
+    } finally {
+      setModalSaving(false);
     }
+  };
+
+  const confirmDeleteDialog = async () => {
+    try {
+      setModalSaving(true);
+
+      if (deleteDialog.type === 'course') {
+        await deleteCourse(deleteDialog.courseId);
+        setCourses((prev) => prev.filter((item) => item._id !== deleteDialog.courseId));
+        if (selectedCourseId === deleteDialog.courseId) {
+          setSelectedCourseId('');
+        }
+      }
+
+      if (deleteDialog.type === 'module') {
+        const res = await deleteModule(deleteDialog.courseId, deleteDialog.moduleId);
+        const updated = res.data;
+        setCourses((prev) => prev.map((item) => (item._id === updated._id ? updated : item)));
+        setSelectedCourseId(deleteDialog.courseId);
+      }
+
+      if (deleteDialog.type === 'content') {
+        const res = await deleteContent(deleteDialog.courseId, deleteDialog.moduleId, deleteDialog.contentId);
+        const updated = res.data;
+        setCourses((prev) => prev.map((item) => (item._id === updated._id ? updated : item)));
+      }
+
+      closeDeleteDialog();
+    } catch (err) {
+      showToast(err?.response?.data?.message || 'Failed to delete item.', 'error');
+    } finally {
+      setModalSaving(false);
+    }
+  };
+
+  const handleEditCourse = (course) => {
+    openCourseEditDialog(course);
+  };
+
+  const handleDeleteCourse = (course) => {
+    openDeleteDialog({ type: 'course', courseId: course._id, name: course.title });
   };
 
   const handleAddModule = async () => {
@@ -517,7 +738,7 @@ const CourseManager = () => {
     if (titleInput === null) return;
     const title = String(titleInput || '').trim();
     if (!title) {
-      alert('Module title is required.');
+      showToast('Module title is required.', 'warning');
       return;
     }
 
@@ -533,52 +754,26 @@ const CourseManager = () => {
       const updated = res.data;
       setCourses((prev) => prev.map((item) => (item._id === updated._id ? updated : item)));
     } catch (err) {
-      alert(err?.response?.data?.message || 'Failed to add module.');
+      showToast(err?.response?.data?.message || 'Failed to add module.', 'error');
     }
   };
 
-  const handleEditModule = async (module) => {
+  const handleEditModule = (module) => {
     if (!selectedCourse) return;
-
-    const titleInput = window.prompt('Edit module title', module.title);
-    if (titleInput === null) return;
-    const title = String(titleInput || '').trim();
-    if (!title) {
-      alert('Module title is required.');
-      return;
-    }
-
-    const description = window.prompt('Edit module description', module.description || '') || '';
-    const faqText =
-      window.prompt(
-        'Module FAQs (one per line: question | answer)',
-        stringifyFaqLines(module.faqs || [])
-      ) || '';
-
-    try {
-      const res = await updateModule(selectedCourse._id, module._id, {
-        title,
-        description,
-        faqs: parseFaqLines(faqText)
-      });
-      const updated = res.data;
-      setCourses((prev) => prev.map((item) => (item._id === updated._id ? updated : item)));
-    } catch (err) {
-      alert(err?.response?.data?.message || 'Failed to edit module.');
-    }
+    openModuleEditDialog(module, selectedCourse._id);
   };
 
-  const handleDeleteModule = async (module) => {
+  const handleDeleteModule = (module) => {
     if (!selectedCourse) return;
-    if (!window.confirm(`Delete module "${module.title}"?`)) return;
+    openDeleteDialog({ type: 'module', courseId: selectedCourse._id, moduleId: module._id, name: module.title });
+  };
 
-    try {
-      const res = await deleteModule(selectedCourse._id, module._id);
-      const updated = res.data;
-      setCourses((prev) => prev.map((item) => (item._id === updated._id ? updated : item)));
-    } catch (err) {
-      alert(err?.response?.data?.message || 'Failed to delete module.');
-    }
+  const handleEditModuleFromRow = (moduleRow) => {
+    openModuleEditDialog(moduleRow, moduleRow.courseId);
+  };
+
+  const handleDeleteModuleFromRow = (moduleRow) => {
+    openDeleteDialog({ type: 'module', courseId: moduleRow.courseId, moduleId: moduleRow._id, name: moduleRow.title });
   };
 
   const handleAddContent = async (module) => {
@@ -588,7 +783,7 @@ const CourseManager = () => {
     if (titleInput === null) return;
     const title = String(titleInput || '').trim();
     if (!title) {
-      alert('Content title is required.');
+      showToast('Content title is required.', 'warning');
       return;
     }
 
@@ -599,13 +794,13 @@ const CourseManager = () => {
     const contentType = String(contentTypeInput || '').trim();
 
     if (!contentType || !CONTENT_TYPES.includes(contentType)) {
-      alert('Invalid content type.');
+      showToast('Invalid content type.', 'warning');
       return;
     }
 
     const url = String(window.prompt('Content URL (optional)') || '').trim();
     if (url && !isValidResourceUrl(url)) {
-      alert('Content URL must be a valid URL.');
+      showToast('Content URL must be a valid URL.', 'warning');
       return;
     }
     const textContent = window.prompt('Text content (optional)') || '';
@@ -621,64 +816,24 @@ const CourseManager = () => {
       const updated = res.data;
       setCourses((prev) => prev.map((item) => (item._id === updated._id ? updated : item)));
     } catch (err) {
-      alert(err?.response?.data?.message || 'Failed to add content item.');
+      showToast(err?.response?.data?.message || 'Failed to add content item.', 'error');
     }
   };
 
-  const handleEditContent = async (module, content) => {
+  const handleEditContent = (module, content) => {
     if (!selectedCourse) return;
-
-    const titleInput = window.prompt('Edit content title', content.title);
-    if (titleInput === null) return;
-    const title = String(titleInput || '').trim();
-    if (!title) {
-      alert('Content title is required.');
-      return;
-    }
-
-    const contentTypeInput = window.prompt(
-      `Edit content type (${CONTENT_TYPES.join(', ')})`,
-      content.contentType
-    );
-    const contentType = String(contentTypeInput || '').trim();
-
-    if (!contentType || !CONTENT_TYPES.includes(contentType)) {
-      alert('Invalid content type.');
-      return;
-    }
-
-    const url = String(window.prompt('Edit content URL', content.url || '') || '').trim();
-    if (url && !isValidResourceUrl(url)) {
-      alert('Content URL must be a valid URL.');
-      return;
-    }
-    const textContent = window.prompt('Edit text content', content.textContent || '') || '';
-
-    try {
-      const res = await updateContent(selectedCourse._id, module._id, content._id, {
-        title,
-        contentType,
-        url,
-        textContent
-      });
-      const updated = res.data;
-      setCourses((prev) => prev.map((item) => (item._id === updated._id ? updated : item)));
-    } catch (err) {
-      alert(err?.response?.data?.message || 'Failed to edit content item.');
-    }
+    openContentEditDialog(content, module._id, selectedCourse._id);
   };
 
-  const handleDeleteContent = async (module, content) => {
+  const handleDeleteContent = (module, content) => {
     if (!selectedCourse) return;
-    if (!window.confirm(`Delete content "${content.title}"?`)) return;
-
-    try {
-      const res = await deleteContent(selectedCourse._id, module._id, content._id);
-      const updated = res.data;
-      setCourses((prev) => prev.map((item) => (item._id === updated._id ? updated : item)));
-    } catch (err) {
-      alert(err?.response?.data?.message || 'Failed to delete content item.');
-    }
+    openDeleteDialog({
+      type: 'content',
+      courseId: selectedCourse._id,
+      moduleId: module._id,
+      contentId: content._id,
+      name: content.title
+    });
   };
 
   const openPdfPicker = (moduleId) => {
@@ -715,7 +870,7 @@ const CourseManager = () => {
       const updated = res.data;
       setCourses((prev) => prev.map((item) => (item._id === updated._id ? updated : item)));
     } catch (err) {
-      alert(err?.response?.data?.message || 'Failed to upload module PDF.');
+      showToast(err?.response?.data?.message || 'Failed to upload module PDF.', 'error');
     } finally {
       setUploadingModuleId('');
       event.target.value = '';
@@ -743,7 +898,7 @@ const CourseManager = () => {
       const updated = res.data;
       setCourses((prev) => prev.map((item) => (item._id === updated._id ? updated : item)));
     } catch (err) {
-      alert(err?.response?.data?.message || 'Failed to upload module image.');
+      showToast(err?.response?.data?.message || 'Failed to upload module image.', 'error');
     } finally {
       setUploadingModuleId('');
       event.target.value = '';
@@ -757,21 +912,21 @@ const CourseManager = () => {
     if (titleInput === null) return;
     const title = String(titleInput || '').trim();
     if (!title) {
-      alert('URL content title is required.');
+      showToast('URL content title is required.', 'warning');
       return;
     }
 
     const urlInput = window.prompt('Paste content URL (http/https)');
     const url = String(urlInput || '').trim();
     if (!url || !/^https?:\/\//i.test(url)) {
-      alert('Please provide a valid URL starting with http:// or https://');
+      showToast('Please provide a valid URL starting with http:// or https://', 'warning');
       return;
     }
 
     const contentTypeInput = window.prompt('Content type for URL (Link, Video, Article)', 'Link') || 'Link';
     const contentType = String(contentTypeInput || 'Link').trim();
     if (!CONTENT_TYPES.includes(contentType)) {
-      alert('Invalid content type for URL content.');
+      showToast('Invalid content type for URL content.', 'warning');
       return;
     }
 
@@ -786,7 +941,7 @@ const CourseManager = () => {
       const updated = res.data;
       setCourses((prev) => prev.map((item) => (item._id === updated._id ? updated : item)));
     } catch (err) {
-      alert(err?.response?.data?.message || 'Failed to add URL content item.');
+      showToast(err?.response?.data?.message || 'Failed to add URL content item.', 'error');
     }
   };
 
@@ -817,14 +972,14 @@ const CourseManager = () => {
       );
 
     if (orderedContents.length === 0) {
-      alert('No learning content is available yet for this course.');
+      showToast('No learning content is available yet for this course.', 'info');
       return;
     }
 
     const firstIncomplete = orderedContents.find((content) => !completedContent[content._id]);
 
     if (!firstIncomplete) {
-      alert('Great work! You have completed all available content in this course.');
+      showToast('Great work! You have completed all available content in this course.', 'info');
       return;
     }
 
@@ -833,7 +988,7 @@ const CourseManager = () => {
       return;
     }
 
-    alert(`Next item: ${firstIncomplete.title}`);
+    showToast(`Next item: ${firstIncomplete.title}`, 'info');
   };
 
   const resetFilters = async () => {
@@ -867,13 +1022,9 @@ const CourseManager = () => {
         <div className="course-head">
           <div>
             <h1>{pageTitle}</h1>
-            <p>{isManager ? 'Create courses, modules, and learning content.' : 'Browse available published courses.'}</p>
-            <p className="role-note">
-              Logged in role: <strong>{currentRole || 'unknown'}</strong>
-              {!isManager ? ' (Admin/Teacher required for create, update, and delete actions)' : ''}
-            </p>
+            <p className="course-head-sub">{isManager ? 'Manage courses, modules & content.' : 'Browse published courses.'}</p>
           </div>
-          <button className="btn-refresh" onClick={loadCourses}>Refresh</button>
+          <button className="btn-refresh" onClick={loadCourses} title="Refresh courses">↻ Refresh</button>
         </div>
 
         <div className="course-insights">
@@ -906,9 +1057,9 @@ const CourseManager = () => {
               <input
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                placeholder="Search courses"
+                onKeyDown={(e) => e.key === 'Enter' && loadCourses()}
+                placeholder="🔍  Search courses…"
               />
-              <button className="btn-search" onClick={loadCourses}>Search</button>
             </div>
 
             <div className="sidebar-controls">
@@ -996,175 +1147,23 @@ const CourseManager = () => {
 
           <section className="course-main">
             <div className={`course-main-grid ${isManager ? 'has-create-pane' : ''}`}>
+
               {isManager && (
-                <form className="course-create" onSubmit={handleCreateCourse}>
-                  <div className="create-head">
-                    <h3>Create Course</h3>
-                    <button
-                      type="button"
-                      className="btn-create-toggle"
-                      onClick={() => setShowCreateForm((prev) => !prev)}
-                    >
-                      {showCreateForm ? 'Hide' : 'Open'}
-                    </button>
-                  </div>
-                  <p className="create-helper">Start with just title, subject, and level. Add advanced options only when needed.</p>
-
-                  {showCreateForm ? (
-                    <>
-                      <div className="form-grid">
-                        <p className="form-section-title">Core Details</p>
-                        <input
-                          required
-                          value={courseForm.title}
-                          onChange={(e) => setCourseForm((prev) => ({ ...prev, title: e.target.value }))}
-                          placeholder="Course title"
-                          minLength={3}
-                        />
-                        <input
-                          required
-                          value={courseForm.subject}
-                          onChange={(e) => setCourseForm((prev) => ({ ...prev, subject: e.target.value }))}
-                          placeholder="Subject"
-                          minLength={2}
-                        />
-                        <select
-                          value={courseForm.level}
-                          onChange={(e) => setCourseForm((prev) => ({ ...prev, level: e.target.value }))}
-                        >
-                          {LEVELS.map((level) => <option key={level} value={level}>{level}</option>)}
-                        </select>
-
-                        <button
-                          type="button"
-                          className="btn-advanced-toggle"
-                          onClick={() => setShowAdvancedCreate((prev) => !prev)}
-                        >
-                          {showAdvancedCreate ? 'Hide Advanced Options' : 'Show Advanced Options'}
-                        </button>
-
-                        {showAdvancedCreate ? (
-                          <>
-                            <input
-                              value={courseForm.initialModuleTitle}
-                              onChange={(e) => setCourseForm((prev) => ({ ...prev, initialModuleTitle: e.target.value }))}
-                              placeholder="Initial module title (optional)"
-                            />
-
-                            <p className="form-section-title">Initial Learning Content (Optional)</p>
-                            <input
-                              value={courseForm.initialLectureVideoUrl}
-                              onChange={(e) => setCourseForm((prev) => ({ ...prev, initialLectureVideoUrl: e.target.value }))}
-                              placeholder="Initial lecture video URL (optional)"
-                              type="url"
-                            />
-                            <input
-                              ref={initialLecturePdfInputRef}
-                              type="file"
-                              accept="application/pdf,.pdf"
-                              style={{ display: 'none' }}
-                              onChange={(event) => setInitialLecturePdfFile(event.target.files?.[0] || null)}
-                            />
-                            <input
-                              ref={initialLectureVideoInputRef}
-                              type="file"
-                              accept="video/*,.mp4,.mov,.m4v,.webm,.avi,.mkv"
-                              style={{ display: 'none' }}
-                              onChange={(event) => setInitialLectureVideoFile(event.target.files?.[0] || null)}
-                            />
-                            <div className="initial-lecture-upload-row">
-                              <span>
-                                {initialLecturePdfFile
-                                  ? `Selected PDF: ${initialLecturePdfFile.name}`
-                                  : 'Initial lecture PDF (optional)'}
-                              </span>
-                              <button
-                                type="button"
-                                className="btn-upload-thumb"
-                                onClick={() => initialLecturePdfInputRef.current?.click()}
-                              >
-                                Upload PDF
-                              </button>
-                            </div>
-                            <div className="initial-video-upload-row">
-                              <span>
-                                {initialLectureVideoFile
-                                  ? `Selected video: ${initialLectureVideoFile.name}`
-                                  : 'Initial lecture recording file (optional)'}
-                              </span>
-                              <button
-                                type="button"
-                                className="btn-upload-thumb"
-                                onClick={() => initialLectureVideoInputRef.current?.click()}
-                              >
-                                Upload Video
-                              </button>
-                            </div>
-
-                            <p className="form-section-title">Branding & Description</p>
-                            <input
-                              type="file"
-                              accept="image/*"
-                              ref={thumbnailFileInputRef}
-                              style={{ display: 'none' }}
-                              onChange={handleThumbnailPickerChange}
-                            />
-                            <div
-                              className={`thumbnail-dropzone ${thumbnailDropActive ? 'active' : ''}`}
-                              onDragOver={handleThumbnailDragOver}
-                              onDragEnter={handleThumbnailDragOver}
-                              onDragLeave={handleThumbnailDragLeave}
-                              onDrop={handleThumbnailDrop}
-                            >
-                              <div className="thumbnail-dropzone-row">
-                                <input
-                                  value={courseForm.thumbnailUrl}
-                                  onChange={(e) => updateThumbnailUrl(e.target.value)}
-                                  placeholder="Thumbnail URL (optional)"
-                                  type="url"
-                                />
-                                <button
-                                  type="button"
-                                  className="btn-upload-thumb"
-                                  onClick={() => thumbnailFileInputRef.current?.click()}
-                                >
-                                  Drag & Drop / Upload
-                                </button>
-                              </div>
-                              <p>Drop image file or image URL here.</p>
-                              {courseForm.thumbnailUrl ? (
-                                <div className="thumbnail-preview-wrap">
-                                  <img src={courseForm.thumbnailUrl} alt="Thumbnail preview" className="thumbnail-preview" />
-                                </div>
-                              ) : null}
-                            </div>
-                            <textarea
-                              value={courseForm.description}
-                              onChange={(e) => setCourseForm((prev) => ({ ...prev, description: e.target.value }))}
-                              placeholder="Course description"
-                              rows={3}
-                            />
-                            <textarea
-                              value={courseForm.faqText}
-                              onChange={(e) => setCourseForm((prev) => ({ ...prev, faqText: e.target.value }))}
-                              placeholder="Course FAQs (one per line: question | answer)"
-                              rows={4}
-                            />
-                            <label className="checkbox-row">
-                              <input
-                                type="checkbox"
-                                checked={courseForm.isPublished}
-                                onChange={(e) => setCourseForm((prev) => ({ ...prev, isPublished: e.target.checked }))}
-                              />
-                              Publish immediately
-                            </label>
-                          </>
-                        ) : null}
-                      </div>
-                      <button className="btn-create" type="submit" disabled={saving}>{saving ? 'Saving...' : 'Create Course'}</button>
-                    </>
-                  ) : null}
-                </form>
+                <div className="modal-trigger-bar">
+                  <button
+                    className="btn-create-toggle btn-new-course"
+                    onClick={() => {
+                      setShowCreateForm(true);
+                      setShowAdvancedCreate(false);
+                      setCourseForm({ title: '', subject: '', level: 'Beginner', initialModuleTitle: '', initialLectureVideoUrl: '', description: '', faqText: '', thumbnailUrl: '', isPublished: false });
+                      setModalModules([{ title: '', description: '' }]);
+                      setInitialLecturePdfFile(null);
+                      setInitialLectureVideoFile(null);
+                    }}
+                  >
+                    + New Course
+                  </button>
+                </div>
               )}
 
               <div className="course-detail-pane">
@@ -1187,11 +1186,29 @@ const CourseManager = () => {
                       </div>
                       {isManager && (
                         <div className="detail-actions">
-                          <button className="btn-edit" onClick={() => handleEditCourse(selectedCourse)}>Edit</button>
-                          <button className="btn-publish" onClick={() => togglePublish(selectedCourse)}>
-                            {selectedCourse.isPublished ? 'Unpublish' : 'Publish'}
+                          <button className="btn-icon btn-edit" onClick={() => handleEditCourse(selectedCourse)} title="Edit course" aria-label="Edit course">
+                            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                              <path d="M3 17.25V21h3.75L18.81 8.94l-3.75-3.75L3 17.25z" fill="currentColor" />
+                              <path d="M20.71 7.04a1 1 0 0 0 0-1.41L18.37 3.29a1 1 0 0 0-1.41 0l-1.13 1.13 3.75 3.75 1.13-1.13z" fill="currentColor" />
+                            </svg>
                           </button>
-                          <button className="danger btn-delete" onClick={() => handleDeleteCourse(selectedCourse)}>Delete</button>
+                          <button className="btn-icon btn-publish" onClick={() => togglePublish(selectedCourse)} title={selectedCourse.isPublished ? 'Unpublish' : 'Publish'}>
+                            {selectedCourse.isPublished ? (
+                              <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                                <path d="M12 4a8 8 0 1 1 0 16 8 8 0 0 1 0-16zm0-2a10 10 0 1 0 0 20 10 10 0 0 0 0-20z" fill="currentColor" />
+                                <path d="M7 12h10" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                              </svg>
+                            ) : (
+                              <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                                <path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm-1 5h2v5h-2zm0 7h2v3h-2z" fill="currentColor" />
+                              </svg>
+                            )}
+                          </button>
+                          <button className="btn-icon danger btn-delete" onClick={() => handleDeleteCourse(selectedCourse)} title="Delete course" aria-label="Delete course">
+                            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                              <path d="M9 3h6l1 2h4v2H4V5h4l1-2zm1 6h2v9h-2V9zm4 0h2v9h-2V9zM7 9h2v9H7V9z" fill="currentColor" />
+                            </svg>
+                          </button>
                         </div>
                       )}
                     </div>
@@ -1237,37 +1254,38 @@ const CourseManager = () => {
                             </div>
                             {isManager && (
                               <div className="module-actions">
-                                <button className="btn-add" onClick={() => handleAddContent(module)}>Add Content</button>
                                 <button
-                                  className="btn-secondary"
+                                  className="btn-icon btn-secondary module-more-btn"
                                   onClick={() => toggleModuleTools(module._id)}
+                                  title="Module actions"
                                 >
-                                  {expandedModuleTools[module._id] ? 'Hide Tools' : 'Manage'}
+                                  {expandedModuleTools[module._id] ? '✕' : '⋯'}
                                 </button>
                               </div>
                             )}
 
                             {isManager && expandedModuleTools[module._id] ? (
                               <div className="module-actions-advanced">
-                                <button className="btn-edit" onClick={() => handleEditModule(module)}>Edit Module</button>
+                                <button className="btn-sm btn-add" onClick={() => handleAddContent(module)} title="Add content">+ Content</button>
+                                <button className="btn-sm btn-edit" onClick={() => handleEditModule(module)} title="Edit module">✎ Edit</button>
                                 <button
-                                  className="btn-upload"
+                                  className="btn-sm btn-upload"
                                   onClick={() => openPdfPicker(module._id)}
                                   disabled={uploadingModuleId === module._id}
+                                  title="Upload PDF"
                                 >
-                                  {uploadingModuleId === module._id ? 'Uploading...' : 'Upload PDF'}
+                                  {uploadingModuleId === module._id ? '…' : '📄 PDF'}
                                 </button>
                                 <button
-                                  className="btn-upload"
+                                  className="btn-sm btn-upload"
                                   onClick={() => openImagePicker(module._id)}
                                   disabled={uploadingModuleId === module._id}
+                                  title="Upload Image"
                                 >
-                                  {uploadingModuleId === module._id ? 'Uploading...' : 'Upload Image'}
+                                  {uploadingModuleId === module._id ? '…' : '🖼 Image'}
                                 </button>
-                                <button className="btn-add" onClick={() => handleAddUrlContent(module)}>
-                                  Add URL
-                                </button>
-                                <button className="danger btn-delete" onClick={() => handleDeleteModule(module)}>Delete</button>
+                                <button className="btn-sm btn-add" onClick={() => handleAddUrlContent(module)} title="Add URL">🔗 URL</button>
+                                <button className="btn-sm danger btn-delete" onClick={() => handleDeleteModule(module)} title="Delete module">🗑 Delete</button>
                               </div>
                             ) : null}
                           </div>
@@ -1383,7 +1401,438 @@ const CourseManager = () => {
             </div>
           </section>
         </div>
+
+        {isManager ? (
+          <section className="course-inventory-section">
+            <div className="course-inventory-head">
+              <h3>Recent Course & Module Inventory</h3>
+              <span>{filteredInventoryRows.length} items</span>
+            </div>
+            <div className="course-inventory-grid">
+              <div className="inventory-table-wrap">
+                <div className="inventory-table-head">
+                  <h4>Recent Items</h4>
+                  <div className="inventory-type-filter" role="group" aria-label="Inventory type filter">
+                    <button
+                      type="button"
+                      className={`small-pill ${inventoryTypeFilter === 'all' ? 'active' : ''}`}
+                      onClick={() => setInventoryTypeFilter('all')}
+                    >
+                      All
+                    </button>
+                    <button
+                      type="button"
+                      className={`small-pill ${inventoryTypeFilter === 'course' ? 'active' : ''}`}
+                      onClick={() => setInventoryTypeFilter('course')}
+                    >
+                      Course
+                    </button>
+                    <button
+                      type="button"
+                      className={`small-pill ${inventoryTypeFilter === 'module' ? 'active' : ''}`}
+                      onClick={() => setInventoryTypeFilter('module')}
+                    >
+                      Module
+                    </button>
+                  </div>
+                </div>
+                <table className="inventory-table">
+                  <thead>
+                    <tr>
+                      <th>Type</th>
+                      <th>Name</th>
+                      <th>Parent Course</th>
+                      <th>Contains</th>
+                      <th>Structure</th>
+                      <th>Status</th>
+                      <th>Updated</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredInventoryRows.map((row) => (
+                      <tr key={row.rowId}>
+                        <td>{row.type === 'course' ? 'Course' : 'Module'}</td>
+                        <td>{row.name}</td>
+                        <td>{row.parentCourse}</td>
+                        <td>{row.contains}</td>
+                        <td>{row.structure}</td>
+                        <td>
+                          <span className={`inventory-status ${row.status}`}>
+                            {row.status === 'published' ? 'Published' : 'Draft'}
+                          </span>
+                        </td>
+                        <td>{row.updatedAt ? new Date(row.updatedAt).toLocaleDateString() : '-'}</td>
+                        <td>
+                          <div className="inventory-actions">
+                            <button className="btn-add" onClick={() => setSelectedCourseId(row.courseId)}>Open</button>
+                            {row.type === 'course' ? (
+                              <>
+                                <button className="btn-edit" onClick={() => handleEditCourse(row.courseData)}>Edit</button>
+                                <button className="danger btn-delete" onClick={() => handleDeleteCourse(row.courseData)}>Delete</button>
+                              </>
+                            ) : (
+                              <>
+                                <button className="btn-edit" onClick={() => handleEditModuleFromRow(row.moduleData)}>Edit</button>
+                                <button className="danger btn-delete" onClick={() => handleDeleteModuleFromRow(row.moduleData)}>Delete</button>
+                              </>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                    {filteredInventoryRows.length === 0 ? (
+                      <tr>
+                        <td colSpan={8} className="inventory-empty">No recent inventory items.</td>
+                      </tr>
+                    ) : null}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </section>
+        ) : null}
       </div>
+
+      {/* ── Edit Dialog ── */}
+      {editDialog.open ? (
+        <div className="cm-modal-overlay" onClick={closeEditDialog}>
+          <div className="cm-modal cm-action-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="cm-modal-header">
+              <div>
+                <h2 className="cm-modal-title">
+                  {editDialog.type === 'course' ? 'Edit Course' : editDialog.type === 'module' ? 'Edit Module' : 'Edit Content'}
+                </h2>
+                <p className="cm-modal-sub">Update details and save your changes.</p>
+              </div>
+              <button className="cm-modal-close" onClick={closeEditDialog}>✕</button>
+            </div>
+
+            <div className="cm-modal-body cm-action-body">
+              {editDialog.type === 'course' ? (
+                <div className="cm-fields">
+                  <div className="cm-field cm-field-full">
+                    <label>Course Title</label>
+                    <input value={editDialog.form.title || ''} onChange={(e) => handleEditDialogChange('title', e.target.value)} />
+                  </div>
+                  <div className="cm-field">
+                    <label>Subject</label>
+                    <input value={editDialog.form.subject || ''} onChange={(e) => handleEditDialogChange('subject', e.target.value)} />
+                  </div>
+                  <div className="cm-field">
+                    <label>Level</label>
+                    <select value={editDialog.form.level || 'Beginner'} onChange={(e) => handleEditDialogChange('level', e.target.value)}>
+                      {LEVELS.map((level) => <option key={level} value={level}>{level}</option>)}
+                    </select>
+                  </div>
+                  <div className="cm-field cm-field-full">
+                    <label>Description</label>
+                    <textarea rows={3} value={editDialog.form.description || ''} onChange={(e) => handleEditDialogChange('description', e.target.value)} />
+                  </div>
+                  <div className="cm-field cm-field-full">
+                    <label>Thumbnail URL</label>
+                    <input value={editDialog.form.thumbnailUrl || ''} onChange={(e) => handleEditDialogChange('thumbnailUrl', e.target.value)} />
+                  </div>
+                  <div className="cm-field cm-field-full">
+                    <label>FAQs (question | answer per line)</label>
+                    <textarea rows={4} value={editDialog.form.faqText || ''} onChange={(e) => handleEditDialogChange('faqText', e.target.value)} />
+                  </div>
+                </div>
+              ) : null}
+
+              {editDialog.type === 'module' ? (
+                <div className="cm-fields">
+                  <div className="cm-field cm-field-full">
+                    <label>Module Title</label>
+                    <input value={editDialog.form.title || ''} onChange={(e) => handleEditDialogChange('title', e.target.value)} />
+                  </div>
+                  <div className="cm-field cm-field-full">
+                    <label>Description</label>
+                    <textarea rows={3} value={editDialog.form.description || ''} onChange={(e) => handleEditDialogChange('description', e.target.value)} />
+                  </div>
+                  <div className="cm-field cm-field-full">
+                    <label>FAQs (question | answer per line)</label>
+                    <textarea rows={4} value={editDialog.form.faqText || ''} onChange={(e) => handleEditDialogChange('faqText', e.target.value)} />
+                  </div>
+                </div>
+              ) : null}
+
+              {editDialog.type === 'content' ? (
+                <div className="cm-fields">
+                  <div className="cm-field cm-field-full">
+                    <label>Content Title</label>
+                    <input value={editDialog.form.title || ''} onChange={(e) => handleEditDialogChange('title', e.target.value)} />
+                  </div>
+                  <div className="cm-field">
+                    <label>Content Type</label>
+                    <select value={editDialog.form.contentType || 'Video'} onChange={(e) => handleEditDialogChange('contentType', e.target.value)}>
+                      {CONTENT_TYPES.map((item) => <option key={item} value={item}>{item}</option>)}
+                    </select>
+                  </div>
+                  <div className="cm-field">
+                    <label>Content URL</label>
+                    <input value={editDialog.form.url || ''} onChange={(e) => handleEditDialogChange('url', e.target.value)} />
+                  </div>
+                  <div className="cm-field cm-field-full">
+                    <label>Text Content</label>
+                    <textarea rows={4} value={editDialog.form.textContent || ''} onChange={(e) => handleEditDialogChange('textContent', e.target.value)} />
+                  </div>
+                </div>
+              ) : null}
+            </div>
+
+            <div className="cm-modal-footer">
+              <button type="button" className="cm-btn-cancel" onClick={closeEditDialog}>Cancel</button>
+              <button type="button" className="cm-btn-submit" onClick={submitEditDialog} disabled={modalSaving}>
+                {modalSaving ? 'Saving...' : 'Save Changes'}
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
+
+      {/* ── Delete Confirmation Dialog ── */}
+      {deleteDialog.open ? (
+        <div className="cm-modal-overlay" onClick={closeDeleteDialog}>
+          <div className="cm-modal cm-confirm-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="cm-modal-header">
+              <div>
+                <h2 className="cm-modal-title">Confirm Delete</h2>
+                <p className="cm-modal-sub">This action cannot be undone.</p>
+              </div>
+              <button className="cm-modal-close" onClick={closeDeleteDialog}>✕</button>
+            </div>
+
+            <div className="cm-modal-body cm-confirm-body">
+              <p>
+                Are you sure you want to delete
+                <strong>{` ${deleteDialog.name || 'this item'}`}</strong>?
+              </p>
+            </div>
+
+            <div className="cm-modal-footer">
+              <button type="button" className="cm-btn-cancel" onClick={closeDeleteDialog}>Cancel</button>
+              <button type="button" className="cm-btn-submit cm-btn-danger" onClick={confirmDeleteDialog} disabled={modalSaving}>
+                {modalSaving ? 'Deleting...' : 'Delete'}
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
+
+      {/* ── Create Course Modal ── */}
+      {showCreateForm && (
+        <div className="cm-modal-overlay" onClick={() => setShowCreateForm(false)}>
+          <div className="cm-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="cm-modal-header">
+              <div>
+                <h2 className="cm-modal-title">✦ Create New Course</h2>
+                <p className="cm-modal-sub">Fill in the details below. You can always edit later.</p>
+              </div>
+              <button className="cm-modal-close" onClick={() => setShowCreateForm(false)}>✕</button>
+            </div>
+
+            <form className="cm-modal-body" onSubmit={async (e) => {
+              e.preventDefault();
+              const titleVal = String(courseForm.title || '').trim();
+              const subjectVal = String(courseForm.subject || '').trim();
+              const levelVal = String(courseForm.level || 'Beginner');
+              if (!titleVal) { showToast('Course title is required.', 'warning'); return; }
+              if (!subjectVal) { showToast('Subject is required.', 'warning'); return; }
+              if (!LEVELS.includes(levelVal)) { showToast('Please select a valid level.', 'warning'); return; }
+
+              try {
+                setSaving(true);
+                // courseService already unwraps response.data, so result IS the {success, data} object
+                const res = await createCourse({
+                  title: titleVal,
+                  subject: subjectVal,
+                  level: levelVal,
+                  description: String(courseForm.description || '').trim(),
+                  thumbnailUrl: String(courseForm.thumbnailUrl || '').trim(),
+                  isPublished: courseForm.isPublished,
+                  faqs: parseFaqLines(courseForm.faqText)
+                });
+                let latest = res.data;  // res = {success, data: course}
+
+                const validModules = modalModules.filter((m) => String(m.title || '').trim());
+                for (const mod of validModules) {
+                  const mr = await addModule(latest._id, {
+                    title: String(mod.title).trim(),
+                    description: String(mod.description || '').trim()
+                  });
+                  latest = mr.data;  // mr = {success, data: updatedCourse}
+                }
+
+                setCourses((prev) => [latest, ...prev.filter((c) => c._id !== latest._id)]);
+                setSelectedCourseId(latest._id);
+                setCourseForm({ title: '', subject: '', level: 'Beginner', initialModuleTitle: '', initialLectureVideoUrl: '', description: '', faqText: '', thumbnailUrl: '', isPublished: false });
+                setModalModules([{ title: '', description: '' }]);
+                setShowCreateForm(false);
+              } catch (err) {
+                showToast(err?.response?.data?.message || err?.message || 'Failed to create course.', 'error');
+              } finally {
+                setSaving(false);
+              }
+            }}>
+
+              {/* ── Section 1: Course Info ── */}
+              <div className="cm-section">
+                <p className="cm-section-label">📚 Course Details</p>
+                <div className="cm-fields">
+                  <div className="cm-field cm-field-full">
+                    <label>Course Title <span className="cm-req">*</span></label>
+                    <input
+                      required
+                      minLength={3}
+                      value={courseForm.title}
+                      onChange={(e) => setCourseForm((prev) => ({ ...prev, title: e.target.value }))}
+                      placeholder="e.g. Introduction to Python"
+                    />
+                  </div>
+                  <div className="cm-field">
+                    <label>Subject <span className="cm-req">*</span></label>
+                    <input
+                      required
+                      minLength={2}
+                      value={courseForm.subject}
+                      onChange={(e) => setCourseForm((prev) => ({ ...prev, subject: e.target.value }))}
+                      placeholder="e.g. Computer Science"
+                    />
+                  </div>
+                  <div className="cm-field">
+                    <label>Level</label>
+                    <select
+                      value={courseForm.level}
+                      onChange={(e) => setCourseForm((prev) => ({ ...prev, level: e.target.value }))}
+                    >
+                      {LEVELS.map((l) => <option key={l} value={l}>{l}</option>)}
+                    </select>
+                  </div>
+                  <div className="cm-field cm-field-full">
+                    <label>Description</label>
+                    <textarea
+                      value={courseForm.description}
+                      onChange={(e) => setCourseForm((prev) => ({ ...prev, description: e.target.value }))}
+                      placeholder="What will students learn?"
+                      rows={3}
+                    />
+                  </div>
+                  <div className="cm-field cm-field-full">
+                    <label>Thumbnail URL</label>
+                    <div className="cm-thumb-row">
+                      <input
+                        value={courseForm.thumbnailUrl}
+                        onChange={(e) => updateThumbnailUrl(e.target.value)}
+                        placeholder="https://…  or upload below"
+                        type="text"
+                      />
+                      <input
+                        type="file"
+                        accept="image/*"
+                        ref={thumbnailFileInputRef}
+                        style={{ display: 'none' }}
+                        onChange={handleThumbnailPickerChange}
+                      />
+                      <button type="button" className="btn-upload-thumb" onClick={() => thumbnailFileInputRef.current?.click()}>📁 Upload</button>
+                    </div>
+                    {courseForm.thumbnailUrl && (
+                      <img src={courseForm.thumbnailUrl} alt="preview" className="cm-thumb-preview" />
+                    )}
+                  </div>
+                  <div className="cm-field cm-field-full cm-publish-row">
+                    <label className="cm-checkbox-label">
+                      <input
+                        type="checkbox"
+                        checked={courseForm.isPublished}
+                        onChange={(e) => setCourseForm((prev) => ({ ...prev, isPublished: e.target.checked }))}
+                      />
+                      <span>Publish immediately</span>
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              {/* ── Section 2: Modules ── */}
+              <div className="cm-section">
+                <div className="cm-section-head">
+                  <p className="cm-section-label">🗂 Modules</p>
+                  <button
+                    type="button"
+                    className="btn-sm btn-add cm-add-module-btn"
+                    onClick={() => setModalModules((prev) => [...prev, { title: '', description: '' }])}
+                  >
+                    + Add Module
+                  </button>
+                </div>
+
+                <div className="cm-modules-list">
+                  {modalModules.map((mod, idx) => (
+                    <div key={idx} className="cm-module-row">
+                      <div className="cm-module-num">{idx + 1}</div>
+                      <div className="cm-module-fields">
+                        <input
+                          value={mod.title}
+                          onChange={(e) => {
+                            const next = [...modalModules];
+                            next[idx] = { ...next[idx], title: e.target.value };
+                            setModalModules(next);
+                          }}
+                          placeholder={`Module ${idx + 1} title`}
+                        />
+                        <input
+                          value={mod.description}
+                          onChange={(e) => {
+                            const next = [...modalModules];
+                            next[idx] = { ...next[idx], description: e.target.value };
+                            setModalModules(next);
+                          }}
+                          placeholder="Description (optional)"
+                        />
+                      </div>
+                      {modalModules.length > 1 && (
+                        <button
+                          type="button"
+                          className="cm-module-remove"
+                          onClick={() => setModalModules((prev) => prev.filter((_, i) => i !== idx))}
+                          title="Remove module"
+                        >✕</button>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* ── Footer buttons ── */}
+              <div className="cm-modal-footer">
+                <button type="button" className="cm-btn-cancel" onClick={() => setShowCreateForm(false)}>Cancel</button>
+                <button
+                  type="submit"
+                  className="cm-btn-submit"
+                  disabled={saving}
+                >
+                  {saving ? '⏳ Creating…' : '🚀 Create Course'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* ── Toast Notifications ── */}
+      {toasts.length > 0 && (
+        <div className="cm-toast-container" aria-live="polite">
+          {toasts.map((toast) => (
+            <div key={toast.id} className={`cm-toast cm-toast-${toast.type}`}>
+              <span className="cm-toast-icon">
+                {toast.type === 'error' ? '✖' : toast.type === 'warning' ? '⚠' : 'ℹ'}
+              </span>
+              <span className="cm-toast-msg">{toast.message}</span>
+              <button className="cm-toast-close" onClick={() => dismissToast(toast.id)} aria-label="Dismiss">✕</button>
+            </div>
+          ))}
+        </div>
+      )}
     </DashboardLayout>
   );
 };

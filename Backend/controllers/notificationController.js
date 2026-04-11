@@ -1,5 +1,7 @@
 const Notification = require('../models/Notification');
 const User = require('../models/User');
+// Session must be imported so Mongoose registers the schema before populate() resolves 'relatedSession'
+const Session = require('../models/Session');
 const { evaluateSmartRemindersForUser, daysBetween } = require('../utils/smartReminderService');
 
 /**
