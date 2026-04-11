@@ -174,6 +174,28 @@
   border-color: #233660;
 }
 
+.student-v2-shell.theme-dark .course-overview-tab {
+  border-color: #2a3d67;
+  background: #111d38;
+  color: #b6c7ec;
+}
+
+.student-v2-shell.theme-dark .course-overview-tab span {
+  background: #1a2e5b;
+  color: #c8d8ff;
+}
+
+.student-v2-shell.theme-dark .course-overview-tab.active {
+  border-color: #4b79ea;
+  background: #1d3570;
+  color: #e9f0ff;
+}
+
+.student-v2-shell.theme-dark .course-overview-tab.active span {
+  background: #2d4f9c;
+  color: #ffffff;
+}
+
 .student-v2-shell.theme-dark .workspace-tab {
   color: #b3c5eb;
 }
@@ -189,6 +211,52 @@
   background: #0f1a34;
   border-color: #2a3d67;
   color: #dbe8ff;
+}
+
+.student-v2-shell.theme-dark .bookmark-btn {
+  border-color: #2e4679;
+  background: #132446;
+  color: #d4e2ff;
+}
+
+.student-v2-shell.theme-dark .bookmark-btn.active {
+  border-color: #486fbd;
+  background: #244784;
+  color: #fff0a8;
+}
+
+.student-v2-shell.theme-dark .notes-save-btn.secondary {
+  background: #1a2f59;
+  border: 1px solid #33518f;
+}
+
+.student-v2-shell.theme-dark .course-bookmark-btn {
+  border-color: #37548f;
+  background: #15284f;
+  color: #dbe8ff;
+}
+
+.student-v2-shell.theme-dark .module-bookmark-btn {
+  border-color: #37548f;
+  background: #15284f;
+  color: #dbe8ff;
+}
+
+.student-v2-shell.theme-dark .module-bookmark-btn.active {
+  border-color: #c09f41;
+  background: #4b3a16;
+  color: #ffe6a6;
+}
+
+.student-v2-shell.theme-dark .course-bookmark-btn.active {
+  border-color: #c09f41;
+  background: #4b3a16;
+  color: #ffe6a6;
+}
+
+.student-v2-shell.theme-dark .library-pill {
+  background: #173062;
+  color: #bdd2ff;
 }
 
 .student-v2-shell.theme-dark .discussion-reply-input-row input::placeholder,
@@ -510,6 +578,55 @@
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 12px;
+}
+
+.course-overview-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.course-overview-tab {
+  border: 1px solid #dbe5ff;
+  background: #ffffff;
+  color: #385295;
+  border-radius: 999px;
+  min-height: 36px;
+  padding: 0 14px;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: background 0.16s ease, border-color 0.16s ease, color 0.16s ease;
+}
+
+.course-overview-tab:hover {
+  border-color: #b8cbf5;
+  background: #f5f8ff;
+}
+
+.course-overview-tab span {
+  min-width: 22px;
+  height: 22px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #edf2ff;
+  color: #34539f;
+  font-size: 12px;
+}
+
+.course-overview-tab.active {
+  border-color: #1f56d9;
+  background: #1f56d9;
+  color: #fff;
+}
+
+.course-overview-tab.active span {
+  background: rgba(255, 255, 255, 0.18);
+  color: #fff;
 }
 
 .stat-card {
@@ -954,6 +1071,24 @@
   color: #ffffff;
 }
 
+.course-bookmark-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  border: 1px solid #d9e4ff;
+  background: #f5f8ff;
+  color: #3f5997;
+  cursor: pointer;
+  font-size: 18px;
+  line-height: 1;
+}
+
+.course-bookmark-btn.active {
+  border-color: #f0cf66;
+  background: #fff5cc;
+  color: #9a6b00;
+}
+
 .overview-course-description {
   margin: 0;
   color: #445b85;
@@ -972,6 +1107,12 @@
   align-content: start;
 }
 
+.overview-module-row {
+  display: flex;
+  gap: 8px;
+  align-items: stretch;
+}
+
 .overview-module-item {
   border: 1px solid #d9e6ff;
   border-radius: 14px;
@@ -984,6 +1125,7 @@
   text-align: left;
   cursor: pointer;
   transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+  flex: 1;
 }
 
 .overview-module-item:hover {
@@ -1025,6 +1167,28 @@
   font-weight: 700;
   align-self: center;
   white-space: nowrap;
+}
+
+.module-bookmark-btn {
+  width: 36px;
+  border-radius: 10px;
+  border: 1px solid #d9e4ff;
+  background: #f5f8ff;
+  color: #3f5997;
+  cursor: pointer;
+  font-size: 18px;
+  line-height: 1;
+  padding: 0;
+}
+
+.module-bookmark-btn.active {
+  border-color: #f0cf66;
+  background: #fff5cc;
+  color: #9a6b00;
+}
+
+.module-bookmark-btn.slim {
+  width: 34px;
 }
 
 .overview-more-modules {
@@ -1091,6 +1255,12 @@
   gap: 10px;
 }
 
+.lesson-heading-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
 .lesson-heading-row h2 {
   margin: 0;
   font-size: clamp(1.8rem, 2.25vw, 2.2rem);
@@ -1108,11 +1278,35 @@
   cursor: pointer;
 }
 
+.bookmark-btn {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 1px solid #dbe5ff;
+  background: #f5f8ff;
+  color: #6a4b00;
+  cursor: pointer;
+  font-size: 18px;
+  line-height: 1;
+}
+
+.bookmark-btn.active {
+  background: #fff5cc;
+  border-color: #f0cf66;
+  color: #9a6b00;
+}
+
 .lesson-description {
   margin: 0;
   color: #4f628d;
   line-height: 1.6;
   font-size: 0.99rem;
+}
+
+.lesson-description.selectable {
+  -webkit-user-select: text;
+  user-select: text;
+  cursor: text;
 }
 
 .resource-cards {
@@ -1381,6 +1575,19 @@
   width: fit-content;
 }
 
+.notes-save-btn.secondary {
+  background: #e9f0ff;
+  color: #2b4c99;
+  border: 1px solid #c9d9ff;
+}
+
+.notes-actions-row {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
 .comment-notice {
   width: fit-content;
   border-radius: 999px;
@@ -1439,6 +1646,24 @@
   border-radius: 10px;
   background: #ffffff;
   padding: 10px;
+}
+
+.saved-note-item.highlight-item {
+  border-color: #f2df8d;
+  background: #fffbe8;
+}
+
+.library-pill {
+  display: inline-flex;
+  margin-bottom: 6px;
+  border-radius: 999px;
+  padding: 2px 8px;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  background: #edf3ff;
+  color: #3b5da8;
 }
 
 .saved-note-reactions {
@@ -1552,6 +1777,13 @@
   padding: 10px;
   text-align: left;
   cursor: pointer;
+}
+
+.module-head-row {
+  display: flex;
+  align-items: stretch;
+  gap: 8px;
+  padding: 8px;
 }
 
 .module-head span {

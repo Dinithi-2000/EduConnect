@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { FaHeart, FaLightbulb, FaThumbsUp } from 'react-icons/fa';
+import { jsPDF } from 'jspdf';
 import { useAuth } from '../../context/AuthContext';
 import AIChatWidget from '../../components/AIChatWidget';
 import NotificationBell from '../../components/NotificationBell';
@@ -8,6 +9,7 @@ import { buildStudentSidebarItems } from '../../utils/studentSidebar';
 import { API_URL } from '../../services/api';
 import { getCourses } from '../../services/courseService';
 import { trackStudyActivity } from '../../services/notificationService';
+import { createStudyItem, deleteStudyItem, getStudyItems } from '../../services/studyItemService';
 import './StudentCourses.css';
 
 const apiOrigin = API_URL.replace(/\/api\/?$/, '');
@@ -47,51 +49,6 @@ const sortModulesByMode = (modules = [], mode = 'week') => {
     return list.sort((a, b) => extractWeekNumber(a) - extractWeekNumber(b));
   }
   return list.sort((a, b) => (a.order || 0) - (b.order || 0));
-};
-
-const normalizeSavedNotesMap = (raw) => {
-  if (!raw || typeof raw !== 'object') return {};
-
-  const normalized = {};
-
-  Object.entries(raw).forEach(([courseId, modules]) => {
-    if (!modules || typeof modules !== 'object') return;
-    normalized[courseId] = {};
-
-    Object.entries(modules).forEach(([moduleId, contents]) => {
-      if (!contents || typeof contents !== 'object') return;
-      normalized[courseId][moduleId] = {};
-
-      Object.entries(contents).forEach(([contentId, value]) => {
-        if (Array.isArray(value)) {
-          normalized[courseId][moduleId][contentId] = value
-            .filter((note) => note && typeof note === 'object' && String(note.text || '').trim())
-            .map((note) => ({
-              id: note.id || `note-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
-              text: String(note.text || '').trim(),
-              createdAt: note.createdAt || null
-            }));
-          return;
-        }
-
-        // Backward compatibility: previous version stored a single string note.
-        if (typeof value === 'string' && value.trim()) {
-          normalized[courseId][moduleId][contentId] = [
-            {
-              id: `legacy-${contentId}`,
-              text: value.trim(),
-              createdAt: null
-            }
-          ];
-          return;
-        }
-
-        normalized[courseId][moduleId][contentId] = [];
-      });
-    });
-  });
-
-  return normalized;
 };
 
 const getCourseBanner = (course, index) => {
@@ -136,6 +93,7 @@ const StudentCourses = () => {
   const [selectedModuleId, setSelectedModuleId] = useState('');
   const [selectedContentId, setSelectedContentId] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
+  const [overviewFilterTab, setOverviewFilterTab] = useState('all');
   const [themeMode, setThemeMode] = useState(() => {
     try {
       const storedTheme = localStorage.getItem(THEME_STORAGE_KEY);
@@ -158,9 +116,11 @@ const StudentCourses = () => {
   const [replyDrafts, setReplyDrafts] = useState({});
   const [replyValidationErrors, setReplyValidationErrors] = useState({});
   const [noteDraft, setNoteDraft] = useState('');
+  const [highlightDraft, setHighlightDraft] = useState('');
   const [commentNotice, setCommentNotice] = useState(null);
   const [noteNotice, setNoteNotice] = useState(null);
-  const [savedNotesMap, setSavedNotesMap] = useState({});
+  const [studyItems, setStudyItems] = useState([]);
+  const [studyLoading, setStudyLoading] = useState(false);
   const [noteReactionsMap, setNoteReactionsMap] = useState({});
   const [discussionItems, setDiscussionItems] = useState([
     {
@@ -183,6 +143,7 @@ const StudentCourses = () => {
   const noticeTimerRef = useRef(null);
   const noteNoticeTimerRef = useRef(null);
   const lastActivityPingRef = useRef('');
+  const lessonTextRef = useRef(null);
 
   const progressStorageKey = `student-course-progress-${studentId}`;
   const enrollmentStorageKeys = useMemo(() => {
@@ -202,7 +163,6 @@ const StudentCourses = () => {
   }, [user?._id, user?.id]);
 
   const enrollmentStorageKey = enrollmentStorageKeys[0];
-  const notesStorageKey = `student-course-notes-${studentId}`;
   const noteReactionsStorageKey = `student-note-reactions-${studentId}`;
 
   const isDarkMode = themeMode === 'dark';
@@ -247,16 +207,6 @@ const StudentCourses = () => {
 
   useEffect(() => {
     try {
-      const savedNotes = localStorage.getItem(notesStorageKey);
-      const parsed = savedNotes ? JSON.parse(savedNotes) : {};
-      setSavedNotesMap(normalizeSavedNotesMap(parsed));
-    } catch {
-      setSavedNotesMap({});
-    }
-  }, [notesStorageKey]);
-
-  useEffect(() => {
-    try {
       const savedReactions = localStorage.getItem(noteReactionsStorageKey);
       setNoteReactionsMap(savedReactions ? JSON.parse(savedReactions) : {});
     } catch {
@@ -289,12 +239,32 @@ const StudentCourses = () => {
   };
 
   useEffect(() => {
-    localStorage.setItem(notesStorageKey, JSON.stringify(savedNotesMap));
-  }, [savedNotesMap, notesStorageKey]);
-
-  useEffect(() => {
     localStorage.setItem(noteReactionsStorageKey, JSON.stringify(noteReactionsMap));
   }, [noteReactionsMap, noteReactionsStorageKey]);
+
+  useEffect(() => {
+    let mounted = true;
+
+    const loadStudyItems = async () => {
+      if (!selectedCourseId) return;
+      try {
+        setStudyLoading(true);
+        const response = await getStudyItems({ courseId: selectedCourseId });
+        if (!mounted) return;
+        setStudyItems(response?.data || []);
+      } catch {
+        if (!mounted) return;
+        setStudyItems([]);
+      } finally {
+        if (mounted) setStudyLoading(false);
+      }
+    };
+
+    loadStudyItems();
+    return () => {
+      mounted = false;
+    };
+  }, [selectedCourseId]);
 
   useEffect(() => {
     const loadCourses = async () => {
@@ -332,11 +302,22 @@ const StudentCourses = () => {
     return courses.find((course) => course._id === selectedCourseId) || null;
   }, [courses, selectedCourseId]);
 
+  const bookmarkedCourseIds = useMemo(() => {
+    const ids = studyItems
+      .filter((item) => {
+        if (item.type !== 'bookmark') return false;
+        if (item.targetType === 'course') return true;
+        return !item.targetType && item.courseId && !item.moduleId && !item.contentId;
+      })
+      .map((item) => String(item.targetId || item.courseId || ''))
+      .filter(Boolean);
+
+    return new Set(ids);
+  }, [studyItems]);
+
   const filteredCourses = useMemo(() => {
     const query = String(searchQuery || '').trim().toLowerCase();
-    if (!query) return courses;
-
-    return courses.filter((course) => {
+    const searchFiltered = courses.filter((course) => {
       const baseText = [
         course.title,
         course.subject,
@@ -366,7 +347,25 @@ const StudentCourses = () => {
         });
       });
     });
-  }, [courses, searchQuery]);
+
+    const tabFiltered = (() => {
+      if (overviewFilterTab === 'enrolled') {
+        return searchFiltered.filter((course) => enrolledCourseIds.includes(course._id));
+      }
+      if (overviewFilterTab === 'bookmarked') {
+        return searchFiltered.filter((course) => bookmarkedCourseIds.has(String(course._id)));
+      }
+      return searchFiltered;
+    })();
+
+    return tabFiltered;
+  }, [courses, searchQuery, overviewFilterTab, enrolledCourseIds, bookmarkedCourseIds]);
+
+  const overviewTabCounts = useMemo(() => ({
+    all: courses.length,
+    enrolled: courses.filter((course) => enrolledCourseIds.includes(course._id)).length,
+    bookmarked: courses.filter((course) => bookmarkedCourseIds.has(String(course._id))).length
+  }), [courses, enrolledCourseIds, bookmarkedCourseIds]);
 
   const displayName = user?.name || 'Student';
   const initials = displayName
@@ -391,10 +390,65 @@ const StudentCourses = () => {
     activeModule?.contents?.[0] ||
     null;
 
-  const savedNotesForActiveContent =
-    selectedCourse?._id && activeModule?._id && activeContent?._id
-      ? savedNotesMap?.[selectedCourse._id]?.[activeModule._id]?.[activeContent._id] || []
-      : [];
+  const savedNotesForActiveContent = useMemo(() => {
+    if (!selectedCourse?._id || !activeModule?._id || !activeContent?._id) return [];
+    return studyItems.filter(
+      (item) =>
+        item.type === 'note'
+        && String(item.courseId) === String(selectedCourse._id)
+        && String(item.moduleId) === String(activeModule._id)
+        && String(item.contentId) === String(activeContent._id)
+    );
+  }, [studyItems, selectedCourse?._id, activeModule?._id, activeContent?._id]);
+
+  const highlightsForActiveContent = useMemo(() => {
+    if (!selectedCourse?._id || !activeModule?._id || !activeContent?._id) return [];
+    return studyItems.filter(
+      (item) =>
+        item.type === 'highlight'
+        && String(item.courseId) === String(selectedCourse._id)
+        && String(item.moduleId) === String(activeModule._id)
+        && String(item.contentId) === String(activeContent._id)
+    );
+  }, [studyItems, selectedCourse?._id, activeModule?._id, activeContent?._id]);
+
+  const bookmarkForActiveContent = useMemo(() => {
+    if (!selectedCourse?._id || !activeModule?._id || !activeContent?._id) return null;
+    return studyItems.find(
+      (item) =>
+        item.type === 'bookmark'
+        && String(item.courseId) === String(selectedCourse._id)
+        && String(item.moduleId) === String(activeModule._id)
+        && String(item.contentId) === String(activeContent._id)
+    ) || null;
+  }, [studyItems, selectedCourse?._id, activeModule?._id, activeContent?._id]);
+
+  const libraryItemsForCourse = useMemo(() => {
+    if (!selectedCourse?._id) return [];
+    return studyItems.filter((item) => String(item.courseId) === String(selectedCourse._id));
+  }, [studyItems, selectedCourse?._id]);
+
+  const courseBookmarksByCourseId = useMemo(() => {
+    const map = new Map();
+    studyItems.forEach((item) => {
+      if (item.type !== 'bookmark') return;
+      const isCourseLevel = !item.moduleId && !item.contentId;
+      if (!isCourseLevel) return;
+      map.set(String(item.courseId), item);
+    });
+    return map;
+  }, [studyItems]);
+
+  const moduleBookmarksByModuleId = useMemo(() => {
+    const map = new Map();
+    studyItems.forEach((item) => {
+      if (item.type !== 'bookmark') return;
+      if (item.targetType !== 'module') return;
+      if (!item.targetId) return;
+      map.set(String(item.targetId), item);
+    });
+    return map;
+  }, [studyItems]);
 
   useEffect(() => {
     if (!selectedCourse) {
@@ -771,33 +825,205 @@ const StudentCourses = () => {
       return;
     }
 
-    const newNote = {
-      id: `note-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
-      text,
-      createdAt: new Date().toISOString()
-    };
-
-    setSavedNotesMap((prev) => {
-      const byCourse = prev[selectedCourse._id] || {};
-      const byModule = byCourse[activeModule._id] || {};
-      const existingNotes = Array.isArray(byModule[activeContent._id])
-        ? byModule[activeContent._id]
-        : [];
-
-      return {
-        ...prev,
-        [selectedCourse._id]: {
-          ...byCourse,
-          [activeModule._id]: {
-            ...byModule,
-            [activeContent._id]: [...existingNotes, newNote]
-          }
+    createStudyItem({
+      type: 'note',
+      courseId: selectedCourse._id,
+      moduleId: activeModule._id,
+      contentId: activeContent._id,
+      title: activeContent?.title || activeModule?.title || 'Lesson Note',
+      text
+    })
+      .then((response) => {
+        if (response?.data) {
+          setStudyItems((prev) => [response.data, ...prev]);
         }
-      };
+        setNoteDraft('');
+        setNoteNotice({ type: 'success', message: 'Note saved successfully.' });
+      })
+      .catch(() => {
+        setNoteNotice({ type: 'error', message: 'Failed to save note. Please try again.' });
+      });
+  };
+
+  const handleSaveHighlight = async () => {
+    const excerpt = String(highlightDraft || '').trim();
+    if (!selectedCourse?._id || !activeModule?._id || !activeContent?._id) {
+      setNoteNotice({ type: 'error', message: 'Open a lesson resource before highlighting.' });
+      return;
+    }
+
+    if (!excerpt) {
+      setNoteNotice({ type: 'error', message: 'Add highlighted text first.' });
+      return;
+    }
+
+    try {
+      const response = await createStudyItem({
+        type: 'highlight',
+        courseId: selectedCourse._id,
+        moduleId: activeModule._id,
+        contentId: activeContent._id,
+        title: activeContent?.title || 'Lesson Highlight',
+        excerpt,
+        text: excerpt,
+        highlightMeta: { color: '#fff59d' }
+      });
+      if (response?.data) {
+        setStudyItems((prev) => [response.data, ...prev]);
+      }
+      setHighlightDraft('');
+      setNoteNotice({ type: 'success', message: 'Highlight saved.' });
+    } catch {
+      setNoteNotice({ type: 'error', message: 'Unable to save highlight right now.' });
+    }
+  };
+
+  const handleCaptureLessonSelection = () => {
+    const selection = window.getSelection();
+    if (!selection || selection.isCollapsed) return;
+
+    const selectedText = String(selection.toString() || '').replace(/\s+/g, ' ').trim();
+    if (selectedText.length < 3) return;
+
+    const lessonElement = lessonTextRef.current;
+    if (!lessonElement) return;
+
+    const anchorNode = selection.anchorNode;
+    const focusNode = selection.focusNode;
+    const isWithinLesson =
+      (anchorNode && lessonElement.contains(anchorNode))
+      || (focusNode && lessonElement.contains(focusNode));
+
+    if (!isWithinLesson) return;
+
+    setHighlightDraft(selectedText);
+    setWorkspaceTab('notes');
+    setNoteNotice({ type: 'success', message: 'Selected text captured. Save it as a highlight from Notes.' });
+  };
+
+  const handleToggleBookmark = async () => {
+    if (!selectedCourse?._id || !activeModule?._id || !activeContent?._id) return;
+
+    try {
+      if (bookmarkForActiveContent?._id) {
+        await deleteStudyItem(bookmarkForActiveContent._id);
+        setStudyItems((prev) => prev.filter((item) => item._id !== bookmarkForActiveContent._id));
+        setNoteNotice({ type: 'success', message: 'Bookmark removed.' });
+      } else {
+        const response = await createStudyItem({
+          type: 'bookmark',
+          targetType: 'content',
+          targetId: activeContent._id,
+          courseId: selectedCourse._id,
+          moduleId: activeModule._id,
+          contentId: activeContent._id,
+          title: activeContent?.title || activeModule?.title || 'Bookmarked lesson'
+        });
+        if (response?.data) {
+          setStudyItems((prev) => [response.data, ...prev]);
+        }
+        setNoteNotice({ type: 'success', message: 'Bookmarked for quick revision.' });
+      }
+    } catch {
+      setNoteNotice({ type: 'error', message: 'Bookmark action failed.' });
+    }
+  };
+
+  const handleToggleCourseBookmark = async (course) => {
+    const existing = courseBookmarksByCourseId.get(String(course?._id));
+
+    try {
+      if (existing?._id) {
+        await deleteStudyItem(existing._id);
+        setStudyItems((prev) => prev.filter((item) => item._id !== existing._id));
+        setNoteNotice({ type: 'success', message: 'Course bookmark removed.' });
+        return;
+      }
+
+      const response = await createStudyItem({
+        type: 'bookmark',
+        targetType: 'course',
+        targetId: course._id,
+        courseId: course._id,
+        title: course?.title || 'Bookmarked course'
+      });
+
+      if (response?.data) {
+        setStudyItems((prev) => [response.data, ...prev]);
+      }
+      setNoteNotice({ type: 'success', message: 'Course bookmarked.' });
+    } catch {
+      setNoteNotice({ type: 'error', message: 'Unable to update course bookmark.' });
+    }
+  };
+
+  const handleToggleModuleBookmark = async (course, module) => {
+    const existing = moduleBookmarksByModuleId.get(String(module?._id));
+
+    try {
+      if (existing?._id) {
+        await deleteStudyItem(existing._id);
+        setStudyItems((prev) => prev.filter((item) => item._id !== existing._id));
+        setNoteNotice({ type: 'success', message: 'Module bookmark removed.' });
+        return;
+      }
+
+      const response = await createStudyItem({
+        type: 'bookmark',
+        targetType: 'module',
+        targetId: module._id,
+        courseId: course._id,
+        moduleId: module._id,
+        title: `${course?.title || 'Course'} - ${module?.title || 'Module'}`
+      });
+
+      if (response?.data) {
+        setStudyItems((prev) => [response.data, ...prev]);
+      }
+      setNoteNotice({ type: 'success', message: 'Module bookmarked.' });
+    } catch {
+      setNoteNotice({ type: 'error', message: 'Unable to update module bookmark.' });
+    }
+  };
+
+  const handleExportNotesPdf = () => {
+    const notes = libraryItemsForCourse.filter((item) => item.type === 'note' || item.type === 'highlight');
+    if (!notes.length) {
+      setNoteNotice({ type: 'error', message: 'No notes or highlights available to export.' });
+      return;
+    }
+
+    const doc = new jsPDF();
+    let y = 16;
+    doc.setFontSize(16);
+    doc.text(`Study Notes - ${selectedCourse?.title || 'Course'}`, 14, y);
+    y += 10;
+    doc.setFontSize(11);
+    doc.text(`Student: ${displayName}`, 14, y);
+    y += 7;
+    doc.text(`Generated: ${new Date().toLocaleString()}`, 14, y);
+    y += 10;
+
+    notes.forEach((item, index) => {
+      const line = `${index + 1}. [${item.type.toUpperCase()}] ${item.title || 'Study item'}`;
+      const body = item.text || item.excerpt || '';
+      const wrappedHeader = doc.splitTextToSize(line, 180);
+      const wrappedBody = doc.splitTextToSize(body, 180);
+
+      if (y > 260) {
+        doc.addPage();
+        y = 18;
+      }
+      doc.setFontSize(11);
+      doc.text(wrappedHeader, 14, y);
+      y += wrappedHeader.length * 5;
+      doc.setFontSize(10);
+      doc.text(wrappedBody, 16, y);
+      y += wrappedBody.length * 5 + 4;
     });
 
-    setNoteDraft('');
-    setNoteNotice({ type: 'success', message: 'Note saved successfully.' });
+    doc.save(`study-notes-${new Date().toISOString().slice(0, 10)}.pdf`);
+    setNoteNotice({ type: 'success', message: 'PDF exported successfully.' });
   };
 
   const getNoteReactions = (noteId) => {
@@ -960,6 +1186,32 @@ const StudentCourses = () => {
             )}
           </div>
 
+          {viewMode === 'overview' ? (
+            <div className="course-overview-tabs" role="tablist" aria-label="Course overview filters">
+              <button
+                type="button"
+                className={`course-overview-tab ${overviewFilterTab === 'all' ? 'active' : ''}`}
+                onClick={() => setOverviewFilterTab('all')}
+              >
+                All <span>{overviewTabCounts.all}</span>
+              </button>
+              <button
+                type="button"
+                className={`course-overview-tab ${overviewFilterTab === 'enrolled' ? 'active' : ''}`}
+                onClick={() => setOverviewFilterTab('enrolled')}
+              >
+                Enrolled <span>{overviewTabCounts.enrolled}</span>
+              </button>
+              <button
+                type="button"
+                className={`course-overview-tab ${overviewFilterTab === 'bookmarked' ? 'active' : ''}`}
+                onClick={() => setOverviewFilterTab('bookmarked')}
+              >
+                Bookmarked <span>{overviewTabCounts.bookmarked}</span>
+              </button>
+            </div>
+          ) : null}
+
           {loading ? (
             <div className="state-box">Loading courses...</div>
           ) : error ? (
@@ -969,7 +1221,11 @@ const StudentCourses = () => {
           ) : viewMode === 'overview' ? (
             filteredCourses.length === 0 ? (
               <div className="state-box">
-                No results found for "{searchQuery}". Try a course title, subject, or module name.
+                {overviewFilterTab === 'bookmarked' && 'No bookmarked courses yet. Tap the star icon on a course card. '}
+                {overviewFilterTab === 'enrolled' && 'No enrolled courses in this filter. '}
+                {searchQuery
+                  ? `No results found for "${searchQuery}". Try a course title, subject, or module name.`
+                  : 'No courses available for the selected tab.'}
               </div>
             ) : (
             <div className="courses-overview-grid">
@@ -992,6 +1248,14 @@ const StudentCourses = () => {
                     <div className="overview-course-actions">
                       <button
                         type="button"
+                        className={`course-bookmark-btn ${courseBookmarksByCourseId.has(String(course._id)) ? 'active' : ''}`}
+                        onClick={() => handleToggleCourseBookmark(course)}
+                        title={courseBookmarksByCourseId.has(String(course._id)) ? 'Remove course bookmark' : 'Bookmark this course'}
+                      >
+                        {courseBookmarksByCourseId.has(String(course._id)) ? '★' : '☆'}
+                      </button>
+                      <button
+                        type="button"
                         className={`enroll-btn ${isEnrolled ? 'enrolled open' : ''}`}
                         onClick={() => handleEnrollOrOpen(course)}
                       >
@@ -1007,20 +1271,30 @@ const StudentCourses = () => {
                   <div className="overview-module-list">
                     {sortModulesByMode(course.modules || [], moduleOrderMode).slice(0, 1).map((module, moduleIndex) => {
                       const isEnrolled = enrolledCourseIds.includes(course._id);
+                      const isModuleBookmarked = moduleBookmarksByModuleId.has(String(module._id));
                       return (
-                        <button
-                          key={module._id}
-                          type="button"
-                          className="overview-module-item"
-                          onClick={() => handleOpenModuleWorkspace(course, module._id)}
-                        >
-                          <div>
-                            <strong>{module.title}</strong>
-                            <small>{getModuleOrderLabel(module, moduleIndex)}</small>
-                            <small>{(module.contents || []).length} content items</small>
-                          </div>
-                          <span>{isEnrolled ? 'Open →' : 'Enroll & Open'}</span>
-                        </button>
+                        <div key={module._id} className="overview-module-row">
+                          <button
+                            type="button"
+                            className="overview-module-item"
+                            onClick={() => handleOpenModuleWorkspace(course, module._id)}
+                          >
+                            <div>
+                              <strong>{module.title}</strong>
+                              <small>{getModuleOrderLabel(module, moduleIndex)}</small>
+                              <small>{(module.contents || []).length} content items</small>
+                            </div>
+                            <span>{isEnrolled ? 'Open →' : 'Enroll & Open'}</span>
+                          </button>
+                          <button
+                            type="button"
+                            className={`module-bookmark-btn ${isModuleBookmarked ? 'active' : ''}`}
+                            onClick={() => handleToggleModuleBookmark(course, module)}
+                            title={isModuleBookmarked ? 'Remove module bookmark' : 'Bookmark this module'}
+                          >
+                            {isModuleBookmarked ? '★' : '☆'}
+                          </button>
+                        </div>
                       );
                     })}
 
@@ -1082,9 +1356,23 @@ const StudentCourses = () => {
 
                   <div className="lesson-heading-row">
                     <h2>{activeModule?.title || selectedCourse.title}</h2>
-                    <button type="button" className="share-btn">↗</button>
+                    <div className="lesson-heading-actions">
+                      <button
+                        type="button"
+                        className={`bookmark-btn ${bookmarkForActiveContent ? 'active' : ''}`}
+                        onClick={handleToggleBookmark}
+                        title={bookmarkForActiveContent ? 'Remove bookmark' : 'Bookmark this lesson'}
+                      >
+                        {bookmarkForActiveContent ? '★' : '☆'}
+                      </button>
+                      <button type="button" className="share-btn">↗</button>
+                    </div>
                   </div>
-                  <p className="lesson-description">
+                  <p
+                    ref={lessonTextRef}
+                    className="lesson-description selectable"
+                    onMouseUp={handleCaptureLessonSelection}
+                  >
                     {activeContent?.textContent || selectedCourse.description || 'Explore complex operations and practical techniques in this lesson.'}
                   </p>
 
@@ -1201,6 +1489,18 @@ const StudentCourses = () => {
 
                   {workspaceTab === 'notes' && (
                     <div className="notes-panel">
+                      <div className="notes-actions-row">
+                        <button
+                          type="button"
+                          className="notes-save-btn secondary"
+                          onClick={() => navigate('/student/study-library')}
+                        >
+                          Open Study Library
+                        </button>
+                        <button type="button" className="notes-save-btn secondary" onClick={handleExportNotesPdf}>
+                          Export Notes as PDF
+                        </button>
+                      </div>
                       <textarea
                         value={noteDraft}
                         onChange={(event) => setNoteDraft(event.target.value)}
@@ -1208,25 +1508,50 @@ const StudentCourses = () => {
                         rows={6}
                       />
                       <button type="button" className="notes-save-btn" onClick={handleSaveNotes}>Save Note</button>
+
+                      <textarea
+                        value={highlightDraft}
+                        onChange={(event) => setHighlightDraft(event.target.value)}
+                        placeholder="Paste or type an important excerpt to save as highlight..."
+                        rows={3}
+                      />
+                      <button type="button" className="notes-save-btn secondary" onClick={handleSaveHighlight}>Save Highlight</button>
+
                       {noteNotice && (
                         <div className={`comment-notice ${noteNotice.type}`}>
                           {noteNotice.message}
                         </div>
                       )}
+
+                      {studyLoading ? <div className="empty-inline">Loading study materials...</div> : null}
+
+                      {highlightsForActiveContent.length > 0 && (
+                        <div className="saved-note-preview">
+                          <strong>Saved Highlights ({highlightsForActiveContent.length})</strong>
+                          <div className="saved-notes-list">
+                            {highlightsForActiveContent.map((item) => (
+                              <article key={item._id} className="saved-note-item highlight-item">
+                                <p>{item.excerpt || item.text}</p>
+                              </article>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
                       {savedNotesForActiveContent.length > 0 && (
                         <div className="saved-note-preview">
                           <strong>Saved Notes ({savedNotesForActiveContent.length})</strong>
                           <div className="saved-notes-list">
                             {savedNotesForActiveContent.map((note) => {
-                              const reactions = getNoteReactions(note.id);
+                              const reactions = getNoteReactions(note._id);
                               return (
-                                <article key={note.id} className="saved-note-item">
+                                <article key={note._id} className="saved-note-item">
                                   <p>{note.text}</p>
                                   <div className="saved-note-reactions" role="group" aria-label="React to saved note">
                                     <button
                                       type="button"
                                       className={`note-reaction-btn ${reactions.like ? 'active' : ''}`}
-                                      onClick={() => handleToggleNoteReaction(note.id, 'like')}
+                                      onClick={() => handleToggleNoteReaction(note._id, 'like')}
                                       aria-pressed={reactions.like}
                                     >
                                       <FaThumbsUp aria-hidden="true" />
@@ -1235,7 +1560,7 @@ const StudentCourses = () => {
                                     <button
                                       type="button"
                                       className={`note-reaction-btn ${reactions.love ? 'active' : ''}`}
-                                      onClick={() => handleToggleNoteReaction(note.id, 'love')}
+                                      onClick={() => handleToggleNoteReaction(note._id, 'love')}
                                       aria-pressed={reactions.love}
                                     >
                                       <FaHeart aria-hidden="true" />
@@ -1244,7 +1569,7 @@ const StudentCourses = () => {
                                     <button
                                       type="button"
                                       className={`note-reaction-btn ${reactions.idea ? 'active' : ''}`}
-                                      onClick={() => handleToggleNoteReaction(note.id, 'idea')}
+                                      onClick={() => handleToggleNoteReaction(note._id, 'idea')}
                                       aria-pressed={reactions.idea}
                                     >
                                       <FaLightbulb aria-hidden="true" />
@@ -1254,6 +1579,20 @@ const StudentCourses = () => {
                                 </article>
                               );
                             })}
+                          </div>
+                        </div>
+                      )}
+
+                      {libraryItemsForCourse.length > 0 && (
+                        <div className="saved-note-preview">
+                          <strong>Personal Study Materials Library ({libraryItemsForCourse.length})</strong>
+                          <div className="saved-notes-list">
+                            {libraryItemsForCourse.slice(0, 8).map((item) => (
+                              <article key={item._id} className="saved-note-item">
+                                <small className="library-pill">{item.type}</small>
+                                <p>{item.title || item.text || item.excerpt}</p>
+                              </article>
+                            ))}
                           </div>
                         </div>
                       )}
@@ -1297,10 +1636,10 @@ const StudentCourses = () => {
                         <button
                           type="button"
                           className="module-head"
-                              onClick={() => handleModuleSelect(module._id)}
+                          onClick={() => handleModuleSelect(module._id)}
                         >
-                              <span>{module.title}</span>
-                              <small>{getModuleOrderLabel(module, index)}</small>
+                          <span>{module.title}</span>
+                          <small>{getModuleOrderLabel(module, index)}</small>
                           <small>{moduleTotal ? `${moduleDone}/${moduleTotal}` : 'Empty'}</small>
                         </button>
 

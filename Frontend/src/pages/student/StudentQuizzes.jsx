@@ -11,6 +11,7 @@ import {
   getPremiumQuizzes,
   getQuizzes
 } from '../../services/quizService';
+import { createStudyItem, deleteStudyItem, getStudyItems } from '../../services/studyItemService';
 import '../StudentDashboard.css';
 import './StudentQuizzes.css';
 
@@ -66,6 +67,7 @@ const StudentQuizzes = () => {
   const [purchasingQuizId, setPurchasingQuizId] = useState('');
   const [verifyingCheckout, setVerifyingCheckout] = useState(false);
   const [selectedPremiumQuiz, setSelectedPremiumQuiz] = useState(null);
+  const [quizBookmarksByQuizId, setQuizBookmarksByQuizId] = useState({});
 
   const studentId = user?._id || user?.id || 'guest';
   const startedStorageKey = `student-started-quizzes-${studentId}`;
@@ -87,10 +89,11 @@ const StudentQuizzes = () => {
     try {
       setLoading(true);
       setError('');
-      const [quizRes, progressRes, premiumRes] = await Promise.all([
+      const [quizRes, progressRes, premiumRes, bookmarkRes] = await Promise.all([
         getQuizzes(),
         getMyProgress(),
-        getPremiumQuizzes().catch(() => ({ data: [] }))
+        getPremiumQuizzes().catch(() => ({ data: [] })),
+        getStudyItems({ type: 'bookmark', targetType: 'quiz' }).catch(() => ({ data: [] }))
       ]);
       setQuizzes(quizRes.data || []);
       setProgress(progressRes.data || { summary: { totalAttempts: 0, averageScore: 0, bestScore: 0 }, attempts: [] });
@@ -104,6 +107,14 @@ const StudentQuizzes = () => {
         return acc;
       }, {});
       setPremiumMetaByQuizId(premiumMetaMap);
+
+      const bookmarkMap = (bookmarkRes?.data || []).reduce((acc, item) => {
+        const quizId = item?.targetId || item?.contentId;
+        if (!quizId) return acc;
+        acc[String(quizId)] = item;
+        return acc;
+      }, {});
+      setQuizBookmarksByQuizId(bookmarkMap);
     } catch (err) {
       setError(err?.response?.data?.message || 'Failed to load quizzes.');
     } finally {
@@ -168,16 +179,19 @@ const StudentQuizzes = () => {
   }, [completedQuizIds, startedQuizIds]);
 
   const startedQuizSet = useMemo(() => new Set(startedQuizIds), [startedQuizIds]);
+  const bookmarkedQuizIds = useMemo(() => new Set(Object.keys(quizBookmarksByQuizId)), [quizBookmarksByQuizId]);
 
   const tabCounts = useMemo(() => {
     const completed = quizzes.filter((quiz) => completedQuizIds.has(quiz._id)).length;
     const started = quizzes.filter((quiz) => startedQuizSet.has(quiz._id) && !completedQuizIds.has(quiz._id)).length;
+    const bookmarked = quizzes.filter((quiz) => bookmarkedQuizIds.has(String(quiz._id))).length;
     return {
       all: quizzes.length,
       started,
-      completed
+      completed,
+      bookmarked
     };
-  }, [quizzes, startedQuizSet, completedQuizIds]);
+  }, [quizzes, startedQuizSet, completedQuizIds, bookmarkedQuizIds]);
 
   const subjectOptions = useMemo(() => {
     const subjects = new Set(
@@ -204,6 +218,9 @@ const StudentQuizzes = () => {
       }
       if (activeTab === 'completed') {
         return quizzes.filter((quiz) => completedQuizIds.has(quiz._id));
+      }
+      if (activeTab === 'bookmarked') {
+        return quizzes.filter((quiz) => bookmarkedQuizIds.has(String(quiz._id)));
       }
       return quizzes;
     })();
@@ -237,7 +254,7 @@ const StudentQuizzes = () => {
         || timeLimit.includes(q)
       );
     });
-  }, [activeTab, quizzes, startedQuizSet, completedQuizIds, subjectFilter, difficultyFilter, premiumFilter, searchQuery]);
+  }, [activeTab, quizzes, startedQuizSet, completedQuizIds, bookmarkedQuizIds, subjectFilter, difficultyFilter, premiumFilter, searchQuery]);
 
   const featuredQuiz = visibleQuizzes[0] || quizzes[0] || null;
   const isDarkMode = themeMode === 'dark';
@@ -327,6 +344,37 @@ const StudentQuizzes = () => {
       return;
     }
     handleStartQuiz(quiz._id);
+  };
+
+  const handleToggleQuizBookmark = async (quiz) => {
+    const key = String(quiz?._id);
+    const existing = quizBookmarksByQuizId[key];
+
+    try {
+      if (existing?._id) {
+        await deleteStudyItem(existing._id);
+        setQuizBookmarksByQuizId((prev) => {
+          const next = { ...prev };
+          delete next[key];
+          return next;
+        });
+        return;
+      }
+
+      const response = await createStudyItem({
+        type: 'bookmark',
+        targetType: 'quiz',
+        targetId: quiz._id,
+        title: quiz?.title || 'Quiz bookmark',
+        excerpt: quiz?.subject || ''
+      });
+
+      if (response?.data) {
+        setQuizBookmarksByQuizId((prev) => ({ ...prev, [key]: response.data }));
+      }
+    } catch {
+      setError('Unable to update quiz bookmark right now.');
+    }
   };
 
   return (
@@ -454,6 +502,13 @@ const StudentQuizzes = () => {
               >
                 Completed <span>{tabCounts.completed}</span>
               </button>
+              <button
+                type="button"
+                className={`quiz-tab ${activeTab === 'bookmarked' ? 'active' : ''}`}
+                onClick={() => setActiveTab('bookmarked')}
+              >
+                Bookmarked <span>{tabCounts.bookmarked}</span>
+              </button>
             </div>
 
             <div className="toolbar-filters" role="group" aria-label="Quiz filters">
@@ -526,6 +581,7 @@ const StudentQuizzes = () => {
               {searchQuery.trim() && `No quiz results for "${searchQuery}". `}
               {activeTab === 'started' && 'No started quizzes yet. Click Start Quiz to begin an exam.'}
               {activeTab === 'completed' && 'No completed quizzes yet. Submit a quiz to see it here.'}
+              {activeTab === 'bookmarked' && 'No bookmarked quizzes yet. Tap the star icon on a quiz card.'}
               {activeTab === 'all' && 'No quizzes available for selected filters.'}
             </div>
           ) : (
@@ -549,7 +605,17 @@ const StudentQuizzes = () => {
                     </div>
 
                     <div className="quiz-card-top">
-                      <h3>{quiz.title}</h3>
+                      <div className="quiz-card-title-row">
+                        <h3>{quiz.title}</h3>
+                        <button
+                          type="button"
+                          className={`quiz-bookmark-btn ${quizBookmarksByQuizId[String(quiz._id)] ? 'active' : ''}`}
+                          onClick={() => handleToggleQuizBookmark(quiz)}
+                          title={quizBookmarksByQuizId[String(quiz._id)] ? 'Remove quiz bookmark' : 'Bookmark this quiz'}
+                        >
+                          {quizBookmarksByQuizId[String(quiz._id)] ? '★' : '☆'}
+                        </button>
+                      </div>
                       <p className="quiz-subject">{quiz.subject}</p>
                     </div>
                     <p className="quiz-meta">

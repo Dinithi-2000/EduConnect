@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import DashboardLayout from '../../components/DashboardLayout';
 import { useAuth } from '../../context/AuthContext';
 import { getAdminSmartReminderOverview, getNotifications } from '../../services/notificationService';
+import { getAdminStudyItems } from '../../services/studyItemService';
 import './AdminSettings.css';
 
 const AdminSettings = () => {
@@ -44,15 +45,20 @@ const AdminSettings = () => {
     items: [],
   });
   const [liveNotifications, setLiveNotifications] = useState([]);
+  const [studyMaterialsOverview, setStudyMaterialsOverview] = useState({
+    summary: { total: 0, note: 0, bookmark: 0, highlight: 0 },
+    data: []
+  });
 
   useEffect(() => {
     let mounted = true;
 
     const loadLiveData = async () => {
       try {
-        const [overviewRes, notificationRes] = await Promise.all([
+        const [overviewRes, notificationRes, studyRes] = await Promise.all([
           getAdminSmartReminderOverview(),
           getNotifications(),
+          getAdminStudyItems({ limit: 40 }),
         ]);
 
         if (!mounted) return;
@@ -66,6 +72,10 @@ const AdminSettings = () => {
           items: [],
         });
         setLiveNotifications((notificationRes?.notifications || []).slice(0, 5));
+        setStudyMaterialsOverview({
+          summary: studyRes?.summary || { total: 0, note: 0, bookmark: 0, highlight: 0 },
+          data: studyRes?.data || []
+        });
       } catch {
         // Keep admin settings usable if realtime endpoints are temporarily unavailable.
       }
@@ -310,6 +320,46 @@ const AdminSettings = () => {
               ))}
             </div>
           </article>
+        </section>
+
+        <section className="panel-card institution-card">
+          <div className="panel-head">
+            <div>
+              <h2>Student Study Materials</h2>
+              <p className="panel-subtitle">Track usage of personal notes, bookmarks, and highlights across courses.</p>
+            </div>
+          </div>
+
+          <div className="monitor-metrics-grid">
+            <div className="monitor-metric">
+              <small>Total Items</small>
+              <strong>{studyMaterialsOverview.summary.total || 0}</strong>
+            </div>
+            <div className="monitor-metric">
+              <small>Notes</small>
+              <strong>{studyMaterialsOverview.summary.note || 0}</strong>
+            </div>
+            <div className="monitor-metric">
+              <small>Bookmarks</small>
+              <strong>{studyMaterialsOverview.summary.bookmark || 0}</strong>
+            </div>
+            <div className="monitor-metric">
+              <small>Highlights</small>
+              <strong>{studyMaterialsOverview.summary.highlight || 0}</strong>
+            </div>
+          </div>
+
+          <div className="smart-feed-list">
+            {studyMaterialsOverview.data.length === 0 ? <small>No study material activity yet.</small> : null}
+            {studyMaterialsOverview.data.slice(0, 8).map((item) => (
+              <div key={item._id} className="smart-feed-item">
+                <strong>{String(item.type || '').toUpperCase()} - {item.title || 'Study item'}</strong>
+                <span>
+                  {item.user?.name || item.user?.email || 'Student'} | {new Date(item.createdAt).toLocaleString()}
+                </span>
+              </div>
+            ))}
+          </div>
         </section>
 
         <section className="panel-card institution-card">

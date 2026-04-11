@@ -100,6 +100,7 @@ const DashboardLayout = ({ children, activeSection = 'Quizzes', theme = 'dark' }
         { icon: '📊', label: 'Dashboard', path: '/' },
         { icon: '📚', label: 'Course & Content Management', path: '/courses' },
         { icon: '🧑‍🎓', label: 'Student Management', path: '/student-management' },
+        { icon: '📌', label: 'Study Materials', path: '/admin/study-materials' },
         { icon: '📝', label: 'Quiz & Mock Exam Management', path: '/quizzes' },
         { icon: '💳', label: 'Premium & Payment Management', path: '/premium-management' },
         { icon: '🎥', label: 'Kuppi Session Booking Management', path: '/sessions' },

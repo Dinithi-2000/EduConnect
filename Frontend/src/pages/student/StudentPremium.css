@@ -358,6 +358,42 @@
   background: #ffffff;
 }
 
+.student-v2-shell.theme-dark .premium-section,
+.student-v2-shell.theme-dark .premium-v2-state,
+.student-v2-shell.theme-dark .benefit-card,
+.student-v2-shell.theme-dark .library-card,
+.student-v2-shell.theme-dark .mock-item,
+.student-v2-shell.theme-dark .plan-card,
+.student-v2-shell.theme-dark .plan.basic,
+.student-v2-shell.theme-dark .plan.premium {
+  background: #121c34;
+  border-color: #253a67;
+}
+
+.student-v2-shell.theme-dark .section-head h2,
+.student-v2-shell.theme-dark .library-card h3,
+.student-v2-shell.theme-dark .mock-copy h3,
+.student-v2-shell.theme-dark .plan-card h3,
+.student-v2-shell.theme-dark .plan-row strong {
+  color: #e6edff;
+}
+
+.student-v2-shell.theme-dark .section-head p,
+.student-v2-shell.theme-dark .benefit-card p,
+.student-v2-shell.theme-dark .library-meta small,
+.student-v2-shell.theme-dark .mock-copy p,
+.student-v2-shell.theme-dark .plan p,
+.student-v2-shell.theme-dark .premium-v2-state {
+  color: #a9b9df;
+}
+
+.student-v2-shell.theme-dark .view-link,
+.student-v2-shell.theme-dark .mock-item button {
+  background: #101a34;
+  border-color: #2a3d67;
+  color: #c8d8ff;
+}
+
 .plan.pro {
   background: linear-gradient(140deg, #1658d7 0%, #236fcf 52%, #13869a 100%);
   color: #ffffff;

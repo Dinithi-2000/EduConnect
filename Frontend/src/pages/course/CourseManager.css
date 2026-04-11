@@ -53,10 +53,13 @@
 .btn-refresh,
 .btn-search,
 .btn-create,
+.btn-create-toggle,
+.btn-advanced-toggle,
 .btn-edit,
 .btn-publish,
 .btn-add,
 .btn-upload,
+.btn-secondary,
 .btn-delete,
 .btn-continue,
 button.danger {
@@ -132,7 +135,7 @@ button.danger {
 }
 
 .course-main-grid.has-create-pane {
-  grid-template-columns: minmax(330px, 420px) minmax(0, 1fr);
+  grid-template-columns: 1fr;
   align-items: start;
 }
 
@@ -402,6 +405,25 @@ button.danger {
   border: 1px solid rgba(100, 126, 197, 0.4);
 }
 
+.btn-create-toggle {
+  border-radius: 10px;
+  padding: 8px 12px;
+  font-size: 0.7rem;
+  background: linear-gradient(135deg, #1d4ed8, #2563eb);
+}
+
+.btn-advanced-toggle {
+  grid-column: 1 / -1;
+  border-radius: 10px;
+  padding: 8px 12px;
+  font-size: 0.7rem;
+  background: #152f6f;
+  border: 1px solid rgba(115, 145, 223, 0.42);
+  color: #dce9ff;
+  font-weight: 700;
+  cursor: pointer;
+}
+
 .form-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -551,6 +573,11 @@ button.danger {
   background: linear-gradient(135deg, #1d4ed8, #2563eb);
 }
 
+.btn-secondary {
+  background: #1a3474;
+  border: 1px solid rgba(118, 148, 224, 0.4);
+}
+
 .btn-upload {
   background: linear-gradient(135deg, #0891b2, #0e7490);
 }
@@ -563,10 +590,13 @@ button.danger {
 .btn-refresh:hover,
 .btn-search:hover,
 .btn-create:hover,
+.btn-create-toggle:hover,
+.btn-advanced-toggle:hover,
 .btn-edit:hover,
 .btn-publish:hover,
 .btn-add:hover,
 .btn-upload:hover,
+.btn-secondary:hover,
 .btn-delete:hover,
 .btn-continue:hover,
 button.danger:hover,
@@ -578,10 +608,13 @@ button.danger:hover,
 .btn-refresh:focus-visible,
 .btn-search:focus-visible,
 .btn-create:focus-visible,
+.btn-create-toggle:focus-visible,
+.btn-advanced-toggle:focus-visible,
 .btn-edit:focus-visible,
 .btn-publish:focus-visible,
 .btn-add:focus-visible,
 .btn-upload:focus-visible,
+.btn-secondary:focus-visible,
 .btn-delete:focus-visible,
 .btn-continue:focus-visible,
 button.danger:focus-visible,
@@ -594,10 +627,13 @@ button.danger:focus-visible,
 .btn-refresh:disabled,
 .btn-search:disabled,
 .btn-create:disabled,
+.btn-create-toggle:disabled,
+.btn-advanced-toggle:disabled,
 .btn-edit:disabled,
 .btn-publish:disabled,
 .btn-add:disabled,
 .btn-upload:disabled,
+.btn-secondary:disabled,
 .btn-delete:disabled,
 .btn-continue:disabled,
 button.danger:disabled,
@@ -646,10 +682,17 @@ button.danger:disabled,
 .selected-meta,
 .detail-actions,
 .module-actions,
+.module-actions-advanced,
 .content-actions {
   display: flex;
   flex-wrap: wrap;
   gap: 7px;
+}
+
+.module-actions-advanced {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px dashed rgba(103, 133, 206, 0.34);
 }
 
 .meta-chip {

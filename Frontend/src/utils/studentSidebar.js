@@ -7,6 +7,7 @@ export const buildStudentSidebarItems = (activeLabel, onOpenChat) => {
     { icon: '🎥', label: 'Kuppi Sessions', route: '/sessions' },
     { icon: '💬', label: 'Community Board', route: '/student/community' },
     { icon: '📈', label: 'Progress Analytics', route: '/student/progress' },
+    { icon: '📌', label: 'Study Library', route: '/student/study-library' },
     { icon: '👑', label: 'Premium', route: '/student/premium' },
     { icon: '🤖', label: 'AI Chatbot', action: onOpenChat },
     { icon: '⚙', label: 'Settings', route: '/settings' }

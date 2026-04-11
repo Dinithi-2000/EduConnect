@@ -12,6 +12,8 @@ import {
 import '../StudentDashboard.css';
 import './StudentPremium.css';
 
+const THEME_STORAGE_KEY = 'student-theme-mode';
+
 const StudentPremium = () => {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
@@ -22,6 +24,12 @@ const StudentPremium = () => {
   const [error, setError] = useState('');
   const [checkoutLoadingId, setCheckoutLoadingId] = useState('');
   const [chatOpenSignal, setChatOpenSignal] = useState(0);
+  const [themeMode, setThemeMode] = useState(() => {
+    const storedTheme = localStorage.getItem(THEME_STORAGE_KEY);
+    return storedTheme === 'dark' ? 'dark' : 'light';
+  });
+
+  const isDarkMode = themeMode === 'dark';
 
   const loadPremiumData = async () => {
     try {
@@ -44,6 +52,14 @@ const StudentPremium = () => {
   useEffect(() => {
     loadPremiumData();
   }, []);
+
+  useEffect(() => {
+    localStorage.setItem(THEME_STORAGE_KEY, themeMode);
+  }, [themeMode]);
+
+  const handleToggleTheme = () => {
+    setThemeMode((prev) => (prev === 'dark' ? 'light' : 'dark'));
+  };
 
   const normalizedCatalog = useMemo(() => {
     return (catalog || []).map((item) => {
@@ -160,7 +176,7 @@ const StudentPremium = () => {
   };
 
   return (
-    <div className="student-v2-shell student-premium-shell">
+    <div className={`student-v2-shell student-premium-shell ${isDarkMode ? 'theme-dark' : ''}`}>
       <aside className="student-v2-sidebar">
         <div className="student-v2-brand">
           <span className="brand-mark">E</span>
@@ -205,7 +221,15 @@ const StudentPremium = () => {
           </div>
 
           <div className="student-v2-tools">
-            <button type="button" className="ghost-icon" aria-label="Search">⌕</button>
+            <button
+              type="button"
+              className="ghost-icon"
+              aria-label="Theme"
+              title={isDarkMode ? 'Switch to light mode' : 'Switch to dark mode'}
+              onClick={handleToggleTheme}
+            >
+              {isDarkMode ? '☀' : '◐'}
+            </button>
             <NotificationBell />
             <button type="button" className="premium-pill" onClick={() => navigate('/student/premium')}>
               <span aria-hidden="true">👑</span>

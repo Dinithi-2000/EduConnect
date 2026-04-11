@@ -35,6 +35,7 @@ app.use('/api/commerce', require('./routes/commerceRoutes'));
 app.use('/api/quizzes', require('./routes/quizRoutes'));
 app.use('/api/courses', require('./routes/courseRoutes'));
 app.use('/api/community', require('./routes/communityRoutes'));
+app.use('/api/study-items', require('./routes/studyItemRoutes'));
 
 // ── Kuppi Module Routes ───────────────────────────────
 app.use('/api/auth', require('./routes/authRoutes'));

@@ -235,6 +235,12 @@
   border-color: #c2d6ff;
   box-shadow: 0 14px 28px rgba(24, 62, 150, 0.15);
 }
+.quiz-card-title-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+}
 
 .quiz-card-cover {
   min-height: 145px;
@@ -246,12 +252,43 @@
   align-items: flex-start;
 }
 
+.quiz-bookmark-btn {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  border: 1px solid #d9e4ff;
+  background: #f5f8ff;
+  color: #3f5997;
+  cursor: pointer;
+  font-size: 18px;
+  line-height: 1;
+  padding: 0;
+}
+
+.quiz-bookmark-btn.active {
+  border-color: #f0cf66;
+  background: #fff5cc;
+  color: #9a6b00;
+}
+
 .quiz-pill-group {
   display: inline-flex;
   align-items: center;
   gap: 6px;
   flex-wrap: wrap;
   justify-content: flex-start;
+}
+
+.student-v2-shell.theme-dark .quiz-bookmark-btn {
+  border-color: #37548f;
+  background: #15284f;
+  color: #dbe8ff;
+}
+
+.student-v2-shell.theme-dark .quiz-bookmark-btn.active {
+  border-color: #c09f41;
+  background: #4b3a16;
+  color: #ffe6a6;
 }
 
 .difficulty-pill {

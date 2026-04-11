@@ -9,6 +9,8 @@ import { useAuth } from '../context/AuthContext';
 import './StudentDashboard.css';
 import './SessionList.css';
 
+const THEME_STORAGE_KEY = 'student-theme-mode';
+
 export default function SessionList() {
   const { user, logout } = useAuth();
   const location = useLocation();
@@ -26,6 +28,12 @@ export default function SessionList() {
   const [subject, setSubject] = useState('');
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [themeMode, setThemeMode] = useState(() => {
+    const storedTheme = localStorage.getItem(THEME_STORAGE_KEY);
+    return storedTheme === 'dark' ? 'dark' : 'light';
+  });
+
+  const isDarkMode = themeMode === 'dark';
 
   const fetchSessions = useCallback(async () => {
     setLoading(true);
@@ -56,6 +64,14 @@ export default function SessionList() {
   }, [user]);
 
   useEffect(() => { fetchSessions(); }, [fetchSessions]);
+
+  useEffect(() => {
+    localStorage.setItem(THEME_STORAGE_KEY, themeMode);
+  }, [themeMode]);
+
+  const handleToggleTheme = () => {
+    setThemeMode((prev) => (prev === 'dark' ? 'light' : 'dark'));
+  };
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);
@@ -255,7 +271,7 @@ export default function SessionList() {
 
   if (isStudent) {
     return (
-      <div className="student-v2-shell">
+      <div className={`student-v2-shell ${isDarkMode ? 'theme-dark' : ''}`}>
         <aside className="student-v2-sidebar">
           <div className="student-v2-brand">
             <span className="brand-mark">E</span>
@@ -300,7 +316,15 @@ export default function SessionList() {
             </div>
 
             <div className="student-v2-tools">
-              <button type="button" className="ghost-icon" aria-label="Notifications">🔔</button>
+              <button
+                type="button"
+                className="ghost-icon"
+                aria-label="Theme"
+                title={isDarkMode ? 'Switch to light mode' : 'Switch to dark mode'}
+                onClick={handleToggleTheme}
+              >
+                {isDarkMode ? '☀' : '◐'}
+              </button>
               <button type="button" className="premium-pill" onClick={() => navigate('/student/premium')}>
                 <span aria-hidden="true">👑</span>
                 Premium

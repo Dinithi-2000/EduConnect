@@ -338,6 +338,53 @@
 		flex-direction: column;
 	}
 
+	.student-v2-shell.theme-dark .sessions-page .session-hero-card {
+		background: #121c34;
+		border-color: #253a67;
+		box-shadow: none;
+	}
+
+
+.student-v2-shell.theme-dark .sessions-page {
+	color: #e6edff;
+}
+
+.student-v2-shell.theme-dark .session-hero-card,
+.student-v2-shell.theme-dark .sessions-search-bar,
+.student-v2-shell.theme-dark .sessions-page .session-card,
+.student-v2-shell.theme-dark .sessions-page .session-card-meta-item,
+.student-v2-shell.theme-dark .sessions-page .session-card-spots,
+.student-v2-shell.theme-dark .sessions-page .session-card-spots.is-low,
+.student-v2-shell.theme-dark .sessions-page .session-card-spots.is-full {
+	background: #121c34;
+	border-color: #253a67;
+	box-shadow: none;
+}
+
+.student-v2-shell.theme-dark .kuppi-page-title,
+.student-v2-shell.theme-dark .sessions-page .session-card-title,
+.student-v2-shell.theme-dark .sessions-hero-stat-num {
+	color: #e6edff;
+}
+
+.student-v2-shell.theme-dark .kuppi-page-subtitle,
+.student-v2-shell.theme-dark .sessions-hero-stat-label,
+.student-v2-shell.theme-dark .sessions-search-label,
+.student-v2-shell.theme-dark .sessions-results-count,
+.student-v2-shell.theme-dark .sessions-pagination-label,
+.student-v2-shell.theme-dark .sessions-loading-text,
+.student-v2-shell.theme-dark .sessions-page .session-card-description,
+.student-v2-shell.theme-dark .sessions-page .session-card-tutor-name,
+.student-v2-shell.theme-dark .sessions-page .session-card-meta-item,
+.student-v2-shell.theme-dark .sessions-page .session-card-spots {
+	color: #a9b9df;
+}
+
+.student-v2-shell.theme-dark .sessions-page .btn-secondary {
+	background: #101a34;
+	border-color: #2a3d67;
+	color: #c8d8ff;
+}
 	.sessions-hero-stats {
 		grid-template-columns: repeat(3, minmax(0, 1fr));
 		min-width: 0;

@@ -78,6 +78,9 @@ const CourseManager = () => {
   const [sortBy, setSortBy] = useState('newest');
   const [uploadingModuleId, setUploadingModuleId] = useState('');
   const [thumbnailDropActive, setThumbnailDropActive] = useState(false);
+  const [showCreateForm, setShowCreateForm] = useState(false);
+  const [showAdvancedCreate, setShowAdvancedCreate] = useState(false);
+  const [expandedModuleTools, setExpandedModuleTools] = useState({});
   const [completedContent, setCompletedContent] = useState({});
   const [courseForm, setCourseForm] = useState({
     title: '',
@@ -416,6 +419,8 @@ const CourseManager = () => {
       });
       setInitialLecturePdfFile(null);
       setInitialLectureVideoFile(null);
+      setShowCreateForm(false);
+      setShowAdvancedCreate(false);
       if (initialLecturePdfInputRef.current) {
         initialLecturePdfInputRef.current.value = '';
       }
@@ -792,6 +797,13 @@ const CourseManager = () => {
     }));
   };
 
+  const toggleModuleTools = (moduleId) => {
+    setExpandedModuleTools((prev) => ({
+      ...prev,
+      [moduleId]: !prev[moduleId]
+    }));
+  };
+
   const handleContinueLearning = () => {
     if (!selectedCourse) return;
 
@@ -988,146 +1000,170 @@ const CourseManager = () => {
                 <form className="course-create" onSubmit={handleCreateCourse}>
                   <div className="create-head">
                     <h3>Create Course</h3>
-                    <span className="create-plus">+</span>
+                    <button
+                      type="button"
+                      className="btn-create-toggle"
+                      onClick={() => setShowCreateForm((prev) => !prev)}
+                    >
+                      {showCreateForm ? 'Hide' : 'Open'}
+                    </button>
                   </div>
-                  <p className="create-helper">Start with core details, then attach optional launch content.</p>
-                  <div className="form-grid">
-                    <p className="form-section-title">Core Details</p>
-                    <input
-                      required
-                      value={courseForm.title}
-                      onChange={(e) => setCourseForm((prev) => ({ ...prev, title: e.target.value }))}
-                      placeholder="Course title"
-                      minLength={3}
-                    />
-                    <input
-                      required
-                      value={courseForm.subject}
-                      onChange={(e) => setCourseForm((prev) => ({ ...prev, subject: e.target.value }))}
-                      placeholder="Subject"
-                      minLength={2}
-                    />
-                    <select
-                      value={courseForm.level}
-                      onChange={(e) => setCourseForm((prev) => ({ ...prev, level: e.target.value }))}
-                    >
-                      {LEVELS.map((level) => <option key={level} value={level}>{level}</option>)}
-                    </select>
-                    <input
-                      value={courseForm.initialModuleTitle}
-                      onChange={(e) => setCourseForm((prev) => ({ ...prev, initialModuleTitle: e.target.value }))}
-                      placeholder="Initial module title (optional)"
-                    />
+                  <p className="create-helper">Start with just title, subject, and level. Add advanced options only when needed.</p>
 
-                    <p className="form-section-title">Initial Learning Content (Optional)</p>
-                    <input
-                      value={courseForm.initialLectureVideoUrl}
-                      onChange={(e) => setCourseForm((prev) => ({ ...prev, initialLectureVideoUrl: e.target.value }))}
-                      placeholder="Initial lecture video URL (optional)"
-                      type="url"
-                    />
-                    <input
-                      ref={initialLecturePdfInputRef}
-                      type="file"
-                      accept="application/pdf,.pdf"
-                      style={{ display: 'none' }}
-                      onChange={(event) => setInitialLecturePdfFile(event.target.files?.[0] || null)}
-                    />
-                    <input
-                      ref={initialLectureVideoInputRef}
-                      type="file"
-                      accept="video/*,.mp4,.mov,.m4v,.webm,.avi,.mkv"
-                      style={{ display: 'none' }}
-                      onChange={(event) => setInitialLectureVideoFile(event.target.files?.[0] || null)}
-                    />
-                    <div className="initial-lecture-upload-row">
-                      <span>
-                        {initialLecturePdfFile
-                          ? `Selected PDF: ${initialLecturePdfFile.name}`
-                          : 'Initial lecture PDF (optional)'}
-                      </span>
-                      <button
-                        type="button"
-                        className="btn-upload-thumb"
-                        onClick={() => initialLecturePdfInputRef.current?.click()}
-                      >
-                        Upload PDF
-                      </button>
-                    </div>
-                    <div className="initial-video-upload-row">
-                      <span>
-                        {initialLectureVideoFile
-                          ? `Selected video: ${initialLectureVideoFile.name}`
-                          : 'Initial lecture recording file (optional)'}
-                      </span>
-                      <button
-                        type="button"
-                        className="btn-upload-thumb"
-                        onClick={() => initialLectureVideoInputRef.current?.click()}
-                      >
-                        Upload Video
-                      </button>
-                    </div>
-
-                    <p className="form-section-title">Branding & Description</p>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      ref={thumbnailFileInputRef}
-                      style={{ display: 'none' }}
-                      onChange={handleThumbnailPickerChange}
-                    />
-                    <div
-                      className={`thumbnail-dropzone ${thumbnailDropActive ? 'active' : ''}`}
-                      onDragOver={handleThumbnailDragOver}
-                      onDragEnter={handleThumbnailDragOver}
-                      onDragLeave={handleThumbnailDragLeave}
-                      onDrop={handleThumbnailDrop}
-                    >
-                      <div className="thumbnail-dropzone-row">
+                  {showCreateForm ? (
+                    <>
+                      <div className="form-grid">
+                        <p className="form-section-title">Core Details</p>
                         <input
-                          value={courseForm.thumbnailUrl}
-                          onChange={(e) => updateThumbnailUrl(e.target.value)}
-                          placeholder="Thumbnail URL (optional)"
-                          type="url"
+                          required
+                          value={courseForm.title}
+                          onChange={(e) => setCourseForm((prev) => ({ ...prev, title: e.target.value }))}
+                          placeholder="Course title"
+                          minLength={3}
                         />
+                        <input
+                          required
+                          value={courseForm.subject}
+                          onChange={(e) => setCourseForm((prev) => ({ ...prev, subject: e.target.value }))}
+                          placeholder="Subject"
+                          minLength={2}
+                        />
+                        <select
+                          value={courseForm.level}
+                          onChange={(e) => setCourseForm((prev) => ({ ...prev, level: e.target.value }))}
+                        >
+                          {LEVELS.map((level) => <option key={level} value={level}>{level}</option>)}
+                        </select>
+
                         <button
                           type="button"
-                          className="btn-upload-thumb"
-                          onClick={() => thumbnailFileInputRef.current?.click()}
+                          className="btn-advanced-toggle"
+                          onClick={() => setShowAdvancedCreate((prev) => !prev)}
                         >
-                          Drag & Drop / Upload
+                          {showAdvancedCreate ? 'Hide Advanced Options' : 'Show Advanced Options'}
                         </button>
+
+                        {showAdvancedCreate ? (
+                          <>
+                            <input
+                              value={courseForm.initialModuleTitle}
+                              onChange={(e) => setCourseForm((prev) => ({ ...prev, initialModuleTitle: e.target.value }))}
+                              placeholder="Initial module title (optional)"
+                            />
+
+                            <p className="form-section-title">Initial Learning Content (Optional)</p>
+                            <input
+                              value={courseForm.initialLectureVideoUrl}
+                              onChange={(e) => setCourseForm((prev) => ({ ...prev, initialLectureVideoUrl: e.target.value }))}
+                              placeholder="Initial lecture video URL (optional)"
+                              type="url"
+                            />
+                            <input
+                              ref={initialLecturePdfInputRef}
+                              type="file"
+                              accept="application/pdf,.pdf"
+                              style={{ display: 'none' }}
+                              onChange={(event) => setInitialLecturePdfFile(event.target.files?.[0] || null)}
+                            />
+                            <input
+                              ref={initialLectureVideoInputRef}
+                              type="file"
+                              accept="video/*,.mp4,.mov,.m4v,.webm,.avi,.mkv"
+                              style={{ display: 'none' }}
+                              onChange={(event) => setInitialLectureVideoFile(event.target.files?.[0] || null)}
+                            />
+                            <div className="initial-lecture-upload-row">
+                              <span>
+                                {initialLecturePdfFile
+                                  ? `Selected PDF: ${initialLecturePdfFile.name}`
+                                  : 'Initial lecture PDF (optional)'}
+                              </span>
+                              <button
+                                type="button"
+                                className="btn-upload-thumb"
+                                onClick={() => initialLecturePdfInputRef.current?.click()}
+                              >
+                                Upload PDF
+                              </button>
+                            </div>
+                            <div className="initial-video-upload-row">
+                              <span>
+                                {initialLectureVideoFile
+                                  ? `Selected video: ${initialLectureVideoFile.name}`
+                                  : 'Initial lecture recording file (optional)'}
+                              </span>
+                              <button
+                                type="button"
+                                className="btn-upload-thumb"
+                                onClick={() => initialLectureVideoInputRef.current?.click()}
+                              >
+                                Upload Video
+                              </button>
+                            </div>
+
+                            <p className="form-section-title">Branding & Description</p>
+                            <input
+                              type="file"
+                              accept="image/*"
+                              ref={thumbnailFileInputRef}
+                              style={{ display: 'none' }}
+                              onChange={handleThumbnailPickerChange}
+                            />
+                            <div
+                              className={`thumbnail-dropzone ${thumbnailDropActive ? 'active' : ''}`}
+                              onDragOver={handleThumbnailDragOver}
+                              onDragEnter={handleThumbnailDragOver}
+                              onDragLeave={handleThumbnailDragLeave}
+                              onDrop={handleThumbnailDrop}
+                            >
+                              <div className="thumbnail-dropzone-row">
+                                <input
+                                  value={courseForm.thumbnailUrl}
+                                  onChange={(e) => updateThumbnailUrl(e.target.value)}
+                                  placeholder="Thumbnail URL (optional)"
+                                  type="url"
+                                />
+                                <button
+                                  type="button"
+                                  className="btn-upload-thumb"
+                                  onClick={() => thumbnailFileInputRef.current?.click()}
+                                >
+                                  Drag & Drop / Upload
+                                </button>
+                              </div>
+                              <p>Drop image file or image URL here.</p>
+                              {courseForm.thumbnailUrl ? (
+                                <div className="thumbnail-preview-wrap">
+                                  <img src={courseForm.thumbnailUrl} alt="Thumbnail preview" className="thumbnail-preview" />
+                                </div>
+                              ) : null}
+                            </div>
+                            <textarea
+                              value={courseForm.description}
+                              onChange={(e) => setCourseForm((prev) => ({ ...prev, description: e.target.value }))}
+                              placeholder="Course description"
+                              rows={3}
+                            />
+                            <textarea
+                              value={courseForm.faqText}
+                              onChange={(e) => setCourseForm((prev) => ({ ...prev, faqText: e.target.value }))}
+                              placeholder="Course FAQs (one per line: question | answer)"
+                              rows={4}
+                            />
+                            <label className="checkbox-row">
+                              <input
+                                type="checkbox"
+                                checked={courseForm.isPublished}
+                                onChange={(e) => setCourseForm((prev) => ({ ...prev, isPublished: e.target.checked }))}
+                              />
+                              Publish immediately
+                            </label>
+                          </>
+                        ) : null}
                       </div>
-                      <p>Drop image file or image URL here.</p>
-                      {courseForm.thumbnailUrl ? (
-                        <div className="thumbnail-preview-wrap">
-                          <img src={courseForm.thumbnailUrl} alt="Thumbnail preview" className="thumbnail-preview" />
-                        </div>
-                      ) : null}
-                    </div>
-                    <textarea
-                      value={courseForm.description}
-                      onChange={(e) => setCourseForm((prev) => ({ ...prev, description: e.target.value }))}
-                      placeholder="Course description"
-                      rows={3}
-                    />
-                    <textarea
-                      value={courseForm.faqText}
-                      onChange={(e) => setCourseForm((prev) => ({ ...prev, faqText: e.target.value }))}
-                      placeholder="Course FAQs (one per line: question | answer)"
-                      rows={4}
-                    />
-                    <label className="checkbox-row">
-                      <input
-                        type="checkbox"
-                        checked={courseForm.isPublished}
-                        onChange={(e) => setCourseForm((prev) => ({ ...prev, isPublished: e.target.checked }))}
-                      />
-                      Publish immediately
-                    </label>
-                  </div>
-                  <button className="btn-create" type="submit" disabled={saving}>{saving ? 'Saving...' : 'Create Course'}</button>
+                      <button className="btn-create" type="submit" disabled={saving}>{saving ? 'Saving...' : 'Create Course'}</button>
+                    </>
+                  ) : null}
                 </form>
               )}
 
@@ -1204,6 +1240,17 @@ const CourseManager = () => {
                                 <button className="btn-edit" onClick={() => handleEditModule(module)}>Edit</button>
                                 <button className="btn-add" onClick={() => handleAddContent(module)}>Add Content</button>
                                 <button
+                                  className="btn-secondary"
+                                  onClick={() => toggleModuleTools(module._id)}
+                                >
+                                  {expandedModuleTools[module._id] ? 'Less Tools' : 'More Tools'}
+                                </button>
+                              </div>
+                            )}
+
+                            {isManager && expandedModuleTools[module._id] ? (
+                              <div className="module-actions-advanced">
+                                <button
                                   className="btn-upload"
                                   onClick={() => openPdfPicker(module._id)}
                                   disabled={uploadingModuleId === module._id}
@@ -1222,7 +1269,7 @@ const CourseManager = () => {
                                 </button>
                                 <button className="danger btn-delete" onClick={() => handleDeleteModule(module)}>Delete</button>
                               </div>
-                            )}
+                            ) : null}
                           </div>
 
                           <input
