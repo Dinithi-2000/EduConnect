@@ -6,7 +6,8 @@ import {
   createAdminStudyMaterial,
   deleteAdminStudyMaterial,
   getAdminStudyItems,
-  getPublishedStudyMaterials
+  getPublishedStudyMaterials,
+  updateAdminStudyMaterial
 } from '../../services/studyItemService';
 import './AdminStudyMaterials.css';
 
@@ -141,12 +142,62 @@ const AdminStudyMaterials = () => {
   };
 
   const handleDeleteMaterial = async (id) => {
+    const shouldDelete = window.confirm('Warning: This material will be permanently deleted. Do you want to continue?');
+    if (!shouldDelete) return;
+
     try {
       await deleteAdminStudyMaterial(id);
       setAdminMaterials((prev) => prev.filter((item) => item._id !== id));
       setError('');
+      window.alert('Material deleted successfully.');
     } catch {
       setError('Failed to delete study material.');
+    }
+  };
+
+  const handleEditMaterial = async (material) => {
+    const titleInput = window.prompt('Edit title', material.title || '');
+    if (titleInput === null) return;
+
+    const title = String(titleInput || '').trim();
+    if (!title) {
+      window.alert('Title is required.');
+      return;
+    }
+
+    const typeInput = window.prompt('Edit type (past-paper, short-note, reference)', material.materialType || 'past-paper');
+    if (typeInput === null) return;
+    const materialType = String(typeInput || '').trim().toLowerCase();
+    if (!['past-paper', 'short-note', 'reference'].includes(materialType)) {
+      window.alert('Invalid material type. Use past-paper, short-note, or reference.');
+      return;
+    }
+
+    const descriptionInput = window.prompt('Edit description', material.description || '');
+    if (descriptionInput === null) return;
+    const description = String(descriptionInput || '').trim();
+
+    const linkInput = window.prompt('Edit link URL (optional)', material.linkUrl || '');
+    if (linkInput === null) return;
+    const linkUrl = String(linkInput || '').trim();
+
+    const shouldUpdate = window.confirm('Confirm update for this material?');
+    if (!shouldUpdate) return;
+
+    try {
+      const response = await updateAdminStudyMaterial(material._id, {
+        title,
+        materialType,
+        description,
+        linkUrl
+      });
+      if (response?.data) {
+        setAdminMaterials((prev) => prev.map((item) => (item._id === material._id ? response.data : item)));
+      }
+      setError('');
+      window.alert('Material updated successfully.');
+    } catch (err) {
+      setError(err?.response?.data?.message || 'Failed to update study material.');
     }
   };
 
@@ -242,7 +293,10 @@ const AdminStudyMaterials = () => {
                   {material.linkUrl ? <a href={material.linkUrl} target="_blank" rel="noreferrer">Open resource link</a> : null}
                   {material.fileUrl ? <a href={resolveMaterialUrl(material.fileUrl)} target="_blank" rel="noreferrer">Open uploaded file{material.fileName ? `: ${material.fileName}` : ''}</a> : null}
                 </div>
-                <button type="button" onClick={() => handleDeleteMaterial(material._id)}>Delete</button>
+                <div className="published-item-actions">
+                  <button type="button" className="edit-btn" onClick={() => handleEditMaterial(material)}>Edit</button>
+                  <button type="button" onClick={() => handleDeleteMaterial(material._id)}>Delete</button>
+                </div>
               </article>
             ))}
           </div>

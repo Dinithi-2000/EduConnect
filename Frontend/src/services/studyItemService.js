@@ -75,6 +75,14 @@ export const createAdminStudyMaterial = async (payload) => {
   };
 };
 
+export const updateAdminStudyMaterial = async (id, payload) => {
+  const response = await api.put(`/study-items/materials/admin/${id}`, payload);
+  return {
+    ...response.data,
+    data: response.data?.data ? normalizeMaterial(response.data.data) : response.data?.data
+  };
+};
+
 export const deleteAdminStudyMaterial = async (id) => {
   const response = await api.delete(`/study-items/materials/admin/${id}`);
   return response.data;

@@ -695,6 +695,13 @@ button.danger:disabled,
   border-top: 1px dashed rgba(103, 133, 206, 0.34);
 }
 
+.module-actions-advanced .btn-edit,
+.module-actions-advanced .btn-upload,
+.module-actions-advanced .btn-add,
+.module-actions-advanced .btn-delete {
+  font-size: 0.66rem;
+}
+
 .meta-chip {
   border-radius: 999px;
   border: 1px solid rgba(92, 118, 188, 0.44);
@@ -872,6 +879,59 @@ button.danger:disabled,
   text-decoration: underline;
 }
 
+.uploaded-items-table-wrap {
+  margin-top: 10px;
+  border: 1px solid rgba(86, 112, 181, 0.34);
+  border-radius: 12px;
+  overflow: auto;
+  background: #0d204a;
+}
+
+.uploaded-items-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 640px;
+}
+
+.uploaded-items-table th,
+.uploaded-items-table td {
+  border-bottom: 1px solid rgba(86, 112, 181, 0.28);
+  padding: 9px;
+  text-align: left;
+  vertical-align: top;
+  font-size: 0.68rem;
+}
+
+.uploaded-items-table th {
+  color: var(--text-soft);
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  font-size: 0.58rem;
+  background: rgba(11, 28, 71, 0.9);
+}
+
+.uploaded-items-table td {
+  color: #d7e6ff;
+}
+
+.content-source-cell {
+  color: var(--text-soft) !important;
+  max-width: 300px;
+  word-break: break-all;
+}
+
+.uploaded-items-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.uploaded-items-actions .btn-edit,
+.uploaded-items-actions .btn-delete {
+  padding: 6px 9px;
+  font-size: 0.62rem;
+}
+
 .content-item p {
   margin: 3px 0 0;
   color: var(--text-soft);
@@ -950,7 +1010,9 @@ button.danger:disabled,
 
   .detail-actions,
   .module-actions,
+  .module-actions-advanced,
   .content-actions,
+  .uploaded-items-actions,
   .course-create button,
   .btn-continue {
     width: 100%;

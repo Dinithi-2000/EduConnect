@@ -340,6 +340,45 @@ const deleteAdminStudyMaterial = async (req, res) => {
   }
 };
 
+const updateAdminStudyMaterial = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { title, materialType, description, linkUrl, isPublished } = req.body;
+
+    const item = await AdminStudyMaterial.findById(id);
+    if (!item) {
+      return res.status(404).json({ success: false, message: 'Study material not found' });
+    }
+
+    const nextTitle = String(title ?? item.title ?? '').trim();
+    if (!nextTitle) {
+      return res.status(400).json({ success: false, message: 'Title is required' });
+    }
+
+    if (materialType !== undefined) {
+      const safeMaterialType = sanitizeMaterialType(materialType);
+      if (!safeMaterialType) {
+        return res.status(400).json({ success: false, message: 'Valid materialType is required' });
+      }
+      item.materialType = safeMaterialType;
+    }
+
+    item.title = nextTitle;
+    item.description = String(description ?? item.description ?? '').trim();
+    item.linkUrl = String(linkUrl ?? item.linkUrl ?? '').trim();
+
+    if (typeof isPublished === 'boolean') {
+      item.isPublished = isPublished;
+    }
+
+    const saved = await item.save();
+    const populated = await AdminStudyMaterial.findById(saved._id).populate('createdBy', 'name email');
+    return res.json({ success: true, data: mapAdminMaterial(populated) });
+  } catch (error) {
+    return res.status(500).json({ success: false, message: 'Failed to update study material', error: error.message });
+  }
+};
+
 module.exports = {
   getStudyItems,
   createStudyItem,
@@ -347,5 +386,6 @@ module.exports = {
   getAdminStudyItems,
   getPublishedStudyMaterials,
   createAdminStudyMaterial,
+  updateAdminStudyMaterial,
   deleteAdminStudyMaterial
 };

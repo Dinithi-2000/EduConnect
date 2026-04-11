@@ -6,6 +6,7 @@ const {
   getAdminStudyItems,
   getPublishedStudyMaterials,
   createAdminStudyMaterial,
+  updateAdminStudyMaterial,
   deleteAdminStudyMaterial
 } = require('../controllers/studyItemController');
 const { protect, authorize } = require('../middleware/auth');
@@ -21,6 +22,7 @@ router.delete('/:id', deleteStudyItem);
 router.get('/admin/all', authorize('admin', 'teacher'), getAdminStudyItems);
 router.get('/materials', getPublishedStudyMaterials);
 router.post('/materials/admin', authorize('admin', 'teacher'), uploadSessionMaterial.single('materialFile'), createAdminStudyMaterial);
+router.put('/materials/admin/:id', authorize('admin', 'teacher'), updateAdminStudyMaterial);
 router.delete('/materials/admin/:id', authorize('admin', 'teacher'), deleteAdminStudyMaterial);
 
 module.exports = router;

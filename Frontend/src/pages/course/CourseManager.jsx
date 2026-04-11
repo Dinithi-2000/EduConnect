@@ -1237,19 +1237,19 @@ const CourseManager = () => {
                             </div>
                             {isManager && (
                               <div className="module-actions">
-                                <button className="btn-edit" onClick={() => handleEditModule(module)}>Edit</button>
                                 <button className="btn-add" onClick={() => handleAddContent(module)}>Add Content</button>
                                 <button
                                   className="btn-secondary"
                                   onClick={() => toggleModuleTools(module._id)}
                                 >
-                                  {expandedModuleTools[module._id] ? 'Less Tools' : 'More Tools'}
+                                  {expandedModuleTools[module._id] ? 'Hide Tools' : 'Manage'}
                                 </button>
                               </div>
                             )}
 
                             {isManager && expandedModuleTools[module._id] ? (
                               <div className="module-actions-advanced">
+                                <button className="btn-edit" onClick={() => handleEditModule(module)}>Edit Module</button>
                                 <button
                                   className="btn-upload"
                                   onClick={() => openPdfPicker(module._id)}
@@ -1287,49 +1287,90 @@ const CourseManager = () => {
                             onChange={(event) => handleImageUpload(module, event)}
                           />
 
-                          <div className="content-list">
-                            {(module.contents || []).map((content) => (
-                              <div key={content._id} className="content-item">
-                                <div className="content-main">
-                                  <label className="complete-toggle" title="Mark as completed">
-                                    <input
-                                      type="checkbox"
-                                      checked={!!completedContent[content._id]}
-                                      onChange={() => toggleContentComplete(content._id)}
-                                    />
-                                    <span className="check-indicator"></span>
-                                  </label>
-                                  <div>
-                                    {content.url ? (
-                                      <a
-                                        href={getContentUrl(content.url)}
-                                        target="_blank"
-                                        rel="noreferrer"
-                                        className="content-link"
-                                        title="Open content"
-                                      >
-                                        {content.order}. {content.title}
-                                      </a>
-                                    ) : (
-                                      <strong>{content.order}. {content.title}</strong>
-                                    )}
-                                    <p>{content.contentType}{content.url ? ` • ${content.url}` : ''}</p>
+                          {isManager ? (
+                            <div className="uploaded-items-table-wrap">
+                              {(module.contents || []).length > 0 ? (
+                                <table className="uploaded-items-table">
+                                  <thead>
+                                    <tr>
+                                      <th>Item</th>
+                                      <th>Type</th>
+                                      <th>Source</th>
+                                      <th>Actions</th>
+                                    </tr>
+                                  </thead>
+                                  <tbody>
+                                    {(module.contents || []).map((content) => (
+                                      <tr key={content._id}>
+                                        <td>
+                                          {content.url ? (
+                                            <a
+                                              href={getContentUrl(content.url)}
+                                              target="_blank"
+                                              rel="noreferrer"
+                                              className="content-link"
+                                              title="Open content"
+                                            >
+                                              {content.order}. {content.title}
+                                            </a>
+                                          ) : (
+                                            <strong>{content.order}. {content.title}</strong>
+                                          )}
+                                        </td>
+                                        <td>{content.contentType}</td>
+                                        <td className="content-source-cell">{content.url || 'Uploaded / internal file'}</td>
+                                        <td>
+                                          <div className="uploaded-items-actions">
+                                            <button className="btn-edit" onClick={() => handleEditContent(module, content)}>Edit</button>
+                                            <button className="danger btn-delete" onClick={() => handleDeleteContent(module, content)}>Delete</button>
+                                          </div>
+                                        </td>
+                                      </tr>
+                                    ))}
+                                  </tbody>
+                                </table>
+                              ) : (
+                                <div className="empty-inline">No uploaded items yet.</div>
+                              )}
+                            </div>
+                          ) : (
+                            <div className="content-list">
+                              {(module.contents || []).map((content) => (
+                                <div key={content._id} className="content-item">
+                                  <div className="content-main">
+                                    <label className="complete-toggle" title="Mark as completed">
+                                      <input
+                                        type="checkbox"
+                                        checked={!!completedContent[content._id]}
+                                        onChange={() => toggleContentComplete(content._id)}
+                                      />
+                                      <span className="check-indicator"></span>
+                                    </label>
+                                    <div>
+                                      {content.url ? (
+                                        <a
+                                          href={getContentUrl(content.url)}
+                                          target="_blank"
+                                          rel="noreferrer"
+                                          className="content-link"
+                                          title="Open content"
+                                        >
+                                          {content.order}. {content.title}
+                                        </a>
+                                      ) : (
+                                        <strong>{content.order}. {content.title}</strong>
+                                      )}
+                                      <p>{content.contentType}{content.url ? ` • ${content.url}` : ''}</p>
+                                    </div>
                                   </div>
-                                </div>
-                                {isManager ? (
-                                  <div className="content-actions">
-                                    <button className="btn-edit" onClick={() => handleEditContent(module, content)}>Edit</button>
-                                    <button className="danger btn-delete" onClick={() => handleDeleteContent(module, content)}>Delete</button>
-                                  </div>
-                                ) : (
                                   <span className="preview-tag">{content.isPreview ? 'Preview' : 'Locked'}</span>
-                                )}
-                              </div>
-                            ))}
-                            {(!module.contents || module.contents.length === 0) ? (
-                              <div className="empty-inline">No content items yet.</div>
-                            ) : null}
-                          </div>
+                                </div>
+                              ))}
+                              {(!module.contents || module.contents.length === 0) ? (
+                                <div className="empty-inline">No content items yet.</div>
+                              ) : null}
+                            </div>
+                          )}
                         </div>
                       ))}
                       {(selectedCourse.modules || []).length === 0 ? (

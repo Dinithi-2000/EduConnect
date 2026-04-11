@@ -150,6 +150,18 @@
   cursor: pointer;
 }
 
+.published-item-actions {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.published-item .edit-btn {
+  border: 1px solid rgba(124, 169, 255, 0.45);
+  background: rgba(26, 73, 127, 0.4);
+  color: #d5e7ff;
+}
+
 .admin-study-head {
   padding: 16px;
   display: flex;
