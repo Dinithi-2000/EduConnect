@@ -22,8 +22,10 @@ const StudentPremium = () => {
   const [gateway, setGateway] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [notice, setNotice] = useState(null);
   const [checkoutLoadingId, setCheckoutLoadingId] = useState('');
   const [chatOpenSignal, setChatOpenSignal] = useState(0);
+  const [searchQuery, setSearchQuery] = useState('');
   const [themeMode, setThemeMode] = useState(() => {
     const storedTheme = localStorage.getItem(THEME_STORAGE_KEY);
     return storedTheme === 'dark' ? 'dark' : 'light';
@@ -81,6 +83,34 @@ const StudentPremium = () => {
     return normalizedCatalog.filter((item) => !item.hasAccess);
   }, [normalizedCatalog]);
 
+  const normalizeText = (value) => String(value || '').trim().toLowerCase();
+
+  const filteredUnlockedPremiumQuizzes = useMemo(() => {
+    const query = normalizeText(searchQuery);
+    if (!query) return unlockedPremiumQuizzes;
+
+    return unlockedPremiumQuizzes.filter((item) => {
+      const searchable = [item.title, item.id, item.type]
+        .map((part) => normalizeText(part))
+        .join(' ');
+      return searchable.includes(query);
+    });
+  }, [unlockedPremiumQuizzes, searchQuery]);
+
+  const filteredLockedPremiumItems = useMemo(() => {
+    const query = normalizeText(searchQuery);
+    if (!query) return lockedPremiumItems;
+
+    return lockedPremiumItems.filter((item) => {
+      const searchable = [item.title, item.id, item.type]
+        .map((part) => normalizeText(part))
+        .join(' ');
+      return searchable.includes(query);
+    });
+  }, [lockedPremiumItems, searchQuery]);
+
+  const gatewayStatusText = gateway?.stripe?.configured ? 'Payments Ready' : 'Payments Unavailable';
+
   const displayName = user?.name || 'Student';
   const initials = displayName
     .split(' ')
@@ -132,6 +162,7 @@ const StudentPremium = () => {
   const handleCheckout = async (item) => {
     if (item.hasAccess) return;
     try {
+      setNotice(null);
       setCheckoutLoadingId(item.id);
       const session = await createStripeCheckoutSession({
         premiumItemId: item.id,
@@ -146,7 +177,10 @@ const StudentPremium = () => {
 
       window.location.href = checkoutUrl;
     } catch (err) {
-      alert(err?.response?.data?.message || 'Unable to start checkout right now.');
+      setNotice({
+        type: 'error',
+        message: err?.response?.data?.message || 'Unable to start checkout right now. Please try again.'
+      });
       setCheckoutLoadingId('');
     }
   };
@@ -215,7 +249,9 @@ const StudentPremium = () => {
             <span aria-hidden="true">⌕</span>
             <input
               type="text"
-              placeholder="Search resources..."
+              value={searchQuery}
+              onChange={(event) => setSearchQuery(event.target.value)}
+              placeholder="Search unlocked and available premium items..."
               aria-label="Search resources"
             />
           </div>
@@ -251,6 +287,20 @@ const StudentPremium = () => {
               <span className="elite-badge">EduConnect Elite</span>
               <h1>Unlock Your Full Academic Potential</h1>
               <p>Your premium subscription is active. Access your exclusive benefits and accelerated learning tools below.</p>
+              <div className="premium-hero-stats" aria-label="Premium overview">
+                <article className="premium-stat-chip">
+                  <small>Unlocked</small>
+                  <strong>{unlockedPremiumQuizzes.length}</strong>
+                </article>
+                <article className="premium-stat-chip">
+                  <small>Available</small>
+                  <strong>{lockedPremiumItems.length}</strong>
+                </article>
+                <article className="premium-stat-chip status">
+                  <small>Gateway</small>
+                  <strong>{gatewayStatusText}</strong>
+                </article>
+              </div>
               <div className="hero-actions">
                 <button type="button" onClick={() => document.getElementById('premium-benefits')?.scrollIntoView({ behavior: 'smooth' })}>Explore Benefits</button>
                 <button type="button" className="ghost" onClick={() => document.getElementById('purchased-quizzes')?.scrollIntoView({ behavior: 'smooth' })}>My Rewards</button>
@@ -262,6 +312,12 @@ const StudentPremium = () => {
               <span>✦</span>
             </div>
           </section>
+
+          {notice && (
+            <div className={`premium-inline-notice ${notice.type === 'error' ? 'error' : 'info'}`} role="status" aria-live="polite">
+              {notice.message}
+            </div>
+          )}
 
           <section id="premium-benefits" className="premium-section">
             <div className="section-head">
@@ -292,11 +348,15 @@ const StudentPremium = () => {
               <div className="premium-v2-state">Loading purchased quizzes...</div>
             ) : error ? (
               <div className="premium-v2-state error">{error}</div>
-            ) : unlockedPremiumQuizzes.length === 0 ? (
-              <div className="premium-v2-state">No unlocked premium quizzes yet. Unlock one below to get started.</div>
+            ) : filteredUnlockedPremiumQuizzes.length === 0 ? (
+              <div className="premium-v2-state">
+                {searchQuery.trim()
+                  ? 'No unlocked premium quizzes match your search.'
+                  : 'No unlocked premium quizzes yet. Unlock one below to get started.'}
+              </div>
             ) : (
               <div className="quiz-library-grid">
-                {unlockedPremiumQuizzes.map((item, index) => (
+                {filteredUnlockedPremiumQuizzes.map((item, index) => (
                   <article key={item.id} className="library-card">
                     <div className={`library-thumb thumb-${(index % 4) + 1}`} />
                     <div className="library-meta">
@@ -368,11 +428,15 @@ const StudentPremium = () => {
               <div className="premium-v2-state">Loading premium catalog...</div>
             ) : error ? (
               <div className="premium-v2-state error">{error}</div>
-            ) : lockedPremiumItems.length === 0 ? (
-              <div className="premium-v2-state">All premium items are already unlocked.</div>
+            ) : filteredLockedPremiumItems.length === 0 ? (
+              <div className="premium-v2-state">
+                {searchQuery.trim()
+                  ? 'No available premium items match your search.'
+                  : 'All premium items are already unlocked.'}
+              </div>
             ) : (
               <div className="unlock-grid">
-                {lockedPremiumItems.map((item) => (
+                {filteredLockedPremiumItems.map((item) => (
                   <article key={item.id} className="unlock-card">
                     <div className="unlock-top">
                       <span className={`unlock-type ${item.type}`}>{item.type}</span>

@@ -155,6 +155,7 @@ const AIChatWidget = ({ darkMode = false, studentId = 'guest-student', context =
           <div className="chat-messages" ref={messagesRef}>
             {messages.map((message) => (
               <div key={message.id} className={`chat-message ${message.role}`}>
+                {message.role === 'assistant' && <span className="chat-avatar assistant" aria-hidden="true">🤖</span>}
                 <div className="chat-bubble">{message.content}</div>
                 <span className="chat-time">{timeLabel(message.time)}</span>
               </div>
@@ -162,6 +163,7 @@ const AIChatWidget = ({ darkMode = false, studentId = 'guest-student', context =
 
             {isSending && (
               <div className="chat-message assistant">
+                <span className="chat-avatar assistant" aria-hidden="true">🤖</span>
                 <div className="chat-bubble typing-bubble">
                   <span></span><span></span><span></span>
                 </div>

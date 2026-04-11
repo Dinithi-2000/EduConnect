@@ -43,7 +43,7 @@
 
 .premium-hero-banner h1 {
   margin: 12px 0 0;
-  font-size: clamp(2.2rem, 5vw, 4rem);
+  font-size: clamp(1.7rem, 3.8vw, 2.8rem);
   line-height: 1.03;
   letter-spacing: -0.03em;
   color: #f7fbff;
@@ -52,7 +52,7 @@
 .premium-hero-banner p {
   margin: 14px 0 0;
   color: #d7ecff;
-  font-size: clamp(1rem, 1.8vw, 1.4rem);
+  font-size: clamp(0.95rem, 1.4vw, 1.05rem);
   line-height: 1.45;
 }
 
@@ -92,12 +92,12 @@
   justify-items: end;
   gap: 10px;
   opacity: 0.44;
-  font-size: 52px;
+  font-size: 42px;
   line-height: 0.9;
 }
 
 .hero-stars span:nth-child(2) {
-  font-size: 30px;
+  font-size: 24px;
   margin-right: 20px;
 }
 
@@ -109,14 +109,14 @@
 .section-head h2 {
   margin: 0;
   color: #122849;
-  font-size: clamp(1.85rem, 3.4vw, 2.55rem);
+  font-size: clamp(1.35rem, 2.4vw, 1.95rem);
   letter-spacing: -0.025em;
 }
 
 .section-head p {
   margin: 5px 0 0;
   color: #60759f;
-  font-size: 15px;
+  font-size: 14px;
 }
 
 .section-head.row {
@@ -311,7 +311,7 @@
 .mock-copy h3 {
   margin: 0;
   color: #1a2d52;
-  font-size: 18px;
+  font-size: 16px;
 }
 
 .mock-copy p {
@@ -343,7 +343,7 @@
 
 .plan-card h3 {
   margin: 0;
-  font-size: 28px;
+  font-size: 22px;
   color: #1b3059;
   letter-spacing: -0.02em;
 }
@@ -407,7 +407,7 @@
 }
 
 .plan-row strong {
-  font-size: 17px;
+  font-size: 15px;
 }
 
 .plan-row span {
@@ -439,7 +439,7 @@
 
 .plan .price {
   margin-top: 10px;
-  font-size: 30px;
+  font-size: 24px;
   color: #ffffff;
   font-weight: 800;
 }
@@ -605,5 +605,225 @@
   .mock-item button {
     grid-column: 1 / -1;
     width: 100%;
+  }
+}
+
+/* Premium page redesign */
+.student-premium-shell {
+  --premium-font: 'Manrope', 'Segoe UI', sans-serif;
+  --premium-surface: #ffffff;
+  --premium-surface-soft: #f3f8ff;
+  --premium-border: #d6e5fb;
+  --premium-title: #102748;
+  --premium-text: #4f6690;
+  --premium-accent: #1463da;
+  --premium-shadow: 0 14px 28px rgba(24, 66, 148, 0.12);
+}
+
+.student-premium-main,
+.student-premium-page,
+.student-premium-page button,
+.student-premium-page input {
+  font-family: var(--premium-font);
+}
+
+.student-premium-page {
+  gap: 18px;
+}
+
+.premium-hero-banner {
+  position: relative;
+  overflow: hidden;
+  border-radius: 28px;
+  padding: 30px;
+  border: 1px solid rgba(255, 255, 255, 0.26);
+  box-shadow: 0 20px 40px rgba(18, 70, 154, 0.3);
+  background:
+    radial-gradient(820px 380px at 110% -25%, rgba(255, 255, 255, 0.34), transparent 48%),
+    radial-gradient(650px 300px at -10% 0%, rgba(34, 211, 238, 0.26), transparent 45%),
+    linear-gradient(130deg, #0c4eb5 0%, #1577d6 48%, #0a9ab3 100%);
+}
+
+.premium-hero-stats {
+  margin-top: 16px;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  max-width: 620px;
+}
+
+.premium-stat-chip {
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.14);
+  padding: 10px 12px;
+  display: grid;
+  gap: 2px;
+}
+
+.premium-stat-chip small {
+  color: rgba(233, 246, 255, 0.9);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.premium-stat-chip strong {
+  color: #ffffff;
+  font-size: 18px;
+  letter-spacing: -0.01em;
+}
+
+.premium-stat-chip.status strong {
+  font-size: 14px;
+}
+
+.premium-inline-notice {
+  border-radius: 14px;
+  padding: 12px 14px;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.premium-inline-notice.info {
+  border: 1px solid #b7d4ff;
+  background: #eaf4ff;
+  color: #15479e;
+}
+
+.premium-inline-notice.error {
+  border: 1px solid #fecaca;
+  background: #fff1f1;
+  color: #9b1c1c;
+}
+
+.premium-section {
+  background: var(--premium-surface);
+  border: 1px solid var(--premium-border);
+  border-radius: 22px;
+  padding: 18px;
+  box-shadow: var(--premium-shadow);
+}
+
+.section-head h2 {
+  color: var(--premium-title);
+}
+
+.section-head p {
+  color: var(--premium-text);
+}
+
+.view-link {
+  border-color: #bdd5fb;
+  background: #f2f7ff;
+}
+
+.benefit-card,
+.library-card,
+.unlock-card {
+  border-radius: 18px;
+  border: 1px solid #d7e4fb;
+  box-shadow: 0 10px 22px rgba(17, 61, 140, 0.08);
+}
+
+.benefit-card {
+  background: linear-gradient(180deg, #fbfdff 0%, #f0f6ff 100%);
+}
+
+.benefit-icon {
+  background: linear-gradient(155deg, #dcebff 0%, #c4dcff 100%);
+  color: #1a53b6;
+}
+
+.library-card {
+  padding: 12px;
+}
+
+.library-card button,
+.unlock-card button,
+.plan-card > button {
+  height: 36px;
+  border-radius: 12px;
+}
+
+.premium-bottom-grid .premium-section,
+.plan-card {
+  box-shadow: var(--premium-shadow);
+}
+
+.mock-item {
+  border-color: #d4e3fb;
+  background: linear-gradient(180deg, #f8fbff 0%, #eff5ff 100%);
+}
+
+.plan-card {
+  border: 1px solid #d0e2fb;
+  border-radius: 22px;
+  background: linear-gradient(180deg, #f2f8ff 0%, #e7f1ff 100%);
+  padding: 16px;
+}
+
+.plan.pro {
+  background: linear-gradient(140deg, #0f58cb 0%, #1470cb 52%, #0d8ba3 100%);
+}
+
+.unlock-card p {
+  color: #1a4fae;
+}
+
+.student-v2-shell.theme-dark .premium-section,
+.student-v2-shell.theme-dark .premium-v2-state,
+.student-v2-shell.theme-dark .benefit-card,
+.student-v2-shell.theme-dark .library-card,
+.student-v2-shell.theme-dark .mock-item,
+.student-v2-shell.theme-dark .plan-card,
+.student-v2-shell.theme-dark .unlock-card {
+  background: #121c34;
+  border-color: #253a67;
+  box-shadow: 0 12px 24px rgba(7, 14, 28, 0.42);
+}
+
+.student-v2-shell.theme-dark .view-link {
+  background: #101a34;
+}
+
+.student-v2-shell.theme-dark .premium-inline-notice.info {
+  border-color: #365b8f;
+  background: #152949;
+  color: #d7e7ff;
+}
+
+.student-v2-shell.theme-dark .premium-inline-notice.error {
+  border-color: #7f1d1d;
+  background: #311111;
+  color: #fecaca;
+}
+
+@media (max-width: 1100px) {
+  .premium-hero-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 760px) {
+  .premium-hero-banner {
+    padding: 18px;
+    border-radius: 20px;
+  }
+
+  .premium-hero-stats {
+    grid-template-columns: 1fr;
+  }
+
+  .premium-section {
+    padding: 14px;
+    border-radius: 18px;
+  }
+
+  .library-card,
+  .benefit-card,
+  .unlock-card {
+    border-radius: 15px;
   }
 }

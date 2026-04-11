@@ -61,6 +61,12 @@ const isValidResourceUrl = (value) => {
   return isValidHttpUrl(input);
 };
 
+const toCourseList = (payload) => {
+  if (Array.isArray(payload)) return payload;
+  if (Array.isArray(payload?.data)) return payload.data;
+  return [];
+};
+
 const CourseManager = () => {
   const { user } = useAuth();
   const currentRole = String(user?.role || '').toLowerCase();
@@ -341,12 +347,12 @@ const CourseManager = () => {
     event.target.value = '';
   };
 
-  const loadCourses = async () => {
+  const loadCourses = async (options = {}) => {
     try {
       setLoading(true);
       setError('');
-      const res = await getCourses(search ? { search } : {});
-      const items = res.data || [];
+      const result = await getCourses(search ? { search } : {}, options);
+      const items = toCourseList(result);
       setCourses(items);
       if (items.length && !selectedCourseId) {
         setSelectedCourseId(items[0]._id);
@@ -1005,24 +1011,6 @@ const CourseManager = () => {
     setLevelFilter('All');
     setPublishFilter('all');
     setSortBy('newest');
-
-    try {
-      setLoading(true);
-      setError('');
-      const res = await getCourses();
-      const items = res.data || [];
-      setCourses(items);
-      if (items.length && !selectedCourseId) {
-        setSelectedCourseId(items[0]._id);
-      }
-      if (selectedCourseId && !items.find((item) => item._id === selectedCourseId)) {
-        setSelectedCourseId(items[0]?._id || '');
-      }
-    } catch (err) {
-      setError(err?.response?.data?.message || 'Failed to reset filters.');
-    } finally {
-      setLoading(false);
-    }
   };
 
   return (
@@ -1033,7 +1021,7 @@ const CourseManager = () => {
             <h1>{pageTitle}</h1>
             <p className="course-head-sub">{isManager ? 'Manage courses, modules & content.' : 'Browse published courses.'}</p>
           </div>
-          <button className="btn-refresh" onClick={loadCourses} title="Refresh courses">↻ Refresh</button>
+          <button className="btn-refresh" onClick={() => loadCourses({ forceRefresh: true })} title="Refresh courses">↻ Refresh</button>
         </div>
 
         <div className="course-insights">

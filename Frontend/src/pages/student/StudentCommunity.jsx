@@ -62,7 +62,7 @@ const resolveAvatarUrl = (avatar) => {
 
 const StudentCommunity = () => {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   const userId = user?._id || user?.id;
 
   const [posts, setPosts] = useState([]);
@@ -238,6 +238,11 @@ const StudentCommunity = () => {
 
   const handleToggleTheme = () => {
     setThemeMode((prev) => (prev === 'dark' ? 'light' : 'dark'));
+  };
+
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
   };
 
   const handleUpvote = async (postId) => {
@@ -473,6 +478,14 @@ const StudentCommunity = () => {
               <span>{item.label}</span>
             </button>
           ))}
+          <button
+            type="button"
+            className="student-v2-nav-item community-logout-btn"
+            onClick={handleLogout}
+          >
+            <span className="icon" aria-hidden="true">⇦</span>
+            <span>Logout</span>
+          </button>
         </nav>
 
         <div className="student-v2-upgrade">

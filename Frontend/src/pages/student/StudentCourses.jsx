@@ -264,6 +264,12 @@ const StudentCourses = () => {
 
     const loadStudyItems = async () => {
       if (!selectedCourseId) return;
+      const needsStudyItems = viewMode === 'workspace' || overviewFilterTab === 'bookmarked';
+      if (!needsStudyItems) {
+        setStudyItems([]);
+        setStudyLoading(false);
+        return;
+      }
       try {
         setStudyLoading(true);
         const response = await getStudyItems({ courseId: selectedCourseId });
@@ -281,7 +287,7 @@ const StudentCourses = () => {
     return () => {
       mounted = false;
     };
-  }, [selectedCourseId]);
+  }, [selectedCourseId, viewMode, overviewFilterTab]);
 
   useEffect(() => {
     const loadCourses = async () => {

@@ -1,11 +1,23 @@
 import axios from 'axios';
 
 export const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
-const LOCAL_FALLBACK_API_URL = 'http://localhost:5000/api';
+const LOCAL_API_CANDIDATES = ['http://localhost:5000/api', 'http://localhost:5001/api'];
+
+const getLocalFallbackBaseUrl = (currentBaseUrl = '', tried = []) => {
+  const normalizedCurrent = String(currentBaseUrl || '').toLowerCase();
+  const triedSet = new Set((Array.isArray(tried) ? tried : []).map((value) => String(value).toLowerCase()));
+
+  return LOCAL_API_CANDIDATES.find((candidate) => {
+    const normalizedCandidate = String(candidate).toLowerCase();
+    if (normalizedCurrent === normalizedCandidate) return false;
+    return !triedSet.has(normalizedCandidate);
+  }) || null;
+};
 
 // Create axios instance with default config
 const api = axios.create({
   baseURL: API_URL,
+  timeout: 8000,
   headers: {
     'Content-Type': 'application/json',
   },
@@ -32,15 +44,17 @@ api.interceptors.response.use(
     const requestConfig = error.config || {};
     const isNetworkRefused = !error.response && (error.code === 'ERR_NETWORK' || String(error.message || '').includes('Network Error'));
     const currentBaseUrl = requestConfig.baseURL || api.defaults.baseURL || '';
-    const canTryLocalFallback =
-      isNetworkRefused
-      && !requestConfig.__triedLocalFallback
-      && String(currentBaseUrl).includes('localhost:5000');
+    const localFallbackBaseUrl = getLocalFallbackBaseUrl(currentBaseUrl, requestConfig.__triedLocalFallbackBaseUrls);
+    const canTryLocalFallback = isNetworkRefused && Boolean(localFallbackBaseUrl);
 
     if (canTryLocalFallback) {
-      requestConfig.__triedLocalFallback = true;
-      requestConfig.baseURL = LOCAL_FALLBACK_API_URL;
-      api.defaults.baseURL = LOCAL_FALLBACK_API_URL;
+      const triedBaseUrls = Array.isArray(requestConfig.__triedLocalFallbackBaseUrls)
+        ? requestConfig.__triedLocalFallbackBaseUrls
+        : [];
+
+      requestConfig.__triedLocalFallbackBaseUrls = [...triedBaseUrls, localFallbackBaseUrl];
+      requestConfig.baseURL = localFallbackBaseUrl;
+      api.defaults.baseURL = localFallbackBaseUrl;
       return api(requestConfig);
     }
 
