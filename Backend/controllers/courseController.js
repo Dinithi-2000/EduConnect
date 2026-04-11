@@ -54,9 +54,14 @@ const getCourses = async (req, res) => {
     if (subject) filter.subject = { $regex: subject, $options: 'i' };
     if (level) filter.level = level;
 
-    const courses = await Course.find(filter)
-      .populate('createdBy', 'name email role')
-      .sort({ updatedAt: -1 });
+    const query = Course.find(filter).sort({ updatedAt: -1 }).lean();
+
+    // Instructor info is used on student pages, but manager pages do not require populate.
+    if (!manager) {
+      query.populate('createdBy', 'name email role');
+    }
+
+    const courses = await query.exec();
 
     const data = manager ? courses : courses.map((course) => sanitizeForStudent(course));
     return res.json({ success: true, count: data.length, data });

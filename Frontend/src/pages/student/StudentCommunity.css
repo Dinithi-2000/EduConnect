@@ -864,29 +864,6 @@
   border-color: #2f3f78;
 }
 
-.community-logout-btn {
-  margin-top: 8px;
-  color: #fca5a5;
-  border: 1px solid rgba(248, 113, 113, 0.24);
-  background: rgba(248, 113, 113, 0.08);
-}
-
-.community-logout-btn:hover {
-  background: rgba(248, 113, 113, 0.18);
-  color: #fee2e2;
-}
-
-.student-v2-shell.theme-dark .community-logout-btn {
-  border-color: rgba(252, 165, 165, 0.24);
-  background: rgba(127, 29, 29, 0.26);
-  color: #fecaca;
-}
-
-.student-v2-shell.theme-dark .community-logout-btn:hover {
-  background: rgba(127, 29, 29, 0.42);
-  color: #ffe4e6;
-}
-
 .student-v2-shell.theme-dark .composer-avatar {
   background: #22396b;
   color: #d3e3ff;

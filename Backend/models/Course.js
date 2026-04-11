@@ -148,4 +148,10 @@ courseSchema.pre('save', function saveHook(next) {
   next();
 });
 
+// Indexes optimized for course list loading in admin and student pages.
+courseSchema.index({ updatedAt: -1 });
+courseSchema.index({ isPublished: 1, updatedAt: -1 });
+courseSchema.index({ level: 1, updatedAt: -1 });
+courseSchema.index({ subject: 1, updatedAt: -1 });
+
 module.exports = mongoose.model('Course', courseSchema);

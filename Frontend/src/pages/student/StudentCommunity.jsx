@@ -478,14 +478,6 @@ const StudentCommunity = () => {
               <span>{item.label}</span>
             </button>
           ))}
-          <button
-            type="button"
-            className="student-v2-nav-item community-logout-btn"
-            onClick={handleLogout}
-          >
-            <span className="icon" aria-hidden="true">⇦</span>
-            <span>Logout</span>
-          </button>
         </nav>
 
         <div className="student-v2-upgrade">
@@ -493,6 +485,8 @@ const StudentCommunity = () => {
           <h3>Upgrade to Pro</h3>
           <button type="button" onClick={() => navigate('/student/premium')}>Upgrade Now</button>
         </div>
+
+        <button type="button" className="student-v2-logout" onClick={handleLogout}>Logout</button>
       </aside>
 
       <main className="student-v2-main student-community-main">
