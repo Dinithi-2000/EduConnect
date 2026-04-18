@@ -23,7 +23,7 @@ mongoose.connect(process.env.MONGODB_URI, {
 
 // Routes
 // app.use('/api/users', require('./routes/userRoutes'));
-// Add your routes here
+app.use('/api/courses', require('./routes/courseRoutes'));
 
 // Health check endpoint
 app.get('/', (req, res) => {
