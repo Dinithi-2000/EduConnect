@@ -32,6 +32,7 @@ const DashboardLayout = ({ children, activeSection = 'Quizzes', theme = 'dark' }
         { icon: '💳', label: 'Premium & Payment Management', path: '/premium-management' },
         { icon: '🎥', label: 'Kuppi Session Booking Management', path: '/sessions' },
         { icon: '👥', label: 'Community Management', path: '/community' },
+        { icon: '✉️', label: 'Contact Us Management', path: '/admin/contact-us' },
         { icon: '📈', label: 'Reports', path: '/progress' }
       ]
     : [
@@ -41,6 +42,7 @@ const DashboardLayout = ({ children, activeSection = 'Quizzes', theme = 'dark' }
         { icon: '�', label: 'Premium', path: '/student/premium' },
         { icon: '🎥', label: 'Kuppi Sessions', path: isTutorOnlyView ? '/my-sessions' : '/sessions' },
         { icon: '�', label: 'Community', path: '/student/community' },
+        { icon: '✉️', label: 'Contact Us', path: '/student/contact-us' },
         { icon: '📈', label: 'Progress', path: '/student/progress' }
       ];
 

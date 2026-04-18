@@ -47,8 +47,10 @@ import StudentPaymentSuccess from './pages/student/StudentPaymentSuccess';
 import StudentSettings from './pages/student/StudentSettings';
 import StudentStudyLibrary from './pages/student/StudentStudyLibrary';
 import AdminStudyMaterials from './pages/admin/AdminStudyMaterials';
+import StudentContactUs from './pages/student/StudentContactUs';
+import AdminContactManagement from './pages/admin/AdminContactManagement';
 
-const DASHBOARD_PATHS = ['/', '/student-dashboard', '/courses', '/student/courses', '/student/my-courses', '/student-management', '/quizzes', '/student/quizzes', '/student/premium', '/student/payment-success', '/student/community', '/student/progress', '/student/study-library', '/admin/study-materials', '/progress', '/community', '/premium', '/premium-management', '/settings','/sessions', '/my-sessions', '/create-session', '/vision-board', '/profile'];
+const DASHBOARD_PATHS = ['/', '/student-dashboard', '/courses', '/student/courses', '/student/my-courses', '/student-management', '/quizzes', '/student/quizzes', '/student/premium', '/student/payment-success', '/student/community', '/student/progress', '/student/study-library', '/student/contact-us', '/admin/contact-us', '/admin/study-materials', '/progress', '/community', '/premium', '/premium-management', '/settings','/sessions', '/my-sessions', '/create-session', '/vision-board', '/profile'];
 
 // Protected Route Wrapper
 const ProtectedRoute = ({ element }) => {
@@ -136,6 +138,8 @@ function AppContent() {
         <Route path="/student/payment-success" element={<ProtectedRoute element={<StudentPaymentSuccess />} />} />
         <Route path="/student/community" element={<ProtectedRoute element={<StudentCommunity />} />} />
         <Route path="/student/study-library" element={<ProtectedRoute element={<StudentStudyLibrary />} />} />
+        <Route path="/student/contact-us" element={<ProtectedRoute element={<StudentContactUs />} />} />
+        <Route path="/admin/contact-us" element={<ProtectedRoute element={<AdminContactManagement />} />} />
         <Route path="/admin/study-materials" element={<ProtectedRoute element={<AdminStudyMaterials />} />} />
         <Route path="/quizzes/create" element={<ProtectedRoute element={<QuizBuilder />} />} />
         <Route path="/quizzes/:id/edit" element={<ProtectedRoute element={<QuizBuilder />} />} />

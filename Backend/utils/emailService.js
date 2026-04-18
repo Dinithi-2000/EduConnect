@@ -235,10 +235,52 @@ const sendEmailVerificationEmail = async (user, verifyUrl) => {
   console.log(`📧 Verification email sent to ${user.email}`);
 };
 
+/**
+ * Send Contact Us admin reply email
+ */
+const sendContactReplyEmail = async ({ student, subject, originalMessage, replyMessage }) => {
+  if (!process.env.EMAIL_USER) {
+    console.log('Email service not configured. Skipping contact reply email.');
+    return;
+  }
+
+  const transporter = createTransporter();
+  const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+
+  const safeSubject = String(subject || 'Support Request').trim();
+  const safeOriginal = String(originalMessage || '').trim();
+  const safeReply = String(replyMessage || '').trim();
+
+  const html = emailTemplate(
+    'We Replied to Your Contact Request',
+    `
+    <p>Hi <strong>${student.name}</strong>,</p>
+    <p>Our support team has responded to your Contact Us request.</p>
+    <div class="info-box">
+      <p><strong>🧾 Subject:</strong> ${safeSubject}</p>
+      ${safeOriginal ? `<p><strong>📩 Your Message:</strong> ${safeOriginal}</p>` : ''}
+      <p><strong>✅ Admin Reply:</strong> ${safeReply}</p>
+    </div>
+    <p>You can also view this reply in your student portal under Contact Us.</p>
+    <a href="${frontendUrl}/student/contact-us" class="btn">Open Contact Us</a>
+  `
+  );
+
+  await transporter.sendMail({
+    from: process.env.EMAIL_FROM || 'EduConnect <noreply@educonnect.com>',
+    to: student.email,
+    subject: `EduConnect Support Reply: ${safeSubject}`,
+    html,
+  });
+
+  console.log(`📧 Contact reply email sent to ${student.email}`);
+};
+
 module.exports = {
   sendBookingConfirmationEmail,
   sendReminderEmail,
   sendPasswordResetEmail,
   sendAccountCreationEmail,
   sendEmailVerificationEmail,
+  sendContactReplyEmail,
 };
