@@ -1,9 +1,18 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 import './Home.css';
 
 const Home = () => {
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
   const [darkMode, setDarkMode] = useState(false);
   const [activeNav, setActiveNav] = useState('Dashboard');
+
+  const handleLogout = () => {
+    logout();
+    navigate('/login', { replace: true });
+  };
 
   const statsData = [
     {
@@ -116,6 +125,21 @@ const Home = () => {
             <span className="nav-icon">⚙️</span>
             <span className="nav-label">Settings</span>
           </div>
+          <div
+            className="nav-item"
+            role="button"
+            tabIndex={0}
+            onClick={handleLogout}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                handleLogout();
+              }
+            }}
+          >
+            <span className="nav-icon">🚪</span>
+            <span className="nav-label">Logout</span>
+          </div>
         </div>
       </aside>
 
@@ -144,11 +168,11 @@ const Home = () => {
             </button>
             <div className="user-profile">
               <img
-                src="https://ui-avatars.com/api/?name=Dinithi+P&background=3b82f6&color=fff"
-                alt="Dinithi P."
+                src={`https://ui-avatars.com/api/?name=${encodeURIComponent(user?.name || 'Student')}&background=3b82f6&color=fff`}
+                alt={user?.name}
                 className="user-avatar"
               />
-              <span className="user-name">Dinithi P.</span>
+              <span className="user-name">{user?.name || 'Student'}</span>
               <span className="dropdown-icon">▼</span>
             </div>
           </div>
@@ -159,7 +183,7 @@ const Home = () => {
           {/* Welcome Section */}
           <section className="welcome-section">
             <div className="welcome-text">
-              <h1 className="welcome-title">Welcome back, Dinithi 👋</h1>
+              <h1 className="welcome-title">Welcome back, {user?.name?.split(' ')[0] || 'Student'} 👋</h1>
               <p className="welcome-subtitle">
                 You've completed 85% of your weekly goals! Keep up the momentum, your
                 next Kuppi session on "Data Structures" starts in 2 hours.

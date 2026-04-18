@@ -22,8 +22,8 @@ mongoose.connect(process.env.MONGODB_URI, {
 .catch((err) => console.error('MongoDB connection error:', err));
 
 // Routes
-// app.use('/api/users', require('./routes/userRoutes'));
-// Add your routes here
+app.use('/api/auth', require('./routes/authRoutes'));
+app.use('/api/users', require('./routes/userRoutes'));
 
 // Health check endpoint
 app.get('/', (req, res) => {

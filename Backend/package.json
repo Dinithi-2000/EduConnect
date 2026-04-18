@@ -8,16 +8,22 @@
     "dev": "nodemon server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": ["mern", "nodejs", "express", "mongodb"],
+  "keywords": [
+    "mern",
+    "nodejs",
+    "express",
+    "mongodb"
+  ],
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "express": "^4.18.2",
-    "mongoose": "^7.6.3",
+    "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",
     "dotenv": "^16.3.1",
-    "bcryptjs": "^2.4.3",
+    "express": "^4.18.2",
+    "express-rate-limit": "^8.3.2",
     "jsonwebtoken": "^9.0.2",
+    "mongoose": "^7.6.3",
     "validator": "^13.11.0"
   },
   "devDependencies": {
