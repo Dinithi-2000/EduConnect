@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import './MyCourses.css';
 
 const MyCourses = () => {
+  const navigate = useNavigate();
   const [filter, setFilter] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
-  const [activeChat, setActiveChat] = useState(null);
 
   const courses = [
     {
@@ -156,6 +157,7 @@ const MyCourses = () => {
               <div className="card-footer">
                 <button 
                   className="action-btn" 
+                  onClick={() => navigate(`/course/${course.id}`)}
                   style={{ 
                     background: course.progress === 0 ? 'rgba(59, 130, 246, 0.1)' : 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
                     color: course.progress === 0 ? '#3b82f6' : '#fff',
@@ -165,32 +167,13 @@ const MyCourses = () => {
                   {course.progress === 0 ? 'Start Learning' : course.progress === 100 ? 'Review Course' : 'Continue Learning'}
                 </button>
                 <button 
-                  className={`chat-toggle-btn ${activeChat === course.id ? 'active' : ''}`}
-                  onClick={() => setActiveChat(activeChat === course.id ? null : course.id)}
-                  title="Ask a question"
+                  className="chat-toggle-btn"
+                  onClick={() => navigate(`/course/${course.id}`)}
+                  title="Course Details & Chat"
                 >
                   💬
                 </button>
               </div>
-
-              {/* Mini Chat Interface */}
-              {activeChat === course.id && (
-                <div className="mini-chat-session">
-                  <div className="mini-chat-header">
-                    <span>Course Assistant</span>
-                    <button className="close-chat" onClick={() => setActiveChat(null)}>✕</button>
-                  </div>
-                  <div className="mini-chat-messages">
-                    <div className="chat-msg assistant">
-                      Hi! Do you have any questions about <strong>{course.title}</strong>?
-                    </div>
-                  </div>
-                  <div className="mini-chat-input">
-                    <input type="text" placeholder="Ask a question..." />
-                    <button className="send-msg-btn">➤</button>
-                  </div>
-                </div>
-              )}
             </div>
           </div>
         ))}
