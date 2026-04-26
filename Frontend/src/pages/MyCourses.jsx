@@ -4,6 +4,7 @@ import './MyCourses.css';
 const MyCourses = () => {
   const [filter, setFilter] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
+  const [activeChat, setActiveChat] = useState(null);
 
   const courses = [
     {
@@ -163,7 +164,33 @@ const MyCourses = () => {
                 >
                   {course.progress === 0 ? 'Start Learning' : course.progress === 100 ? 'Review Course' : 'Continue Learning'}
                 </button>
+                <button 
+                  className={`chat-toggle-btn ${activeChat === course.id ? 'active' : ''}`}
+                  onClick={() => setActiveChat(activeChat === course.id ? null : course.id)}
+                  title="Ask a question"
+                >
+                  💬
+                </button>
               </div>
+
+              {/* Mini Chat Interface */}
+              {activeChat === course.id && (
+                <div className="mini-chat-session">
+                  <div className="mini-chat-header">
+                    <span>Course Assistant</span>
+                    <button className="close-chat" onClick={() => setActiveChat(null)}>✕</button>
+                  </div>
+                  <div className="mini-chat-messages">
+                    <div className="chat-msg assistant">
+                      Hi! Do you have any questions about <strong>{course.title}</strong>?
+                    </div>
+                  </div>
+                  <div className="mini-chat-input">
+                    <input type="text" placeholder="Ask a question..." />
+                    <button className="send-msg-btn">➤</button>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         ))}
