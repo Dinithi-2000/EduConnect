@@ -1,116 +1,181 @@
-import React from 'react';
+import React, { useState } from 'react';
 import './MyCourses.css';
 
 const MyCourses = () => {
+  const [filter, setFilter] = useState('All');
+  const [searchQuery, setSearchQuery] = useState('');
+
   const courses = [
     {
       id: 1,
-      title: 'Advanced Data Structures & Algorithms',
+      title: 'Data Structures and Algorithms',
       instructor: 'Dr. Smith',
-      progress: 75,
+      progress: 45,
       totalModules: 12,
-      completedModules: 9,
-      nextTopic: 'Graph Traversal',
-      image: 'url(/images/course_dsa.png)',
+      completedModules: 5,
+      image: 'https://images.unsplash.com/photo-1516116216624-53e697fedbea?w=800&q=80',
+      status: 'In Progress',
+      color: '#3b82f6',
+      accent: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
+      lastAccessed: '2 days ago'
     },
     {
       id: 2,
-      title: 'Machine Learning Fundamentals',
-      instructor: 'Prof. Andrew',
-      progress: 40,
+      title: 'Advanced Mathematics',
+      instructor: 'Prof. Johnson',
+      progress: 15,
       totalModules: 10,
-      completedModules: 4,
-      nextTopic: 'Logistic Regression',
-      image: 'url(/images/course_ml.png)',
+      completedModules: 1,
+      image: 'https://images.unsplash.com/photo-1635070041078-e363dbe005cb?w=800&q=80',
+      status: 'In Progress',
+      color: '#10b981',
+      accent: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+      lastAccessed: '1 week ago'
     },
     {
       id: 3,
-      title: 'Web Development with React',
-      instructor: 'Sarah Jenkins',
-      progress: 90,
-      totalModules: 15,
-      completedModules: 13,
-      nextTopic: 'State Management with Redux',
-      image: 'url(/images/course_webdev.png)',
+      title: 'Molecular Biology',
+      instructor: 'Dr. Williams',
+      progress: 100,
+      totalModules: 8,
+      completedModules: 8,
+      image: 'https://images.unsplash.com/photo-1532094349884-543bc11b234d?w=800&q=80',
+      status: 'Completed',
+      color: '#8b5cf6',
+      accent: 'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)',
+      lastAccessed: 'Just now'
     },
     {
       id: 4,
-      title: 'Database Management Systems',
-      instructor: 'Dr. Lee',
-      progress: 25,
-      totalModules: 8,
-      completedModules: 2,
-      nextTopic: 'Normalization Forms',
-      image: 'url(/images/course_ml.png)',
-    },
-    {
-      id: 5,
-      title: 'Software Engineering Principles',
-      instructor: 'Prof. Davis',
-      progress: 100,
-      totalModules: 10,
-      completedModules: 10,
-      nextTopic: 'Course Completed',
-      image: 'url(/images/course_dsa.png)',
-    },
+      title: 'Introduction to Psychology',
+      instructor: 'Dr. Davis',
+      progress: 0,
+      totalModules: 6,
+      completedModules: 0,
+      image: 'https://images.unsplash.com/photo-1528716321680-815a8cdb8cbe?w=800&q=80',
+      status: 'Not Started',
+      color: '#f59e0b',
+      accent: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
+      lastAccessed: 'Never'
+    }
   ];
 
-  return (
-    <div className="my-courses-container">
-      <div className="my-courses-header">
-        <div>
-          <h1 className="my-courses-title">My Learning Journey</h1>
-          <p className="my-courses-subtitle">Continue where you left off and achieve your goals.</p>
-        </div>
-        <div className="my-courses-filter">
-          <button className="filter-btn active">All Courses</button>
-          <button className="filter-btn">In Progress</button>
-          <button className="filter-btn">Completed</button>
-        </div>
-      </div>
+  const filteredCourses = courses.filter(course => {
+    const matchesFilter = filter === 'All' || course.status === filter;
+    const matchesSearch = course.title.toLowerCase().includes(searchQuery.toLowerCase());
+    return matchesFilter && matchesSearch;
+  });
 
-      <div className="courses-grid">
-        {courses.map((course) => (
-          <div key={course.id} className="course-card">
-            <div className="course-card-image" style={{ backgroundImage: course.image, backgroundSize: 'cover', backgroundPosition: 'center' }}>
-              <div className="course-progress-badge">
-                {course.progress === 100 ? 'Completed' : 'In Progress'}
-              </div>
+  return (
+    <div className="modern-courses-container">
+      {/* Decorative Background Elements */}
+      <div className="bg-shape shape-1"></div>
+      <div className="bg-shape shape-2"></div>
+
+      <header className="modern-header">
+        <div className="header-content">
+          <h1 className="hero-title">My Learning Journey</h1>
+          <p className="hero-subtitle">Pick up where you left off and discover new skills.</p>
+        </div>
+        
+        <div className="controls-bar">
+          <div className="search-wrapper">
+            <span className="search-icon">🔍</span>
+            <input 
+              type="text" 
+              placeholder="Search your courses..." 
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="course-search-input"
+            />
+          </div>
+          
+          <div className="modern-filters">
+            {['All', 'In Progress', 'Completed', 'Not Started'].map(f => (
+              <button
+                key={f}
+                className={`pill-btn ${filter === f ? 'active' : ''}`}
+                onClick={() => setFilter(f)}
+              >
+                {f}
+              </button>
+            ))}
+          </div>
+        </div>
+      </header>
+
+      <div className="modern-grid">
+        {filteredCourses.map((course, index) => (
+          <div 
+            key={course.id} 
+            className="glass-card"
+            style={{ animationDelay: `${index * 0.1}s` }}
+          >
+            <div className="card-image-wrapper">
+              <img src={course.image} alt={course.title} className="card-image" />
+              <div className="card-image-overlay" style={{ background: course.accent }}></div>
+              <span className="status-pill" style={{ color: course.color }}>
+                <span className="dot" style={{ backgroundColor: course.color }}></span>
+                {course.status}
+              </span>
+              <button className="glass-play-btn">
+                <span className="play-icon">▶</span>
+              </button>
             </div>
             
-            <div className="course-card-content">
-              <h3 className="course-title">{course.title}</h3>
-              <p className="course-instructor">👨‍🏫 {course.instructor}</p>
+            <div className="card-body">
+              <div className="card-meta">
+                <span className="instructor">👨‍🏫 {course.instructor}</span>
+                <span className="last-accessed">🕒 {course.lastAccessed}</span>
+              </div>
               
-              <div className="course-progress-section">
-                <div className="progress-info">
-                  <span className="progress-text">Progress</span>
-                  <span className="progress-percentage">{course.progress}%</span>
+              <h3 className="card-title">{course.title}</h3>
+              
+              <div className="progress-wrapper">
+                <div className="progress-labels">
+                  <span className="progress-percentage" style={{ color: course.color }}>
+                    {course.progress}%
+                  </span>
+                  <span className="progress-fraction">
+                    {course.completedModules}/{course.totalModules}
+                  </span>
                 </div>
-                <div className="progress-bar-bg">
+                <div className="track-bg">
                   <div 
-                    className={`progress-bar-fill ${course.progress === 100 ? 'completed' : ''}`} 
-                    style={{ width: `${course.progress}%` }}
+                    className="track-fill" 
+                    style={{ 
+                      width: `${course.progress}%`,
+                      background: course.accent,
+                      boxShadow: `0 0 10px ${course.color}80`
+                    }}
                   ></div>
                 </div>
-                <p className="modules-text">
-                  {course.completedModules} / {course.totalModules} modules completed
-                </p>
               </div>
-
-              <div className="course-card-footer">
-                <div className="next-topic">
-                  <span className="topic-label">Next: </span>
-                  <span className="topic-name">{course.nextTopic}</span>
-                </div>
-                <button className={`continue-btn ${course.progress === 100 ? 'review' : ''}`}>
-                  {course.progress === 100 ? 'Review' : 'Continue'}
+              
+              <div className="card-footer">
+                <button 
+                  className="action-btn" 
+                  style={{ 
+                    background: course.progress === 0 ? 'rgba(59, 130, 246, 0.1)' : 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
+                    color: course.progress === 0 ? '#3b82f6' : '#fff',
+                    border: course.progress === 0 ? '1px solid rgba(59, 130, 246, 0.4)' : 'none'
+                  }}
+                >
+                  {course.progress === 0 ? 'Start Learning' : course.progress === 100 ? 'Review Course' : 'Continue Learning'}
                 </button>
               </div>
             </div>
           </div>
         ))}
       </div>
+      
+      {filteredCourses.length === 0 && (
+        <div className="empty-state">
+          <div className="empty-icon">📂</div>
+          <h3>No courses found</h3>
+          <p>Try adjusting your search or filters to find what you're looking for.</p>
+        </div>
+      )}
     </div>
   );
 };
