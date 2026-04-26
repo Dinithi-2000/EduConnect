@@ -159,10 +159,10 @@
 }
 
 .pill-btn.active {
-  background: #0f172a;
+  background: #3b82f6;
   color: #ffffff;
-  border-color: #0f172a;
-  box-shadow: 0 8px 16px rgba(15, 23, 42, 0.15);
+  border-color: #3b82f6;
+  box-shadow: 0 8px 16px rgba(59, 130, 246, 0.25);
 }
 
 .dark .pill-btn {
@@ -177,10 +177,10 @@
 }
 
 .dark .pill-btn.active {
-  background: #f8fafc;
-  color: #0f172a;
-  border-color: #f8fafc;
-  box-shadow: 0 8px 16px rgba(248, 250, 252, 0.1);
+  background: #3b82f6;
+  color: #ffffff;
+  border-color: #3b82f6;
+  box-shadow: 0 8px 16px rgba(59, 130, 246, 0.25);
 }
 
 /* Grid & Cards */
