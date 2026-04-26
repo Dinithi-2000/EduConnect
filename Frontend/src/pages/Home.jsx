@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { getChatHistory, sendChatMessage } from '../services/aiService';
 import { API_URL } from '../services/api';
 import './Home.css';
+import MyCourses from './MyCourses';
 
 const Home = () => {
   const [darkMode, setDarkMode] = useState(false);
@@ -310,9 +311,11 @@ const Home = () => {
 
         {/* Dashboard Content */}
         <div className="dashboard-content">
-          {/* Welcome Section */}
-          <section className="welcome-section">
-            <div className="welcome-text">
+          {activeNav === 'Dashboard' && (
+            <>
+              {/* Welcome Section */}
+              <section className="welcome-section">
+                <div className="welcome-text">
               <h1 className="welcome-title">Welcome back, Dinithi 👋</h1>
               <p className="welcome-subtitle">
                 You've completed 85% of your weekly goals! Keep up the momentum, your
@@ -439,6 +442,10 @@ const Home = () => {
               </div>
             </div>
           </section>
+            </>
+          )}
+
+          {activeNav === 'My Courses' && <MyCourses />}
         </div>
       </main>
 
